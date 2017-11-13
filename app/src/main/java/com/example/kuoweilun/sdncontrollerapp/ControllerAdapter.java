@@ -46,7 +46,7 @@ public class ControllerAdapter extends BaseAdapter {
             convertView = layoutInflater.inflate(R.layout.listview_layout, parent, false);
         }
         ControllerIP controllerIP = list.get(position);
-        controllerIP.connecctStatus((TextView) convertView.findViewById(R.id.connect_status));
+        controllerIP.connectStatus((TextView) convertView.findViewById(R.id.connect_status));
         TextView ip = (TextView) convertView.findViewById(R.id.IP);
         ip.setText(controllerIP.getIP());
 

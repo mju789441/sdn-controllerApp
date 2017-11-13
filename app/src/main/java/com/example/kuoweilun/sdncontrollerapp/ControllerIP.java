@@ -1,6 +1,9 @@
 package com.example.kuoweilun.sdncontrollerapp;
 
+import android.content.Context;
+import android.os.Handler;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -19,6 +22,7 @@ public class ControllerIP {
     private Socket socket;
     private BufferedReader reader;
     private BufferedWriter writer;
+    Handler handler = new Handler();
 
 
     public ControllerIP(String IP) {
@@ -40,13 +44,18 @@ public class ControllerIP {
     }
 
     public void connectSocket() {
-        try {
-            socket = new Socket(_IP, _port);
-            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    socket = new Socket(_IP, _port);
+                    writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                    reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     private void sendMsg(String msg) throws IOException {
@@ -58,21 +67,29 @@ public class ControllerIP {
         return reader.readLine();
     }
 
-    public void connecctStatus(final TextView status) {
+    public void connectStatus(final TextView status) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while (true) {
-                    try {
+                try {
+                    while (true) {
                         if (socket.isConnected()) {
-                            status.setText("連線");
-                        } else {
-                            status.setText("未連線");
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    status.setText("連線");
+                                }
+                            });
                         }
                         Thread.sleep(1000);
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
+                } catch (Exception e) {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            status.setText("未連線");
+                        }
+                    });
                 }
             }
         }).start();
