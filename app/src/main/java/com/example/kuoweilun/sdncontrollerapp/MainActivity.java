@@ -1,7 +1,9 @@
 package com.example.kuoweilun.sdncontrollerapp;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -14,7 +16,11 @@ import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -23,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<ControllerIP> list;
     private ControllerAdapter adapter;
     private String m_Text = "";
+    private Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private void setListeners() {
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(final AdapterView<?> parent, View view, final int position, long id) {
+            public void onItemClick(final AdapterView<?> parent, final View view, final int position, long id) {
                 PopupMenu popupmenu = new PopupMenu(MainActivity.this, view);
                 popupmenu.getMenuInflater().inflate(R.menu.menu_instruction, popupmenu.getMenu());
                 popupmenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -67,6 +74,45 @@ public class MainActivity extends AppCompatActivity {
                                 adapter.notifyDataSetChanged();
                                 break;
                             case R.id.packet_watch:
+                                final ControllerIP controllerIP = (ControllerIP) parent.getItemAtPosition(position);
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            final TextView textView = (TextView) view.findViewById(R.id.IP);
+                                            controllerIP.sendMsg("watch_pkt");
+                                            while (true) {
+                                                try {
+                                                    final String str = controllerIP.getMsg();
+                                                    if (str != null) {
+                                                        handler.post(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                textView.setText("正確"+str);
+                                                            }
+                                                        });
+                                                    }else{
+                                                        handler.post(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                textView.setText("錯誤"+str);
+                                                            }
+                                                        });
+                                                    }
+                                                } catch (IOException e) {
+                                                    e.printStackTrace();
+                                                }
+                                                try {
+                                                    Thread.sleep(100);
+                                                } catch (InterruptedException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }).start();
                                 break;
                             default:
                                 break;

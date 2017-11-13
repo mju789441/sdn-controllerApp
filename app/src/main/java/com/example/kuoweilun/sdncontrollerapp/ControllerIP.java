@@ -1,9 +1,7 @@
 package com.example.kuoweilun.sdncontrollerapp;
 
-import android.content.Context;
 import android.os.Handler;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -18,12 +16,11 @@ import java.net.Socket;
 
 public class ControllerIP {
     private String _IP = "";
-    private int _port = 8000;
-    private Socket socket;
+    private int _port = 9487;
+    private Socket socket = null;
     private BufferedReader reader;
     private BufferedWriter writer;
-    Handler handler = new Handler();
-
+    private Handler handler = new Handler();
 
     public ControllerIP(String IP) {
         _IP = IP;
@@ -58,12 +55,11 @@ public class ControllerIP {
         }).start();
     }
 
-    private void sendMsg(String msg) throws IOException {
+    public void sendMsg(String msg) throws IOException {
         writer.write(msg);
-        writer.flush();
     }
 
-    private String getMsg() throws IOException {
+    public String getMsg() throws IOException {
         return reader.readLine();
     }
 
@@ -80,8 +76,15 @@ public class ControllerIP {
                                     status.setText("連線");
                                 }
                             });
+                        } else {
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    status.setText("未連線");
+                                }
+                            });
                         }
-                        Thread.sleep(1000);
+                        Thread.sleep(100);
                     }
                 } catch (Exception e) {
                     handler.post(new Runnable() {
@@ -94,4 +97,5 @@ public class ControllerIP {
             }
         }).start();
     }
+
 }
