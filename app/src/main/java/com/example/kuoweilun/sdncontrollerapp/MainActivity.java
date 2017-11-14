@@ -68,48 +68,45 @@ public class MainActivity extends AppCompatActivity {
                 popupmenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
+                        final ControllerIP controllerIP = (ControllerIP) parent.getItemAtPosition(position);
                         switch (item.getItemId()) {
                             case R.id.delete:
+                                controllerIP.close();
                                 list.remove(parent.getItemAtPosition(position));
                                 adapter.notifyDataSetChanged();
                                 break;
                             case R.id.packet_watch:
-                                final ControllerIP controllerIP = (ControllerIP) parent.getItemAtPosition(position);
                                 new Thread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        try {
-                                            final TextView textView = (TextView) view.findViewById(R.id.IP);
-                                            controllerIP.sendMsg("watch_pkt");
-                                            while (true) {
-                                                try {
-                                                    final String str = controllerIP.getMsg();
-                                                    if (str != null) {
-                                                        handler.post(new Runnable() {
-                                                            @Override
-                                                            public void run() {
-                                                                textView.setText("正確"+str);
-                                                            }
-                                                        });
-                                                    }else{
-                                                        handler.post(new Runnable() {
-                                                            @Override
-                                                            public void run() {
-                                                                textView.setText("錯誤"+str);
-                                                            }
-                                                        });
-                                                    }
-                                                } catch (IOException e) {
-                                                    e.printStackTrace();
+                                        final TextView textView = (TextView) view.findViewById(R.id.IP);
+                                        controllerIP.sendMsg("watch_pkt");
+                                        while (true) {
+                                            try {
+                                                final String str = controllerIP.getMsg();
+                                                if (str != null) {
+                                                    handler.post(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            textView.setText(str);
+                                                        }
+                                                    });
+                                                } else {
+                                                    handler.post(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            textView.setText("錯誤" + str);
+                                                        }
+                                                    });
                                                 }
-                                                try {
-                                                    Thread.sleep(100);
-                                                } catch (InterruptedException e) {
-                                                    e.printStackTrace();
-                                                }
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
                                             }
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
+                                            try {
+                                                Thread.sleep(100);
+                                            } catch (InterruptedException e) {
+                                                e.printStackTrace();
+                                            }
                                         }
                                     }
                                 }).start();

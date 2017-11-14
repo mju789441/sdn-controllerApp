@@ -55,8 +55,22 @@ public class ControllerIP {
         }).start();
     }
 
-    public void sendMsg(String msg) throws IOException {
-        writer.write(msg);
+    public void close() {
+        try {
+            socket.close();
+            socket = null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendMsg(final String msg) {
+        try {
+            writer.write(msg + "\n");
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getMsg() throws IOException {
@@ -67,32 +81,29 @@ public class ControllerIP {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    while (true) {
-                        if (socket.isConnected()) {
+                while (true) {
+                    try {
+                        if (socket.isConnected() && !(socket.isClosed())) {
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
                                     status.setText("連線");
                                 }
                             });
-                        } else {
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    status.setText("未連線");
-                                }
-                            });
                         }
-                        Thread.sleep(100);
+                    } catch (Exception e) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                status.setText("未連線");
+                            }
+                        });
                     }
-                } catch (Exception e) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            status.setText("未連線");
-                        }
-                    });
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }).start();

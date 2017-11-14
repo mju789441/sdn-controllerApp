@@ -6,18 +6,19 @@
 
     <TextView
         android:id="@+id/IP"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="left|center_vertical"
+        android:layout_weight="1"
         android:gravity="left|center_vertical"
-        android:text="wrong"
-        android:textSize="30dp" />
+        android:text="wrong" />
 
     <TextView
         android:id="@+id/connect_status"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
+        android:layout_weight="1"
         android:gravity="right|center_vertical"
         android:text="未連線"
         android:textColor="@android:color/holo_green_light"
