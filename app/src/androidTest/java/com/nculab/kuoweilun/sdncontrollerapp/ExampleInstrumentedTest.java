@@ -1,4 +1,4 @@
-package com.example.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

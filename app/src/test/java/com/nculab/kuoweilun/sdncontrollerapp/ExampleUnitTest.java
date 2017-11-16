@@ -1,4 +1,4 @@
-package com.example.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp;
 
 import org.junit.Test;
 

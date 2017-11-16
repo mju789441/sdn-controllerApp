@@ -1,4 +1,4 @@
-package com.example.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp;
 
 /**
  * Created by Kuo Wei Lun on 2017/11/6.
@@ -46,8 +46,9 @@ public class ControllerAdapter extends BaseAdapter {
             convertView = layoutInflater.inflate(R.layout.listview_layout, parent, false);
         }
         ControllerIP controllerIP = list.get(position);
-        controllerIP.connectStatus((TextView) convertView.findViewById(R.id.connect_status));
-        TextView ip = (TextView) convertView.findViewById(R.id.IP);
+        TextView status = (TextView) convertView.findViewById(R.id.textview_status);
+        controllerIP.connect(status);
+        TextView ip = (TextView) convertView.findViewById(R.id.textview_IP);
         ip.setText(controllerIP.getIP());
 
         return convertView;

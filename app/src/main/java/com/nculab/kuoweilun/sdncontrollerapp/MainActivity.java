@@ -1,7 +1,7 @@
-package com.example.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp;
 
+import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -10,17 +10,17 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,11 +30,15 @@ public class MainActivity extends AppCompatActivity {
     private ControllerAdapter adapter;
     private String m_Text = "";
     private Handler handler = new Handler();
+    private View view_main, view_watchpkt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        LayoutInflater inflater = getLayoutInflater();
+        view_main = inflater.inflate(R.layout.activity_main, null);
+        view_watchpkt = inflater.inflate(R.layout.watch_pkt_layout, null);
+        setContentView(view_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         initView();
@@ -76,40 +80,15 @@ public class MainActivity extends AppCompatActivity {
                                 adapter.notifyDataSetChanged();
                                 break;
                             case R.id.packet_watch:
-                                new Thread(new Runnable() {
+                                setContentView(view_watchpkt);
+                                Button back = (Button) findViewById(R.id.button_back);
+                                back.setOnClickListener(new View.OnClickListener() {
                                     @Override
-                                    public void run() {
-                                        final TextView textView = (TextView) view.findViewById(R.id.IP);
-                                        controllerIP.sendMsg("watch_pkt");
-                                        while (true) {
-                                            try {
-                                                final String str = controllerIP.getMsg();
-                                                if (str != null) {
-                                                    handler.post(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            textView.setText(str);
-                                                        }
-                                                    });
-                                                } else {
-                                                    handler.post(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            textView.setText("錯誤" + str);
-                                                        }
-                                                    });
-                                                }
-                                            } catch (IOException e) {
-                                                e.printStackTrace();
-                                            }
-                                            try {
-                                                Thread.sleep(100);
-                                            } catch (InterruptedException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
+                                    public void onClick(View v) {
+                                        setContentView(view_main);
                                     }
-                                }).start();
+                                });
+                                controllerIP.watchPkt((TextView) findViewById(R.id.textview_msg));
                                 break;
                             default:
                                 break;
