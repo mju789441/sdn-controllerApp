@@ -52,17 +52,19 @@ public class RSA {
     }
 
     public String encrypt(String message) throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.ENCRYPT_MODE, privateKey);
+        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        byte[] text = cipher.doFinal(message.getBytes());
 
-        return Base64.encodeToString(cipher.doFinal(message.getBytes()), Base64.DEFAULT);
+        return Base64.encodeToString(text, Base64.DEFAULT);
     }
 
     public String decrypt(String message) throws Exception {
         byte[] encrypted = Base64.decode(message.getBytes(), Base64.DEFAULT);
-        Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.DECRYPT_MODE, publicKey);
+        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        byte[] text = cipher.doFinal(encrypted);
 
-        return Base64.encodeToString(cipher.doFinal(encrypted), Base64.DEFAULT);
+        return Base64.encodeToString(text, Base64.DEFAULT);
     }
 }

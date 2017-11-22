@@ -35,7 +35,7 @@ public class ControllerIP {
 
     public ControllerIP(String IP, Context context) {
         _IP = IP;
-        _IP = "192.168.1.4";
+        _IP = "192.168.1.3";
         this.context = context;
         setThread();
     }
@@ -77,16 +77,32 @@ public class ControllerIP {
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    textView_msg.setText(textView_msg.getText().toString() + "\n" + str);
+                                    try {
+                                        textView_msg.setText(textView_msg.getText().toString() + "\n" + rsa.decrypt(str));
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             });
                         }
                         Thread.sleep(100);
                     } catch (IOException e) {
                         e.printStackTrace();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                textView_msg.setText(textView_msg.getText().toString() + "\nwrong");
+                            }
+                        });
                         break;
                     } catch (InterruptedException e) {
                         e.printStackTrace();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                textView_msg.setText(textView_msg.getText().toString() + "\nwrong");
+                            }
+                        });
                         break;
                     }
                 }
@@ -160,8 +176,10 @@ public class ControllerIP {
             @Override
             public void run() {
                 try {
-                    sendMsg("watch_pkt");
+                    sendMsg(rsa.encrypt("watch_pkt"));
                 } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
