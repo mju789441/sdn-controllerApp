@@ -9,7 +9,6 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.Cipher;
@@ -51,20 +50,20 @@ public class RSA {
         return keyPairGenerator.genKeyPair();
     }
 
-    public String encrypt(String message) throws Exception {
+    public byte[] encrypt(Byte[] message) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-        byte[] text = cipher.doFinal(message.getBytes());
+        byte[] text = cipher.doFinal(message);
 
-        return Base64.encodeToString(text, Base64.DEFAULT);
+        return text;
     }
 
-    public String decrypt(String message) throws Exception {
+    public byte[] decrypt(byte[] message) throws Exception {
         byte[] encrypted = Base64.decode(message.getBytes(), Base64.DEFAULT);
         Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         byte[] text = cipher.doFinal(encrypted);
 
-        return Base64.encodeToString(text, Base64.DEFAULT);
+        return text;
     }
 }

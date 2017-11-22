@@ -2,6 +2,7 @@ package com.nculab.kuoweilun.sdncontrollerapp;
 
 import android.content.Context;
 import android.os.Handler;
+import android.util.Base64;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,7 +59,7 @@ public class ControllerIP {
             public void run() {
                 while (true) {
                     try {
-                        final String str = getMsg();
+                        final String str = new String(rsa.decrypt(Base64.decode(getMsg(), Base64.DEFAULT)));
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -103,6 +104,9 @@ public class ControllerIP {
                                 textView_msg.setText(textView_msg.getText().toString() + "\nwrong");
                             }
                         });
+                        break;
+                    } catch (Exception e) {
+                        e.printStackTrace();
                         break;
                     }
                 }
@@ -176,7 +180,7 @@ public class ControllerIP {
             @Override
             public void run() {
                 try {
-                    sendMsg(rsa.encrypt("watch_pkt"));
+                    sendMsg(Base64.encodeToString(rsa.encrypt("watch_pkt"), Base64.DEFAULT);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (Exception e) {
