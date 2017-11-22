@@ -50,7 +50,7 @@ public class RSA {
         return keyPairGenerator.genKeyPair();
     }
 
-    public byte[] encrypt(Byte[] message) throws Exception {
+    public byte[] encrypt(byte[] message) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
         byte[] text = cipher.doFinal(message);
@@ -58,8 +58,7 @@ public class RSA {
         return text;
     }
 
-    public byte[] decrypt(byte[] message) throws Exception {
-        byte[] encrypted = Base64.decode(message.getBytes(), Base64.DEFAULT);
+    public byte[] decrypt(byte[] encrypted) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         byte[] text = cipher.doFinal(encrypted);
