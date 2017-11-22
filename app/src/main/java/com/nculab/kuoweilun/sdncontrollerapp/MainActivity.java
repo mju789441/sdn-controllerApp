@@ -84,12 +84,15 @@ public class MainActivity extends AppCompatActivity {
                                 break;
                             case R.id.packet_watch:
                                 setContentView(view_watchpkt);
-                                controllerIP.watchPkt((TextView) findViewById(R.id.textview_msg));
+                                controllerIP.sendWatchPkt();
+                                controllerIP.setTextView_msg((TextView) findViewById(R.id.textview_msg));
+                                controllerIP.watch_pkt.start();
 
                                 Button back = (Button) findViewById(R.id.button_back);
                                 back.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
+                                        controllerIP.watch_pkt.interrupt();
                                         setContentView(view_main);
                                     }
                                 });

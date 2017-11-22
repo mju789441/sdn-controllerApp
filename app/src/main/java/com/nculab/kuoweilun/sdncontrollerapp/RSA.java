@@ -29,46 +29,40 @@ public class RSA {
         privateKey = keyPair.getPrivate();
     }
 
-    private static String getKeyString(Key key) throws Exception {
-        byte[] keyBytes = key.getEncoded();
-        String str = Base64.encodeToString(keyBytes, Base64.DEFAULT);
-        return str;
+    private static String getKeyString(Key key) {
+        return Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
     }
 
-    public void setPublicKey(String pubKey) throws Exception {
-        byte[] keyBytes = Base64.decode(pubKey, Base64.DEFAULT);
+    public void setPublicKey(String msg) throws Exception {
+        byte[] keyBytes = Base64.decode(msg.getBytes(), Base64.DEFAULT);
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         publicKey = keyFactory.generatePublic(keySpec);
     }
 
     public String getMyPublicKey() {
-        try {
-            return getKeyString(myPublicKey);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return getKeyString(myPublicKey);
     }
 
-    public static KeyPair buildKeyPair() throws NoSuchAlgorithmException {
+    public KeyPair buildKeyPair() throws NoSuchAlgorithmException {
         final int keySize = 1024;
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         keyPairGenerator.initialize(keySize);
         return keyPairGenerator.genKeyPair();
     }
 
-    public static String encrypt(String message) throws Exception {
+    public String encrypt(String message) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, privateKey);
 
-        return String.valueOf(Base64.encode(cipher.doFinal(message.getBytes()), Base64.DEFAULT));
+        return Base64.encodeToString(cipher.doFinal(message.getBytes()), Base64.DEFAULT);
     }
 
-    public static byte[] decrypt(byte[] encrypted) throws Exception {
+    public String decrypt(String message) throws Exception {
+        byte[] encrypted = Base64.decode(message.getBytes(), Base64.DEFAULT);
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE, publicKey);
 
-        return cipher.doFinal(encrypted);
+        return Base64.encodeToString(cipher.doFinal(encrypted), Base64.DEFAULT);
     }
 }
