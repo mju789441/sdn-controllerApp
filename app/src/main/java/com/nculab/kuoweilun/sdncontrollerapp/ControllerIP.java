@@ -79,7 +79,7 @@ public class ControllerIP {
                                 @Override
                                 public void run() {
                                     try {
-                                        textView_msg.setText(textView_msg.getText().toString() + "\n" + rsa.decrypt(str));
+                                        textView_msg.setText(textView_msg.getText().toString() + "\n" + str);
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
@@ -180,7 +180,7 @@ public class ControllerIP {
             @Override
             public void run() {
                 try {
-                    sendMsg(Base64.encodeToString(rsa.encrypt("watch_pkt"), Base64.DEFAULT);
+                    sendMsg(Base64.encodeToString(rsa.encrypt("watch_pkt".getBytes()), Base64.DEFAULT));
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (Exception e) {
