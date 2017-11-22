@@ -36,7 +36,7 @@ public class ControllerIP {
 
     public ControllerIP(String IP, Context context) {
         _IP = IP;
-        _IP = "192.168.1.3";
+        _IP = "192.168.1.4";
         this.context = context;
         setThread();
     }
