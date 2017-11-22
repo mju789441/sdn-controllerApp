@@ -44,12 +44,13 @@ public class ControllerAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = layoutInflater.inflate(R.layout.listview_layout, parent, false);
+
+            ControllerIP controllerIP = list.get(position);
+            TextView status = (TextView) convertView.findViewById(R.id.textview_status);
+            controllerIP.connect(status);
+            TextView ip = (TextView) convertView.findViewById(R.id.textview_IP);
+            ip.setText(controllerIP.getIP());
         }
-        ControllerIP controllerIP = list.get(position);
-        TextView status = (TextView) convertView.findViewById(R.id.textview_status);
-        controllerIP.connect(status);
-        TextView ip = (TextView) convertView.findViewById(R.id.textview_IP);
-        ip.setText(controllerIP.getIP());
 
         return convertView;
     }

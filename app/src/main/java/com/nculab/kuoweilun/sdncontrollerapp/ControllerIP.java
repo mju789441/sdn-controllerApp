@@ -118,6 +118,7 @@ public class ControllerIP {
                     sendMsg(str);
 
                     final String key = getMsg();
+                    rsa.setPublicKey(key);
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -154,21 +155,12 @@ public class ControllerIP {
         }).start();
     }
 
-    public void getPublicKey() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-            }
-        }).start();
-    }
-
     public void sendWatchPkt() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    sendMsg(rsa.getMyPublicKey());
+                    sendMsg("watch_pkt");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
