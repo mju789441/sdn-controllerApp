@@ -79,8 +79,13 @@ public class MainActivity extends AppCompatActivity {
                                 list.remove(parent.getItemAtPosition(position));
                                 adapter.notifyDataSetChanged();
                                 break;
+                            case R.id.connect:
+                                controllerIP.connect((TextView) view.findViewById(R.id.textview_status));
+                                break;
                             case R.id.packet_watch:
                                 setContentView(view_watchpkt);
+                                controllerIP.watchPkt((TextView) findViewById(R.id.textview_msg));
+
                                 Button back = (Button) findViewById(R.id.button_back);
                                 back.setOnClickListener(new View.OnClickListener() {
                                     @Override
@@ -88,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
                                         setContentView(view_main);
                                     }
                                 });
-                                controllerIP.watchPkt((TextView) findViewById(R.id.textview_msg));
                                 break;
                             default:
                                 break;
@@ -109,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         // 在此處理 input
-                        list.add(new ControllerIP(input.getText().toString()));
+                        list.add(new ControllerIP(input.getText().toString(), MainActivity.this));
                         adapter.notifyDataSetChanged();
                     }
                 })

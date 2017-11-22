@@ -5,6 +5,9 @@
         android:id="@+id/delete"
         android:title="@string/menu_delete" />
     <item
+        android:id="@+id/connect"
+        android:title="@string/menu_connect" />
+    <item
         android:id="@+id/packet_watch"
         android:title="@string/menu_watchPacket" />
 </menu>
