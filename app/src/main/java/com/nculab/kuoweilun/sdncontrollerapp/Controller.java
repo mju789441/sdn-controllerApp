@@ -21,36 +21,45 @@ import java.util.concurrent.locks.ReentrantLock;
  * Created by Kuo Wei Lun on 2017/11/6.
  */
 
-public class ControllerIP {
-    private String _IP = "140.115.204.156";
-    private int _port = 9487;
+public class Controller {
+
+    String IP = "140.115.204.156";
+    private int port = 9487;
+    String status = "未連線";
+    //socket
     private Socket socket = null;
     private BufferedReader reader = null;
     private PrintStream writer = null;
-    private Handler handler = new Handler();
-    private final ReentrantLock lock = new ReentrantLock();
+    //rsa
     private RSA rsa = null;
+    //conponent
     private Context context = null;
-    private TextView textView_msg;
+    private ViewHolder holder = new ViewHolder();
+    private TextView textView_msg = null;
+    //component handler
+    private Handler handler = new Handler();
+    //控制thread的變數
+    public boolean busy = false;
+    //thread
     public Thread watch_pkt;
 
-    public ControllerIP(String IP, Context context) {
-        _IP = IP;
-        _IP = "192.168.1.4";
+    public Controller(String IP, Context context) {
+        this.IP = IP;
+        //_IP = "10.115.49.97";
         this.context = context;
         setThread();
     }
 
-    public String getIP() {
-        return _IP;
-    }
-
-    public void setIP(String IP) {
-        _IP = IP;
-    }
-
     public void setTextView_msg(TextView textView_msg) {
         this.textView_msg = textView_msg;
+    }
+
+    public void setTextView_IP(TextView textView_IP) {
+        holder.textView_IP = textView_IP;
+    }
+
+    public void setTextView_status(TextView textView_status) {
+        holder.textView_status = textView_status;
     }
 
     public void setThread() {
@@ -59,13 +68,11 @@ public class ControllerIP {
             public void run() {
                 while (true) {
                     try {
-                        final String str = new String(rsa.decrypt(Base64.decode(getMsg(), Base64.DEFAULT)));
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        busy = true;
+                        if (busy) {
+                            throw new IOException();
+                        }
+                        final String str = rsa.decrypt(getMsg().getBytes());
                         if (str == null) {
                             handler.post(new Runnable() {
                                 @Override
@@ -107,6 +114,19 @@ public class ControllerIP {
                         break;
                     } catch (Exception e) {
                         e.printStackTrace();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                textView_msg.setText(textView_msg.getText().toString() + "\nwrong");
+                            }
+                        });
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        busy = false;
                         break;
                     }
                 }
@@ -114,77 +134,93 @@ public class ControllerIP {
         });
     }
 
-    public void connect(final TextView status) {
+    public void setStatus(final String status) {
+        this.status = status;
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    holder.textView_status.setText(status);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void connect() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                //rsa = new RSA();
                 try {
+                    busy = true;
+                    if (busy) {
+                        throw new IOException();
+                    }
+                    //連線
                     Socket socket = new Socket();
-                    socket.connect(new InetSocketAddress(_IP, _port));
+                    socket.connect(new InetSocketAddress(IP, port));
                     writer = new PrintStream(socket.getOutputStream());
                     reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
                     rsa = new RSA();
-
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            status.setText("連線");
-                        }
-                    });
-
+                    setStatus("連線");
+                    //送出MyPublicKey
                     final String str = rsa.getMyPublicKey();
                     sendMsg(str);
-
+                    //接收對方的PublicKey
                     final String key = getMsg();
                     rsa.setPublicKey(key);
+                    //除錯
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(context, "key: " + key, Toast.LENGTH_SHORT).show();
                         }
                     });
-
-                    //rsa.setPublicKey(getMsg());
+                    busy = false;
                 } catch (IOException e) {
                     e.printStackTrace();
+                    setStatus("斷線");
                     close();
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            status.setText("斷線");
-                        }
-                    });
+                    busy = false;
                 } catch (final Exception e) {
                     e.printStackTrace();
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            status.setText("斷線");
-                        }
-                    });
+                    setStatus("斷線");
+                    close();
+                    //除錯
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
+                    busy = false;
                 }
             }
         }).start();
     }
 
-    public void sendWatchPkt() {
+    public void sendInstruction(final String instruction) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    sendMsg(Base64.encodeToString(rsa.encrypt("watch_pkt".getBytes()), Base64.DEFAULT));
+                    sendMsg(rsa.encrypt(instruction.getBytes()));
                 } catch (IOException e) {
                     e.printStackTrace();
-                } catch (Exception e) {
+                    setStatus("斷線");
+                    close();
+                } catch (final Exception e) {
                     e.printStackTrace();
+                    setStatus("斷線");
+                    close();
+                    //除錯
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             }
         }).start();

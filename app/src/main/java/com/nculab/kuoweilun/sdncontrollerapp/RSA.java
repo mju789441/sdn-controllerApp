@@ -18,7 +18,9 @@ import javax.crypto.Cipher;
  */
 
 public class RSA {
-    private static PublicKey myPublicKey;
+    //自己的PublicKey
+    private static PublicKey myPublicKey = null;
+    //對方的PublicKey
     private static PublicKey publicKey;
     private static PrivateKey privateKey;
 
@@ -50,19 +52,20 @@ public class RSA {
         return keyPairGenerator.genKeyPair();
     }
 
-    public byte[] encrypt(byte[] message) throws Exception {
+    public String encrypt(byte[] message) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
         byte[] text = cipher.doFinal(message);
 
-        return text;
+        return Base64.encodeToString(text, Base64.DEFAULT);
     }
 
-    public byte[] decrypt(byte[] encrypted) throws Exception {
+    public String decrypt(byte[] encrypted) throws Exception {
+        encrypted = Base64.decode(encrypted, Base64.DEFAULT);
         Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         byte[] text = cipher.doFinal(encrypted);
 
-        return text;
+        return new String(text);
     }
 }
