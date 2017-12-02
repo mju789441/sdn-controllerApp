@@ -45,7 +45,7 @@ public class Controller {
 
     public Controller(String IP, Context context) {
         this.IP = IP;
-        //_IP = "10.115.49.97";
+        //_IP = "192.168.1.1;//測試用;
         this.context = context;
         setThread();
     }
@@ -68,10 +68,10 @@ public class Controller {
             public void run() {
                 while (true) {
                     try {
-                        busy = true;
                         if (busy) {
                             throw new IOException();
                         }
+                        busy = true;
                         final String str = rsa.decrypt(getMsg().getBytes());
                         if (str == null) {
                             handler.post(new Runnable() {
@@ -105,29 +105,18 @@ public class Controller {
                         break;
                     } catch (InterruptedException e) {
                         e.printStackTrace();
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                textView_msg.setText(textView_msg.getText().toString() + "\nwrong");
-                            }
-                        });
                         break;
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         e.printStackTrace();
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                textView_msg.setText(textView_msg.getText().toString() + "\nwrong");
+                                textView_msg.setText(textView_msg.getText().toString() + "\nwrong: " + e.getMessage());
                             }
                         });
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                        busy = false;
                         break;
+                    } finally {
+                        busy = false;
                     }
                 }
             }
@@ -153,10 +142,10 @@ public class Controller {
             @Override
             public void run() {
                 try {
-                    busy = true;
                     if (busy) {
                         throw new IOException();
                     }
+                    busy = true;
                     //連線
                     Socket socket = new Socket();
                     socket.connect(new InetSocketAddress(IP, port));
@@ -177,12 +166,10 @@ public class Controller {
                             Toast.makeText(context, "key: " + key, Toast.LENGTH_SHORT).show();
                         }
                     });
-                    busy = false;
                 } catch (IOException e) {
                     e.printStackTrace();
                     setStatus("斷線");
                     close();
-                    busy = false;
                 } catch (final Exception e) {
                     e.printStackTrace();
                     setStatus("斷線");
@@ -194,6 +181,7 @@ public class Controller {
                             Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
+                } finally {
                     busy = false;
                 }
             }
@@ -214,7 +202,6 @@ public class Controller {
                     e.printStackTrace();
                     setStatus("斷線");
                     close();
-                    //除錯
                     handler.post(new Runnable() {
                         @Override
                         public void run() {

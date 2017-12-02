@@ -105,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
                             case R.id.connect:
                                 if (connecting_controller != null) {
                                     connecting_controller.close();
+                                    connecting_controller.setStatus("未連線");
                                 }
                                 if (!connecting_controller.equals(controller)) {
                                     connecting_controller = null;
@@ -113,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
                                 connecting_controller = controller;
                                 break;
                             case R.id.packet_watch:
-                                setContentView(view_watchpkt);
+                                setContentView(R.layout.watch_pkt_layout);
                                 controller.sendInstruction("watch_pkt");
                                 controller.setTextView_msg((TextView) findViewById(R.id.textview_msg));
                                 controller.watch_pkt.start();
