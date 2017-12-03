@@ -2,20 +2,15 @@ package com.nculab.kuoweilun.sdncontrollerapp;
 
 import android.content.Context;
 import android.os.Handler;
-import android.util.Base64;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by Kuo Wei Lun on 2017/11/6.
@@ -31,17 +26,17 @@ public class Controller {
     private BufferedReader reader = null;
     private PrintStream writer = null;
     //rsa
-    private RSA rsa = null;
+    public RSA rsa = null;
     //conponent
     private Context context = null;
-    private ViewHolder holder = new ViewHolder();
+    private ControlerViewHolder holder = new ControlerViewHolder();
     private TextView textView_msg = null;
     //component handler
     private Handler handler = new Handler();
     //控制thread的變數
     public boolean busy = false;
     //thread
-    public Thread watch_pkt;
+    public Thread thread_getPktflow;
 
     public Controller(String IP, Context context) {
         this.IP = IP;
@@ -62,17 +57,31 @@ public class Controller {
         holder.textView_status = textView_status;
     }
 
+    public void setStatus(final String status) {
+        this.status = status;
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                holder.textView_status.setText(status);
+            }
+        });
+    }
+
     public void setThread() {
-        watch_pkt = new Thread(new Runnable() {
+        thread_getPktflow = new Thread(new Runnable() {
             @Override
             public void run() {
                 while (true) {
                     try {
-                        if (busy) {
-                            throw new IOException();
+                        //線程忙碌或未連線時拋出例外
+                        if (busy || !isConnected()) {
+                            throw new InterruptedException();
                         }
+
                         busy = true;
+                        //接收訊息
                         final String str = rsa.decrypt(getMsg().getBytes());
+                        //錯誤訊息
                         if (str == null) {
                             handler.post(new Runnable() {
                                 @Override
@@ -94,20 +103,10 @@ public class Controller {
                             });
                         }
                         Thread.sleep(100);
-                    } catch (IOException e) {
+                    } catch (final IOException e) {
                         e.printStackTrace();
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                textView_msg.setText(textView_msg.getText().toString() + "\nwrong");
-                            }
-                        });
-                        break;
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        break;
-                    } catch (final Exception e) {
-                        e.printStackTrace();
+                        busy = false;
+                        disconnection();
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -115,26 +114,37 @@ public class Controller {
                             }
                         });
                         break;
-                    } finally {
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                         busy = false;
+                        break;
+                    } catch (final Exception e) {
+                        e.printStackTrace();
+                        busy = false;
+                        disconnection();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                textView_msg.setText(textView_msg.getText().toString() + "\nwrong: " + e.getMessage());
+                            }
+                        });
+                        break;
                     }
                 }
             }
         });
     }
 
-    public void setStatus(final String status) {
-        this.status = status;
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    holder.textView_status.setText(status);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+    public boolean isConnected() {
+        if (status == "已連線") {
+            return true;
+        }
+        return false;
+    }
+
+    public void disconnection() {
+        setStatus("斷線");
+        close();
     }
 
     public void connect() {
@@ -142,38 +152,34 @@ public class Controller {
             @Override
             public void run() {
                 try {
-                    if (busy) {
-                        throw new IOException();
+                    //線程忙碌或已連線時拋出例外
+                    if (busy || isConnected()) {
+                        throw new InterruptedException();
                     }
+
                     busy = true;
                     //連線
+                    setStatus("連線中");
                     Socket socket = new Socket();
                     socket.connect(new InetSocketAddress(IP, port));
                     writer = new PrintStream(socket.getOutputStream());
                     reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     rsa = new RSA();
-                    setStatus("連線");
                     //送出MyPublicKey
                     final String str = rsa.getMyPublicKey();
                     sendMsg(str);
                     //接收對方的PublicKey
                     final String key = getMsg();
                     rsa.setPublicKey(key);
-                    //除錯
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(context, "key: " + key, Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    setStatus("已連線");
                 } catch (IOException e) {
                     e.printStackTrace();
-                    setStatus("斷線");
-                    close();
+                    disconnection();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 } catch (final Exception e) {
                     e.printStackTrace();
-                    setStatus("斷線");
-                    close();
+                    disconnection();
                     //除錯
                     handler.post(new Runnable() {
                         @Override
@@ -196,12 +202,10 @@ public class Controller {
                     sendMsg(rsa.encrypt(instruction.getBytes()));
                 } catch (IOException e) {
                     e.printStackTrace();
-                    setStatus("斷線");
-                    close();
+                    disconnection();
                 } catch (final Exception e) {
                     e.printStackTrace();
-                    setStatus("斷線");
-                    close();
+                    disconnection();
                     handler.post(new Runnable() {
                         @Override
                         public void run() {

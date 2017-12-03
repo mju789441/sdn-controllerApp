@@ -2,7 +2,6 @@ package com.nculab.kuoweilun.sdncontrollerapp;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -21,12 +20,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
+    LayoutInflater inflater;
     //View
-    private View view_main, view_watchpkt;
+    private View view_main;
     //Component
     private Toolbar toolbar;
     private FloatingActionButton fab;
@@ -55,9 +54,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //設定View
-        LayoutInflater inflater = getLayoutInflater();
+        inflater = getLayoutInflater();
         view_main = inflater.inflate(R.layout.activity_main, null);
-        view_watchpkt = inflater.inflate(R.layout.watch_pkt_layout, null);
         setContentView(view_main);
 
         initView();
@@ -69,9 +67,10 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setImageResource(R.drawable.ic_add_black_24dp);
+        fab.getBackground().setAlpha(150);
         listview = (ListView) findViewById(R.id.list_controller);
         list = new ArrayList<Controller>();
-        adapter = new ControllerAdapter(this, list);
+        adapter = new ControllerAdapter(MainActivity.this, list);
         listview.setAdapter(adapter);
     }
 
@@ -87,14 +86,17 @@ public class MainActivity extends AppCompatActivity {
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(final AdapterView<?> parent, final View view, final int position, long id) {
+                adapter.notifyDataSetChanged();
                 PopupMenu popupmenu = new PopupMenu(MainActivity.this, view);
                 popupmenu.getMenuInflater().inflate(R.menu.menu_instruction, popupmenu.getMenu());
                 popupmenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         final Controller controller = (Controller) parent.getItemAtPosition(position);
+                        Button back;
                         switch (item.getItemId()) {
                             case R.id.delete:
+                                //目標是已連線的controller
                                 controller.close();
                                 if (connecting_controller.equals(controller)) {
                                     connecting_controller = null;
@@ -103,27 +105,29 @@ public class MainActivity extends AppCompatActivity {
                                 adapter.notifyDataSetChanged();
                                 break;
                             case R.id.connect:
-                                if (connecting_controller != null) {
-                                    connecting_controller.close();
-                                    connecting_controller.setStatus("未連線");
+                                //目標是已連線的controller
+                                if (connecting_controller.equals(controller) && controller.isConnected()) {
+                                    break;
                                 }
-                                if (!connecting_controller.equals(controller)) {
-                                    connecting_controller = null;
+                                //把已連線的controller停止連線
+                                if (connecting_controller != null) {
+                                    connecting_controller.disconnection();
                                 }
                                 controller.connect();
                                 connecting_controller = controller;
                                 break;
-                            case R.id.packet_watch:
-                                setContentView(R.layout.watch_pkt_layout);
-                                controller.sendInstruction("watch_pkt");
-                                controller.setTextView_msg((TextView) findViewById(R.id.textview_msg));
-                                controller.watch_pkt.start();
+                            case R.id.watch_switch:
+                                if(!controller.isConnected()){
+                                    back;
+                                }
+                                View view_switch = inflater.inflate(R.layout.switchlist_layout, null);
+                                setContentView(view_switch);
+                                SwitchHandler switchHandler = new SwitchHandler(MainActivity.this, view_switch, controller);
 
-                                Button back = (Button) findViewById(R.id.button_back);
+                                back = (Button) view_switch.findViewById(R.id.button_back);
                                 back.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        controller.watch_pkt.interrupt();
                                         setContentView(view_main);
                                     }
                                 });
@@ -149,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
                         // 在此處理 input
                         Controller controller = new Controller(input.getText().toString(), MainActivity.this);
                         list.add(controller);
+                        //如果有未連線的controller自動連線
                         if (connecting_controller == null) {
                             controller.connect();
                             connecting_controller = controller;

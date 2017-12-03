@@ -7,7 +7,10 @@
     <item
         android:id="@+id/connect"
         android:title="@string/menu_connect" />
-    <item
+    <!--<item
         android:id="@+id/packet_watch"
-        android:title="@string/menu_watchPacket" />
+        android:title="@string/menu_watchPacket" />-->
+    <item
+        android:id="@+id/watch_switch"
+        android:title="@string/menu_watchSwitch" />
 </menu>
