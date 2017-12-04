@@ -27,6 +27,7 @@ public class SwitchHandler {
     ListView listView;
     private ArrayList<Switch> list;
     private SwitchAdapter adapter;
+    private ArrayList<String> switchID;
     //Handler
     Handler handler = new Handler();
     //Thread
@@ -47,6 +48,7 @@ public class SwitchHandler {
         list = new ArrayList<Switch>();
         adapter = new SwitchAdapter(context, list);
         listView.setAdapter(adapter);
+        switchID = new ArrayList<String>();
     }
 
     private void setListeners() {
@@ -76,41 +78,49 @@ public class SwitchHandler {
         thread_getSwitch = new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    //未連線時拋出例外
-                    if (!controller.isConnected()) {
-                        throw new InterruptedException();
-                    }
-                    controller.sendEncryptedMsg("GET switch -ID -bytes");
-                    final String str = controller.getMsg();
-                    if (str == null) {
-                        throw new Exception();
-                    }
-                    final String msg = controller.rsa.decrypt(str.getBytes());
-                    // 接收訊息
-                    String[] temp = msg.split("\n");
-                    if (temp[0].equals("switch_speed") && temp[temp.length - 1].equals("/switch_speed")) {
-                        for (int i = 1; i < temp.length - 1; i++) {
-                            String[] temp2 = temp[i].split(" ");
-                            list.add(new Switch(temp2[0], temp2[temp2.length - 1]));
-                            list.contains()
-                            adapter.notifyDataSetChanged();
+                while (true) {
+                    try {
+                        //未連線時拋出例外
+                        if (!controller.isConnected()) {
+                            throw new InterruptedException();
                         }
-                    } else {
-                        throw new Exception();
-                    }
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (final Exception e) {
-                    e.printStackTrace();
-                    controller.disconnection();
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        controller.sendEncryptedMsg("GET switch -ID -bytes");
+                        final String str = controller.getMsg();
+                        if (str == null) {
+                            throw new Exception();
                         }
-                    });
+                        final String msg = controller.rsa.decrypt(str.getBytes());
+                        // 接收訊息
+                        String[] temp = msg.split("\n");
+                        if (temp[0].equals("switch_speed") && temp[temp.length - 1].equals("/switch_speed")) {
+                            for (int i = 1; i < temp.length - 1; i++) {
+                                String[] temp2 = temp[i].split(" ");
+                                if (switchID.contains(temp2[0])) {
+                                    list.set(switchID.indexOf(temp2[0]), new Switch(temp2[0], temp2[temp2.length - 1]));
+                                } else {
+                                    switchID.add(temp2[0]);
+                                    list.add(new Switch(temp2[0], temp2[temp2.length - 1]));
+                                    adapter.notifyDataSetChanged();
+                                }
+                            }
+                        } else {
+                            throw new Exception();
+                        }
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        break;
+                    } catch (final Exception e) {
+                        e.printStackTrace();
+                        controller.disconnection();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        break;
+                    }
                 }
             }
         });
