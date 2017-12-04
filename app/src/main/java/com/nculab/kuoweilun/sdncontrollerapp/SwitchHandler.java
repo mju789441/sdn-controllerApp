@@ -94,13 +94,23 @@ public class SwitchHandler {
                         String[] temp = msg.split("\n");
                         if (temp[0].equals("switch_speed") && temp[temp.length - 1].equals("/switch_speed")) {
                             for (int i = 1; i < temp.length - 1; i++) {
-                                String[] temp2 = temp[i].split(" ");
+                                final String[] temp2 = temp[i].split(" ");
                                 if (switchID.contains(temp2[0])) {
-                                    list.set(switchID.indexOf(temp2[0]), new Switch(temp2[0], temp2[temp2.length - 1]));
+                                    handler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            list.set(switchID.indexOf(temp2[0]), new Switch(temp2[0], temp2[temp2.length - 1]));
+                                        }
+                                    });
                                 } else {
                                     switchID.add(temp2[0]);
-                                    list.add(new Switch(temp2[0], temp2[temp2.length - 1]));
-                                    adapter.notifyDataSetChanged();
+                                    handler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            list.add(new Switch(temp2[0], temp2[temp2.length - 1]));
+                                            adapter.notifyDataSetChanged();
+                                        }
+                                    });
                                 }
                             }
                         } else {
@@ -112,11 +122,12 @@ public class SwitchHandler {
                         break;
                     } catch (final Exception e) {
                         e.printStackTrace();
+                        System.out.println(e.getMessage());
                         controller.disconnection();
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
                             }
                         });
                         break;
