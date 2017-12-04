@@ -10,13 +10,16 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
  * Created by Kuo Wei Lun on 2017/12/3.
  */
 
-public class SwitchHandler{
+public class SwitchHandler {
 
     Context context;
     View view;
@@ -24,6 +27,10 @@ public class SwitchHandler{
     ListView listView;
     private ArrayList<Switch> list;
     private SwitchAdapter adapter;
+    //Handler
+    Handler handler = new Handler();
+    //Thread
+    Thread thread_getSwitch;
 
     public SwitchHandler(Context context, View view, Controller controller) {
         this.context = context;
@@ -31,10 +38,11 @@ public class SwitchHandler{
         this.controller = controller;
         initView();
         setListeners();
-        list.add(new Switch("12","60"));
+        setThread();
+        thread_getSwitch.start();
     }
 
-    public void initView() {
+    private void initView() {
         listView = (ListView) view.findViewById(R.id.list_switch);
         list = new ArrayList<Switch>();
         adapter = new SwitchAdapter(context, list);
@@ -60,6 +68,82 @@ public class SwitchHandler{
                     }
                 });
                 popupmenu.show();
+            }
+        });
+    }
+
+    private void setThread() {
+        thread_getSwitch = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                controller.sendInstruction("GET switch -ID -bytes");
+                while (true) {
+                    try {
+                        //未連線時拋出例外
+                        if (!controller.isConnected()) {
+                            throw new InterruptedException();
+                        }
+                        int status = 0;
+                        //接收訊息
+                        while (true) {
+                            final String str = controller.getMsg();
+                            final String msg = controller.rsa.decrypt(str.getBytes());
+                            //錯誤訊息
+                            if (str == null) {
+                                throw new Exception();
+                            } else {
+                                if (status == 0 && msg == "<switch>") {
+                                    status = 1;
+                                } else if (status == 1) {
+                                    if (msg == "</swtch>") {
+                                        status = 0;
+                                        break;
+                                    } else {
+                                        //到時候可能把各式各樣的訊息在這裡儲存
+                                        if (msg.contains(" ")) {
+                                            String[] temp = msg.split(" ");
+                                            if (temp[0] == "<switch" && temp[temp.length - 1] == "/>") {
+                                                String switchID = "";
+                                                String flow = "";
+                                                for (int i = 1; i < temp.length - 1; i++) {
+                                                    if (temp[i].contains("id=")) {
+                                                        String[] temp2 = temp[i].split("\"");
+                                                        switchID = temp2[temp2.length - 1];
+                                                    }
+                                                    if (temp[i].contains("bytes=")) {
+                                                        String[] temp2 = temp[i].split("\"");
+                                                        flow = temp2[temp2.length - 1];
+                                                    }
+                                                    if (switchID != "" && flow != "") {
+                                                        list.add(new Switch(switchID, flow));
+                                                    }
+                                                }
+                                            } else {
+                                                throw new Exception();
+                                            }
+                                        } else {
+                                            throw new Exception();
+                                        }
+                                    }
+                                }
+                            }
+                            Thread.sleep(10);
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        break;
+                    } catch (final Exception e) {
+                        e.printStackTrace();
+                        controller.disconnection();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        break;
+                    }
+                }
             }
         });
     }

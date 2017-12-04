@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -117,8 +118,9 @@ public class MainActivity extends AppCompatActivity {
                                 connecting_controller = controller;
                                 break;
                             case R.id.watch_switch:
-                                if(!controller.isConnected()){
-                                    back;
+                                if (!controller.isConnected()) {
+                                    Toast.makeText(MainActivity.this, "尚未連線", Toast.LENGTH_SHORT).show();
+                                    break;
                                 }
                                 View view_switch = inflater.inflate(R.layout.switchlist_layout, null);
                                 setContentView(view_switch);

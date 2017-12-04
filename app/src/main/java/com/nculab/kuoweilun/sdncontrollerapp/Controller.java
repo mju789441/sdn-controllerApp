@@ -30,23 +30,17 @@ public class Controller {
     //conponent
     private Context context = null;
     private ControlerViewHolder holder = new ControlerViewHolder();
-    private TextView textView_msg = null;
     //component handler
     private Handler handler = new Handler();
     //控制thread的變數
     public boolean busy = false;
     //thread
-    public Thread thread_getPktflow;
 
     public Controller(String IP, Context context) {
         this.IP = IP;
         //_IP = "192.168.1.1;//測試用;
         this.context = context;
         setThread();
-    }
-
-    public void setTextView_msg(TextView textView_msg) {
-        this.textView_msg = textView_msg;
     }
 
     public void setTextView_IP(TextView textView_IP) {
@@ -68,71 +62,7 @@ public class Controller {
     }
 
     public void setThread() {
-        thread_getPktflow = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        //線程忙碌或未連線時拋出例外
-                        if (busy || !isConnected()) {
-                            throw new InterruptedException();
-                        }
 
-                        busy = true;
-                        //接收訊息
-                        final String str = rsa.decrypt(getMsg().getBytes());
-                        //錯誤訊息
-                        if (str == null) {
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    textView_msg.setText(textView_msg.getText().toString() + "\nnull");
-                                }
-                            });
-                            break;
-                        } else {
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        textView_msg.setText(textView_msg.getText().toString() + "\n" + str);
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-                        }
-                        Thread.sleep(100);
-                    } catch (final IOException e) {
-                        e.printStackTrace();
-                        busy = false;
-                        disconnection();
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                textView_msg.setText(textView_msg.getText().toString() + "\nwrong: " + e.getMessage());
-                            }
-                        });
-                        break;
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        busy = false;
-                        break;
-                    } catch (final Exception e) {
-                        e.printStackTrace();
-                        busy = false;
-                        disconnection();
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                textView_msg.setText(textView_msg.getText().toString() + "\nwrong: " + e.getMessage());
-                            }
-                        });
-                        break;
-                    }
-                }
-            }
-        });
     }
 
     public boolean isConnected() {
@@ -200,9 +130,6 @@ public class Controller {
             public void run() {
                 try {
                     sendMsg(rsa.encrypt(instruction.getBytes()));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    disconnection();
                 } catch (final Exception e) {
                     e.printStackTrace();
                     disconnection();
