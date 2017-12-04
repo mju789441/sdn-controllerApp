@@ -35,6 +35,7 @@ public class Controller {
     //控制thread的變數
     public boolean busy = false;
     //thread
+    public Thread thread_connect;
 
     public Controller(String IP, Context context) {
         this.IP = IP;
@@ -62,23 +63,7 @@ public class Controller {
     }
 
     public void setThread() {
-
-    }
-
-    public boolean isConnected() {
-        if (status == "已連線") {
-            return true;
-        }
-        return false;
-    }
-
-    public void disconnection() {
-        setStatus("斷線");
-        close();
-    }
-
-    public void connect() {
-        new Thread(new Runnable() {
+        thread_connect = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -121,7 +106,19 @@ public class Controller {
                     busy = false;
                 }
             }
-        }).start();
+        });
+    }
+
+    public boolean isConnected() {
+        if (status == "已連線") {
+            return true;
+        }
+        return false;
+    }
+
+    public void disconnection() {
+        setStatus("斷線");
+        close();
     }
 
     public void sendInstruction(final String instruction) {

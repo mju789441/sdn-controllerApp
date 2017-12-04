@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
                         switch (item.getItemId()) {
                             case R.id.delete:
                                 //目標是已連線的controller
+                                controller.thread_connect.interrupt();
                                 controller.close();
                                 if (connecting_controller.equals(controller)) {
                                     connecting_controller = null;
@@ -112,9 +113,10 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 //把已連線的controller停止連線
                                 if (connecting_controller != null) {
+                                    controller.thread_connect.interrupt();
                                     connecting_controller.disconnection();
                                 }
-                                controller.connect();
+                                controller.thread_connect.start();
                                 connecting_controller = controller;
                                 break;
                             case R.id.watch_switch:
@@ -155,12 +157,12 @@ public class MainActivity extends AppCompatActivity {
                         // 在此處理 input
                         Controller controller = new Controller(input.getText().toString(), MainActivity.this);
                         list.add(controller);
+                        adapter.notifyDataSetChanged();
                         //如果有未連線的controller自動連線
                         if (connecting_controller == null) {
-                            controller.connect();
+                            controller.thread_connect.start();
                             connecting_controller = controller;
                         }
-                        adapter.notifyDataSetChanged();
                     }
                 })
                 .show();

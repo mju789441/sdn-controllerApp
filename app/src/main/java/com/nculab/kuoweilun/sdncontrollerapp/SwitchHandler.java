@@ -92,34 +92,22 @@ public class SwitchHandler {
                             if (str == null) {
                                 throw new Exception();
                             } else {
-                                if (status == 0 && msg == "<switch>") {
+                                if (status == 0 && msg == "switch_speed") {
                                     status = 1;
                                 } else if (status == 1) {
-                                    if (msg == "</swtch>") {
+                                    if (msg == "/switch_speed") {
                                         status = 0;
                                         break;
                                     } else {
                                         //到時候可能把各式各樣的訊息在這裡儲存
                                         if (msg.contains(" ")) {
                                             String[] temp = msg.split(" ");
-                                            if (temp[0] == "<switch" && temp[temp.length - 1] == "/>") {
-                                                String switchID = "";
-                                                String flow = "";
-                                                for (int i = 1; i < temp.length - 1; i++) {
-                                                    if (temp[i].contains("id=")) {
-                                                        String[] temp2 = temp[i].split("\"");
-                                                        switchID = temp2[temp2.length - 1];
-                                                    }
-                                                    if (temp[i].contains("bytes=")) {
-                                                        String[] temp2 = temp[i].split("\"");
-                                                        flow = temp2[temp2.length - 1];
-                                                    }
-                                                    if (switchID != "" && flow != "") {
-                                                        list.add(new Switch(switchID, flow));
-                                                    }
-                                                }
-                                            } else {
-                                                throw new Exception();
+                                            String switchID = "";
+                                            String flow = "";
+                                            switchID = temp[0];
+                                            flow = temp[temp.length - 1];
+                                            if (switchID != "" && flow != "") {
+                                                list.add(new Switch(switchID, flow));
                                             }
                                         } else {
                                             throw new Exception();
