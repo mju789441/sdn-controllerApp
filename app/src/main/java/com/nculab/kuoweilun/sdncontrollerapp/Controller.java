@@ -121,24 +121,19 @@ public class Controller {
         close();
     }
 
-    public void sendInstruction(final String instruction) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    sendMsg(rsa.encrypt(instruction.getBytes()));
-                } catch (final Exception e) {
-                    e.printStackTrace();
-                    disconnection();
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+    public void sendEncryptedMsg(final String instruction) {
+        try {
+            sendMsg(rsa.encrypt(instruction.getBytes()));
+        } catch (final Exception e) {
+            e.printStackTrace();
+            disconnection();
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-            }
-        }).start();
+            });
+        }
     }
 
     public void close() {

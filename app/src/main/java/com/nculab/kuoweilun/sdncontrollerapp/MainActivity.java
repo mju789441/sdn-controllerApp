@@ -97,22 +97,25 @@ public class MainActivity extends AppCompatActivity {
                         Button back;
                         switch (item.getItemId()) {
                             case R.id.delete:
-                                //目標是已連線的controller
                                 controller.thread_connect.interrupt();
                                 controller.close();
-                                if (connecting_controller.equals(controller)) {
-                                    connecting_controller = null;
+                                //目標是已連線的controller
+                                if (connecting_controller != null) {
+                                    if (connecting_controller.equals(controller)) {
+                                        connecting_controller = null;
+                                    }
                                 }
                                 list.remove(parent.getItemAtPosition(position));
                                 adapter.notifyDataSetChanged();
                                 break;
                             case R.id.connect:
-                                //目標是已連線的controller
-                                if (connecting_controller.equals(controller) && controller.isConnected()) {
-                                    break;
-                                }
                                 //把已連線的controller停止連線
                                 if (connecting_controller != null) {
+                                    //目標是已連線的controller
+                                    if (connecting_controller.equals(controller) && controller.isConnected()) {
+                                        break;
+                                    }
+
                                     controller.thread_connect.interrupt();
                                     connecting_controller.disconnection();
                                 }
@@ -126,12 +129,13 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 View view_switch = inflater.inflate(R.layout.switchlist_layout, null);
                                 setContentView(view_switch);
-                                SwitchHandler switchHandler = new SwitchHandler(MainActivity.this, view_switch, controller);
+                                final SwitchHandler switchHandler = new SwitchHandler(MainActivity.this, view_switch, controller);
 
                                 back = (Button) view_switch.findViewById(R.id.button_back);
                                 back.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
+                                        switchHandler.thread_getSwitch.interrupt();
                                         setContentView(view_main);
                                     }
                                 });
