@@ -39,7 +39,7 @@ public class ControllerAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ControlerViewHolder holder;
+         ControlerViewHolder holder;
         //取得View component
         if (convertView == null) {
             convertView = layoutInflater.inflate(R.layout.controlleritem_layout, parent, false);
@@ -52,11 +52,13 @@ public class ControllerAdapter extends BaseAdapter {
         }
         //Controller設定
         Controller controller = (Controller) getItem(position);
-        controller.setTextView_IP(holder.textView_IP);
-        controller.setTextView_status(holder.textView_status);
         //View 內容設定
         holder.textView_IP.setText(controller.IP);
         holder.textView_status.setText(controller.status);
         return convertView;
+    }
+    static class ControlerViewHolder {
+        public TextView textView_IP = null;
+        public TextView textView_status = null;
     }
 }

@@ -9,18 +9,11 @@ import android.widget.TextView;
 public class Switch {
     String switchID = "";
     String flow = "";
-    SwitchViewHolder holder = new SwitchViewHolder();
+    SwitchAdapter adapter;
 
-    public Switch(String switchID, String flow) {
+    public Switch(String switchID, String flow, SwitchAdapter adapter) {
         this.switchID = switchID;
         this.flow = flow;
-    }
-
-    public void setTextviewSwitchID(TextView textview_switchID) {
-        holder.textView_switchID = textview_switchID;
-    }
-
-    public void setTextviewFlow(TextView textview_flow) {
-        holder.textView_flow = textview_flow;
+        this.adapter = adapter;
     }
 }

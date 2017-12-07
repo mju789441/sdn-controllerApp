@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     //Component
     private Toolbar toolbar;
     private FloatingActionButton fab;
-    private ListView listview;
+    private ListView listView;
     private ArrayList<Controller> list;
     private ControllerAdapter adapter;
 
@@ -69,10 +69,10 @@ public class MainActivity extends AppCompatActivity {
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setImageResource(R.drawable.ic_add_black_24dp);
         fab.getBackground().setAlpha(150);
-        listview = (ListView) findViewById(R.id.list_controller);
+        listView = (ListView) findViewById(R.id.list_controller);
         list = new ArrayList<Controller>();
         adapter = new ControllerAdapter(MainActivity.this, list);
-        listview.setAdapter(adapter);
+        listView.setAdapter(adapter);
     }
 
     private void setListeners() {
@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         // 在此處理 input
-                        Controller controller = new Controller(input.getText().toString(), MainActivity.this);
+                        Controller controller = new Controller(input.getText().toString(), MainActivity.this, adapter);
                         list.add(controller);
                         adapter.notifyDataSetChanged();
                         //如果有未連線的controller自動連線

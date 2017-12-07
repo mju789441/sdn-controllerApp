@@ -63,4 +63,9 @@ public class SwitchAdapter extends BaseAdapter {
         holder.textView_flow.setText(item.flow);
         return convertView;
     }
+
+    static class SwitchViewHolder {
+        public TextView textView_switchID = null;
+        public TextView textView_flow = null;
+    }
 }

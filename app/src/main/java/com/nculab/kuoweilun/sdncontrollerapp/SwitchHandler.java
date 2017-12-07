@@ -99,7 +99,9 @@ public class SwitchHandler {
                                     handler.post(new Runnable() {
                                         @Override
                                         public void run() {
-                                            list.set(switchID.indexOf(temp2[0]), new Switch(temp2[0], temp2[temp2.length - 1]));
+                                            Switch switchtemp = (Switch) list.indexOf(switchID.indexOf(new String(temp2[0])));
+                                            switchtemp.flow = temp2;
+                                            adapter.notifyDataSetChanged();
                                         }
                                     });
                                 } else {
@@ -107,7 +109,7 @@ public class SwitchHandler {
                                     handler.post(new Runnable() {
                                         @Override
                                         public void run() {
-                                            list.add(new Switch(temp2[0], temp2[temp2.length - 1]));
+                                            list.add(new Switch(temp2[0], temp2[temp2.length - 1], adapter));
                                             adapter.notifyDataSetChanged();
                                         }
                                     });
@@ -116,7 +118,7 @@ public class SwitchHandler {
                         } else {
                             throw new Exception();
                         }
-                        Thread.sleep(10);
+                        Thread.sleep(100);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                         break;

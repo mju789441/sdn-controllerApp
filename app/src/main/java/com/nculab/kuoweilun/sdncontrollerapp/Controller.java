@@ -2,7 +2,6 @@ package com.nculab.kuoweilun.sdncontrollerapp;
 
 import android.content.Context;
 import android.os.Handler;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -29,7 +28,7 @@ public class Controller {
     public RSA rsa = null;
     //conponent
     private Context context = null;
-    private ControlerViewHolder holder = new ControlerViewHolder();
+    private ControllerAdapter adapter;
     //component handler
     private Handler handler = new Handler();
     //控制thread的變數
@@ -37,19 +36,12 @@ public class Controller {
     //thread
     public Thread thread_connect;
 
-    public Controller(String IP, Context context) {
+    public Controller(String IP, Context context, ControllerAdapter adapter) {
         this.IP = IP;
         //_IP = "192.168.1.1;//測試用;
         this.context = context;
+        this.adapter = adapter;
         setThread();
-    }
-
-    public void setTextView_IP(TextView textView_IP) {
-        holder.textView_IP = textView_IP;
-    }
-
-    public void setTextView_status(TextView textView_status) {
-        holder.textView_status = textView_status;
     }
 
     public void setStatus(final String status) {
@@ -57,7 +49,7 @@ public class Controller {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                holder.textView_status.setText(status);
+                adapter.notifyDataSetChanged();
             }
         });
     }
@@ -85,6 +77,9 @@ public class Controller {
                     sendMsg(str);
                     //接收對方的PublicKey
                     final String key = getMsg();
+                    if (key == null) {
+                        throw new Exception();
+                    }
                     rsa.setPublicKey(key);
                     setStatus("已連線");
                 } catch (IOException e) {
