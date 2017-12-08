@@ -8,11 +8,31 @@
     tools:context="com.nculab.kuoweilun.sdncontrollerapp.MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <ListView
-        android:id="@+id/list_controller"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/textview_IP"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@id/textview_status"
+            android:text="Controller IP" />
+
+        <TextView
+            android:id="@+id/textview_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="Status" />
+
+        <ListView
+            android:id="@+id/list_controller"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textview_IP" />
+
+    </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>

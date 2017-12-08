@@ -3,11 +3,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:id="@+id/textview_switchID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@id/textview_flow"
+        android:text="Switch ID" />
+
+    <TextView
+        android:id="@+id/textview_flow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="flow(Bytes)" />
+
     <ListView
         android:id="@+id/list_switch"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true">
+        android:layout_below="@id/textview_switchID">
 
     </ListView>
 

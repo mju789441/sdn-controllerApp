@@ -99,8 +99,7 @@ public class SwitchHandler {
                                     handler.post(new Runnable() {
                                         @Override
                                         public void run() {
-                                            Switch switchtemp = (Switch) list.indexOf(switchID.indexOf(new String(temp2[0])));
-                                            switchtemp.flow = temp2;
+                                            list.set(switchID.indexOf(temp2[0]), new Switch(temp2[0], temp2[temp2.length - 1], adapter));
                                             adapter.notifyDataSetChanged();
                                         }
                                     });
