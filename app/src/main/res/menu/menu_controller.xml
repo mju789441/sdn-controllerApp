@@ -3,14 +3,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/delete"
-        android:title="@string/menu_delete" />
+        android:title="刪除" />
     <item
         android:id="@+id/connect"
-        android:title="@string/menu_connect" />
-    <!--<item
-        android:id="@+id/packet_watch"
-        android:title="@string/menu_watchPacket" />-->
+        android:title="連線" />
     <item
         android:id="@+id/watch_switch"
-        android:title="@string/menu_watchSwitch" />
+        android:title="查看Switch" />
 </menu>

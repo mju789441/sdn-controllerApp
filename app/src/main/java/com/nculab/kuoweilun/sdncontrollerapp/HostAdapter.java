@@ -13,12 +13,12 @@ import java.util.ArrayList;
  * Created by Kuo Wei Lun on 2017/12/3.
  */
 
-public class SwitchAdapter extends BaseAdapter {
+public class HostAdapter extends BaseAdapter {
 
     private LayoutInflater layoutInflater;
-    private ArrayList<Switch> list;
+    private ArrayList<Host> list;
 
-    SwitchAdapter(Context context, ArrayList<Switch> list) {
+    HostAdapter(Context context, ArrayList<Host> list) {
         layoutInflater = LayoutInflater.from(context);
         this.list = list;
     }
@@ -40,27 +40,27 @@ public class SwitchAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        SwitchViewHolder holder;
+        HostViewHolder holder;
         //取得View component
         if (convertView == null) {
-            convertView = layoutInflater.inflate(R.layout.layout_switchitem, parent, false);
-            holder = new SwitchViewHolder();
-            holder.textView_switchID = (TextView) convertView.findViewById(R.id.textview_switchID);
-            holder.textView_flow = (TextView) convertView.findViewById(R.id.textview_flow);
+            convertView = layoutInflater.inflate(R.layout.layout_hostitem, parent, false);
+            holder = new HostViewHolder();
+            holder.textView_hostID = (TextView) convertView.findViewById(R.id.textview_hostID);
+            holder.textView_hostIP = (TextView) convertView.findViewById(R.id.textview_hostIP);
             convertView.setTag(holder);
         } else {
-            holder = (SwitchViewHolder) convertView.getTag();
+            holder = (HostViewHolder) convertView.getTag();
         }
-        //Switch設定
-        Switch item = (Switch) getItem(position);
+        //Host設定
+        Host host = (Host) getItem(position);
         //View 內容設定
-        holder.textView_switchID.setText(item.ID);
-        holder.textView_flow.setText(item.flow);
+        holder.textView_hostID.setText(host.ID);
+        holder.textView_hostIP.setText(host.IP);
         return convertView;
     }
 
-    static class SwitchViewHolder {
-        public TextView textView_switchID = null;
-        public TextView textView_flow = null;
+    static class HostViewHolder {
+        public TextView textView_hostID = null;
+        public TextView textView_hostIP = null;
     }
 }

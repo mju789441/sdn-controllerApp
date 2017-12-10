@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/watch_host"
+        android:title="查看Host" />
+    <item
+        android:id="@+id/watch_flow"
+        android:title="查看Flow" />
+</menu>

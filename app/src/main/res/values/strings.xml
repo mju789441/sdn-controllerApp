@@ -1,9 +1,4 @@
 <resources>
     <string name="app_name">SDN Controller APP</string>
     <string name="action_settings">Settings</string>
-    <!-- menu -->
-    <string name="menu_delete">刪除</string>
-    <string name="menu_connect">連線</string>
-    <string name="menu_watchPacket">觀看封包</string>
-    <string name="menu_watchSwitch">觀看Switch</string>
 </resources>

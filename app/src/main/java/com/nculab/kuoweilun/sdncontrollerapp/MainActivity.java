@@ -17,7 +17,6 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -89,12 +88,11 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(final AdapterView<?> parent, final View view, final int position, long id) {
                 adapter.notifyDataSetChanged();
                 PopupMenu popupmenu = new PopupMenu(MainActivity.this, view);
-                popupmenu.getMenuInflater().inflate(R.menu.menu_instruction, popupmenu.getMenu());
+                popupmenu.getMenuInflater().inflate(R.menu.menu_controller, popupmenu.getMenu());
                 popupmenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         final Controller controller = (Controller) parent.getItemAtPosition(position);
-                        Button back;
                         switch (item.getItemId()) {
                             case R.id.delete:
                                 controller.thread_connect.interrupt();
@@ -127,11 +125,10 @@ public class MainActivity extends AppCompatActivity {
                                     Toast.makeText(MainActivity.this, "尚未連線", Toast.LENGTH_SHORT).show();
                                     break;
                                 }
-                                View view_switch = inflater.inflate(R.layout.switchlist_layout, null);
+                                View view_switch = inflater.inflate(R.layout.layout_switchlist, null);
                                 setContentView(view_switch);
-                                final SwitchHandler switchHandler = new SwitchHandler(MainActivity.this, view_switch, controller);
-
-                                back = (Button) view_switch.findViewById(R.id.button_back);
+                                final SwitchHandler switchHandler = new SwitchHandler(MainActivity.this,MainActivity.this, view_switch, controller);
+                                Button back = (Button) view_switch.findViewById(R.id.button_back);
                                 back.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {

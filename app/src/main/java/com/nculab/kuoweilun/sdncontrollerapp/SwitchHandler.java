@@ -1,10 +1,9 @@
 package com.nculab.kuoweilun.sdncontrollerapp;
 
-import android.app.ListActivity;
 import android.content.Context;
-import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.PopupMenu;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -12,7 +11,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -22,7 +20,7 @@ import java.util.ArrayList;
 public class SwitchHandler {
 
     Context context;
-    View view;
+    View thisView;
     Controller controller;
     ListView listView;
     private ArrayList<Switch> list;
@@ -33,18 +31,18 @@ public class SwitchHandler {
     //Thread
     public Thread thread_getSwitch;
 
-    public SwitchHandler(Context context, View view, Controller controller) {
+    public SwitchHandler(MainActivity activity, Context context, View view, Controller controller) {
         this.context = context;
-        this.view = view;
+        thisView = view;
         this.controller = controller;
         initView();
-        //setListeners();
+        setListeners();
         setThread();
         thread_getSwitch.start();
     }
 
     private void initView() {
-        listView = (ListView) view.findViewById(R.id.list_switch);
+        listView = (ListView) thisView.findViewById(R.id.list_switch);
         list = new ArrayList<Switch>();
         adapter = new SwitchAdapter(context, list);
         listView.setAdapter(adapter);
@@ -57,14 +55,19 @@ public class SwitchHandler {
             public void onItemClick(final AdapterView<?> parent, final View view, final int position, long id) {
                 adapter.notifyDataSetChanged();
                 PopupMenu popupmenu = new PopupMenu(context, view);
-                popupmenu.getMenuInflater().inflate(R.menu.menu_instruction, popupmenu.getMenu());
+                popupmenu.getMenuInflater().inflate(R.menu.menu_switch, popupmenu.getMenu());
                 popupmenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        final Switch controller = (Switch) parent.getItemAtPosition(position);
                         Button back;
                         switch (item.getItemId()) {
-
+                            case R.id.watch_host:
+                                thread_getSwitch.interrupt();
+                                break;
+                            case R.id.watch_flow:
+                                break;
+                            default:
+                                break;
                         }
                         return true;
                     }
@@ -99,7 +102,7 @@ public class SwitchHandler {
                                     handler.post(new Runnable() {
                                         @Override
                                         public void run() {
-                                            list.set(switchID.indexOf(temp2[0]), new Switch(temp2[0], temp2[temp2.length - 1], adapter));
+                                            list.set(switchID.indexOf(temp2[0]), new Switch(temp2[0], temp2[temp2.length - 1]));
                                             adapter.notifyDataSetChanged();
                                         }
                                     });
@@ -108,7 +111,7 @@ public class SwitchHandler {
                                     handler.post(new Runnable() {
                                         @Override
                                         public void run() {
-                                            list.add(new Switch(temp2[0], temp2[temp2.length - 1], adapter));
+                                            list.add(new Switch(temp2[0], temp2[temp2.length - 1]));
                                             adapter.notifyDataSetChanged();
                                         }
                                     });

@@ -42,7 +42,7 @@ public class ControllerAdapter extends BaseAdapter {
          ControlerViewHolder holder;
         //取得View component
         if (convertView == null) {
-            convertView = layoutInflater.inflate(R.layout.controlleritem_layout, parent, false);
+            convertView = layoutInflater.inflate(R.layout.layout_controlleritem, parent, false);
             holder = new ControlerViewHolder();
             holder.textView_IP = (TextView) convertView.findViewById(R.id.textview_IP);
             holder.textView_status = (TextView) convertView.findViewById(R.id.textview_status);
