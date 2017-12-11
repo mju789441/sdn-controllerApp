@@ -1,6 +1,7 @@
 package com.nculab.kuoweilun.sdncontrollerapp;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -9,12 +10,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -28,26 +27,9 @@ public class MainActivity extends AppCompatActivity {
     private View view_main;
     //Component
     private Toolbar toolbar;
-    private FloatingActionButton fab;
     private ListView listView;
     private ArrayList<Controller> list;
     private ControllerAdapter adapter;
-
-    @Override
-    public void setTheme(int resid) {
-        super.setTheme(resid);
-    }
-
-    @Override
-    public View findViewById(int id) {
-        return super.findViewById(id);
-    }
-
-    @Override
-    public MenuInflater getMenuInflater() {
-        return super.getMenuInflater();
-    }
-
     private Controller connecting_controller = null;
 
     @Override
@@ -65,24 +47,14 @@ public class MainActivity extends AppCompatActivity {
     private void initView() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setImageResource(R.drawable.ic_add_black_24dp);
-        fab.getBackground().setAlpha(150);
         listView = (ListView) findViewById(R.id.list_controller);
         list = new ArrayList<Controller>();
         adapter = new ControllerAdapter(MainActivity.this, list);
         listView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 
     private void setListeners() {
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                plusController_Dialog();
-                Snackbar.make(view, "Input your controller IP", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(final AdapterView<?> parent, final View view, final int position, long id) {
@@ -125,17 +97,12 @@ public class MainActivity extends AppCompatActivity {
                                     Toast.makeText(MainActivity.this, "尚未連線", Toast.LENGTH_SHORT).show();
                                     break;
                                 }
-                                View view_switch = inflater.inflate(R.layout.layout_switchlist, null);
-                                setContentView(view_switch);
-                                final SwitchHandler switchHandler = new SwitchHandler(MainActivity.this,MainActivity.this, view_switch, controller);
-                                Button back = (Button) view_switch.findViewById(R.id.button_back);
-                                back.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        switchHandler.thread_getSwitch.interrupt();
-                                        setContentView(view_main);
-                                    }
-                                });
+                                Intent intent = new Intent();
+                                intent.setClass(MainActivity.this, SwitchActivity.class);
+                                Bundle bundle = new Bundle();
+                                bundle.putString("controller.IP", controller.IP);
+                                intent.putExtras(bundle);
+                                startActivity(intent);
                                 break;
                             default:
                                 break;
@@ -172,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        menu.clear();
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -184,7 +152,8 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_plus) {
+            plusController_Dialog();
             return true;
         }
 

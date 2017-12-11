@@ -1,9 +1,11 @@
 package com.nculab.kuoweilun.sdncontrollerapp;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -17,36 +19,41 @@ import java.util.ArrayList;
  * Created by Kuo Wei Lun on 2017/12/3.
  */
 
-public class SwitchHandler {
+public class SwitchActivity extends AppCompatActivity {
 
-    Context context;
-    View thisView;
-    Controller controller;
+    ControllerSocket controllerSocket;
     ListView listView;
     private ArrayList<Switch> list;
     private SwitchAdapter adapter;
     private ArrayList<String> switchID;
+    Button button_backToController;
     //Handler
     Handler handler = new Handler();
     //Thread
     public Thread thread_getSwitch;
 
-    public SwitchHandler(MainActivity activity, Context context, View view, Controller controller) {
-        this.context = context;
-        thisView = view;
-        this.controller = controller;
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.layout_switchlist);
+        Bundle bundle = this.getIntent().getExtras();
+        String IP = bundle.getString("controller.IP");
+        controllerSocket = new ControllerSocket(IP, SwitchActivity.this);
+        controllerSocket.thread_connect.start();
         initView();
         setListeners();
         setThread();
         thread_getSwitch.start();
     }
 
+
     private void initView() {
-        listView = (ListView) thisView.findViewById(R.id.list_switch);
+        listView = (ListView) findViewById(R.id.list_switch);
         list = new ArrayList<Switch>();
-        adapter = new SwitchAdapter(context, list);
+        adapter = new SwitchAdapter(SwitchActivity.this, list);
         listView.setAdapter(adapter);
         switchID = new ArrayList<String>();
+        button_backToController = (Button) findViewById(R.id.button_backToController);
     }
 
     private void setListeners() {
@@ -54,7 +61,7 @@ public class SwitchHandler {
             @Override
             public void onItemClick(final AdapterView<?> parent, final View view, final int position, long id) {
                 adapter.notifyDataSetChanged();
-                PopupMenu popupmenu = new PopupMenu(context, view);
+                PopupMenu popupmenu = new PopupMenu(SwitchActivity.this, view);
                 popupmenu.getMenuInflater().inflate(R.menu.menu_switch, popupmenu.getMenu());
                 popupmenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
@@ -74,6 +81,17 @@ public class SwitchHandler {
                 });
                 popupmenu.show();
             }
+
+        });
+
+        button_backToController.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                controllerSocket.thread_connect.interrupt();
+                controllerSocket.close();
+                thread_getSwitch.interrupt();
+                finish();
+            }
         });
     }
 
@@ -84,15 +102,17 @@ public class SwitchHandler {
                 while (true) {
                     try {
                         //未連線時拋出例外
-                        if (!controller.isConnected()) {
-                            throw new InterruptedException();
+                        while (true) {
+                            if (controllerSocket.isConnected()) {
+                                break;
+                            }
                         }
-                        controller.sendEncryptedMsg("GET switch -ID -bytes");
-                        final String str = controller.getMsg();
+                        controllerSocket.sendEncryptedMsg("GET switch -ID -bytes");
+                        final String str = controllerSocket.getMsg();
                         if (str == null) {
                             throw new Exception();
                         }
-                        final String msg = controller.rsa.decrypt(str.getBytes());
+                        final String msg = controllerSocket.rsa.decrypt(str.getBytes());
                         // 接收訊息
                         String[] temp = msg.split("\n");
                         if (temp[0].equals("switch_speed") && temp[temp.length - 1].equals("/switch_speed")) {
@@ -127,11 +147,11 @@ public class SwitchHandler {
                     } catch (final Exception e) {
                         e.printStackTrace();
                         System.out.println(e.getMessage());
-                        controller.disconnection();
+                        controllerSocket.disconnection();
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
+                                Toast.makeText(SwitchActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
                             }
                         });
                         break;

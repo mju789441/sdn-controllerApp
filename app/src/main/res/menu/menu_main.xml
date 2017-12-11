@@ -3,8 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.nculab.kuoweilun.sdncontrollerapp.MainActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_plus"
+        android:icon="@drawable/ic_add_black_24dp"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
+        android:title="plus"
+        app:showAsAction="ifRoom" />
 </menu>

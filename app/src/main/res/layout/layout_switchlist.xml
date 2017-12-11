@@ -27,7 +27,7 @@
     </ListView>
 
     <Button
-        android:id="@+id/button_back"
+        android:id="@+id/button_backToController"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
