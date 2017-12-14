@@ -7,9 +7,11 @@ package com.nculab.kuoweilun.sdncontrollerapp;
 public class Host {
     String ID = "";
     String IP = "";
+    String mac = "";
 
-    public Host(String ID, String IP) {
+    public Host(String ID, String mac, String IP) {
         this.ID = ID;
+        this.mac = mac;
         this.IP = IP;
     }
 }

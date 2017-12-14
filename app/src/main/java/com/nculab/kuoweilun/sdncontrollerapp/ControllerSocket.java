@@ -41,12 +41,6 @@ public class ControllerSocket {
 
     public void setStatus(final String status) {
         this.status = status;
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     public void setThread() {
@@ -105,6 +99,12 @@ public class ControllerSocket {
 
     public void disconnection() {
         setStatus("斷線");
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
+            }
+        });
         close();
     }
 

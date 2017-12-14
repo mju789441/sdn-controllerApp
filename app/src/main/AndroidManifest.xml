@@ -22,6 +22,7 @@
             </intent-filter>
         </activity>
         <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.SwitchActivity"></activity>
+        <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.HostActivity"></activity>
     </application>
 
 </manifest>

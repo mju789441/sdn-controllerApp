@@ -61,6 +61,7 @@ public class SwitchActivity extends AppCompatActivity {
             @Override
             public void onItemClick(final AdapterView<?> parent, final View view, final int position, long id) {
                 adapter.notifyDataSetChanged();
+                final Switch getSwitch = (Switch) adapter.getItem(position);
                 PopupMenu popupmenu = new PopupMenu(SwitchActivity.this, view);
                 popupmenu.getMenuInflater().inflate(R.menu.menu_switch, popupmenu.getMenu());
                 popupmenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -70,6 +71,15 @@ public class SwitchActivity extends AppCompatActivity {
                         switch (item.getItemId()) {
                             case R.id.watch_host:
                                 thread_getSwitch.interrupt();
+                                controllerSocket.thread_connect.interrupt();
+                                controllerSocket.close();
+                                Intent intent = new Intent();
+                                intent.setClass(SwitchActivity.this, HostActivity.class);
+                                Bundle bundle = new Bundle();
+                                bundle.putString("controller.IP", controllerSocket.IP);
+                                bundle.putString("switchID", getSwitch.ID);
+                                intent.putExtras(bundle);
+                                startActivity(intent);
                                 break;
                             case R.id.watch_flow:
                                 break;
@@ -87,9 +97,9 @@ public class SwitchActivity extends AppCompatActivity {
         button_backToController.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                thread_getSwitch.interrupt();
                 controllerSocket.thread_connect.interrupt();
                 controllerSocket.close();
-                thread_getSwitch.interrupt();
                 finish();
             }
         });
@@ -140,7 +150,7 @@ public class SwitchActivity extends AppCompatActivity {
                         } else {
                             throw new Exception();
                         }
-                        Thread.sleep(100);
+                        Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                         break;
