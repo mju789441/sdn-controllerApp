@@ -45,8 +45,8 @@ public class HostAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = layoutInflater.inflate(R.layout.layout_hostitem, parent, false);
             holder = new HostViewHolder();
-            holder.textView_hostID = (TextView) convertView.findViewById(R.id.textview_hostID);
-            holder.textView_hostIP = (TextView) convertView.findViewById(R.id.textview_hostIP);
+            holder.textView_hostMac = (TextView) convertView.findViewById(R.id.textview_hostMac);
+            holder.ttextView_hostPort = (TextView) convertView.findViewById(R.id.textview_hostPort);
             convertView.setTag(holder);
         } else {
             holder = (HostViewHolder) convertView.getTag();
@@ -54,13 +54,13 @@ public class HostAdapter extends BaseAdapter {
         //Host設定
         Host host = (Host) getItem(position);
         //View 內容設定
-        holder.textView_hostID.setText(host.ID);
-        holder.textView_hostIP.setText(host.IP);
+        holder.textView_hostMac.setText(host.mac);
+        holder.ttextView_hostPort.setText(host.port);
         return convertView;
     }
 
     static class HostViewHolder {
-        public TextView textView_hostID = null;
-        public TextView textView_hostIP = null;
+        public TextView textView_hostMac = null;
+        public TextView ttextView_hostPort = null;
     }
 }

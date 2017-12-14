@@ -1,15 +1,13 @@
 package com.nculab.kuoweilun.sdncontrollerapp;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.PopupMenu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -20,12 +18,13 @@ import java.util.ArrayList;
 
 public class HostActivity extends AppCompatActivity {
 
+    View activityView;
     ControllerSocket controllerSocket;
     String switchID;
     ListView listView;
     private ArrayList<Host> list;
     private HostAdapter adapter;
-    private ArrayList<String> HostID;
+    private ArrayList<Port_mac> HostMac;
     Button button_backToSwitch;
     //Handler
     Handler handler = new Handler();
@@ -35,7 +34,8 @@ public class HostActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.layout_hostlist);
+        activityView = HostActivity.this.getLayoutInflater().inflate(R.layout.layout_hostlist, null);
+        setContentView(activityView);
         Bundle bundle = this.getIntent().getExtras();
         String IP = bundle.getString("controller.IP");
         switchID = bundle.getString("switchID");
@@ -53,7 +53,7 @@ public class HostActivity extends AppCompatActivity {
         list = new ArrayList<Host>();
         adapter = new HostAdapter(HostActivity.this, list);
         listView.setAdapter(adapter);
-        HostID = new ArrayList<String>();
+        HostMac = new ArrayList<Port_mac>();
         button_backToSwitch = (Button) findViewById(R.id.button_backToSwitch);
     }
 
@@ -61,9 +61,26 @@ public class HostActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(final AdapterView<?> parent, final View view, final int position, long id) {
-
+                Host host = (Host) adapter.getItem(position);
+                //顯示資料
+                View view_temp = HostActivity.this.getLayoutInflater().inflate(R.layout.layout_hostproperty, null);
+                setContentView(view_temp);
+                TextView ID = (TextView) view_temp.findViewById(R.id.textViewSwitchID);
+                TextView port = (TextView) view_temp.findViewById(R.id.textViewPort);
+                TextView mac = (TextView) view_temp.findViewById(R.id.textViewMac);
+                TextView IP = (TextView) view_temp.findViewById(R.id.textViewIP);
+                Button back = (Button) view_temp.findViewById(R.id.button_backToHost);
+                ID.setText(ID.getText() + host.ID);
+                port.setText(port.getText() + host.port);
+                mac.setText(mac.getText() + host.mac);
+                IP.setText(IP.getText() + host.IP);
+                back.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        setContentView(activityView);
+                    }
+                });
             }
-
         });
 
         button_backToSwitch.setOnClickListener(new View.OnClickListener() {
@@ -100,25 +117,33 @@ public class HostActivity extends AppCompatActivity {
                         if (temp[0].equals("host") && temp[temp.length - 1].equals("/host") && temp.length != 2) {
                             for (int i = 1; i < temp.length - 1; i++) {
                                 final String[] temp2 = temp[i].split(" ");
-                                if (HostID.contains(temp2[0])) {
+                                if (!HostMac.contains(new Port_mac(false, temp2[2], temp2[3]))) {
+                                    HostMac.add(new Port_mac(true, temp2[2], temp2[3]));
                                     handler.post(new Runnable() {
                                         @Override
                                         public void run() {
-                                            list.set(HostID.indexOf(temp2[0]), new Host(temp2[0], temp2[1], temp2[temp2.length - 1]));
-                                            adapter.notifyDataSetChanged();
+                                            list.add(new Host(temp2[0], temp2[1], temp2[2], temp2[temp2.length - 1]));
                                         }
                                     });
                                 } else {
-                                    HostID.add(temp2[0]);
-                                    handler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            list.add(new Host(temp2[0], temp2[1], temp2[temp2.length - 1]));
-                                            adapter.notifyDataSetChanged();
-                                        }
-                                    });
+                                    HostMac.get(HostMac.indexOf(new Port_mac(false, temp2[2], temp2[3]))).alive = true;
                                 }
                             }
+                            //判斷,Host是否還存在
+                            for (int i = HostMac.size() - 1; i >= 0; i--) {
+                                if (HostMac.get(i).alive == false) {
+                                    HostMac.remove(i);
+                                    list.remove(i);
+                                } else {
+                                    HostMac.get(i).alive = false;
+                                }
+                            }
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
                         } else {
                             throw new Exception();
                         }
@@ -143,4 +168,16 @@ public class HostActivity extends AppCompatActivity {
         });
     }
 
+    private class Port_mac {
+        boolean alive = false;
+        String port;
+        String mac;
+
+        Port_mac(boolean alive, String port, String mac) {
+            this.alive = alive;
+            this.port = port;
+            this.mac = mac;
+
+        }
+    }
 }

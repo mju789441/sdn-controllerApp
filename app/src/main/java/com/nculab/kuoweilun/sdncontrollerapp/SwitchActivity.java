@@ -129,13 +129,15 @@ public class SwitchActivity extends AppCompatActivity {
                             for (int i = 1; i < temp.length - 1; i++) {
                                 final String[] temp2 = temp[i].split(" ");
                                 if (switchID.contains(temp2[0])) {
-                                    handler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            list.set(switchID.indexOf(temp2[0]), new Switch(temp2[0], temp2[temp2.length - 1]));
-                                            adapter.notifyDataSetChanged();
-                                        }
-                                    });
+                                    if (!list.equals(new Switch(temp2[0], temp2[temp2.length - 1]))) {
+                                        handler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                list.set(switchID.indexOf(temp2[0]), new Switch(temp2[0], temp2[temp2.length - 1]));
+                                                adapter.notifyDataSetChanged();
+                                            }
+                                        });
+                                    }
                                 } else {
                                     switchID.add(temp2[0]);
                                     handler.post(new Runnable() {
@@ -158,12 +160,6 @@ public class SwitchActivity extends AppCompatActivity {
                         e.printStackTrace();
                         System.out.println(e.getMessage());
                         controllerSocket.disconnection();
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(SwitchActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
-                            }
-                        });
                         break;
                     }
                 }
