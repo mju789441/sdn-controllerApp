@@ -13,15 +13,15 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/textview_IP"
+            android:id="@+id/textView_IP"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_toLeftOf="@id/textview_status"
+            android:layout_toLeftOf="@id/textView_status"
             android:text="Controller IP" />
 
         <TextView
-            android:id="@+id/textview_status"
+            android:id="@+id/textView_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -31,7 +31,7 @@
             android:id="@+id/list_controller"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/textview_IP" />
+            android:layout_below="@id/textView_IP" />
 
     </RelativeLayout>
 

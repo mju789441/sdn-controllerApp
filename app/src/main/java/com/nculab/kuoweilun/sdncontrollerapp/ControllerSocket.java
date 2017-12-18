@@ -39,10 +39,6 @@ public class ControllerSocket {
         setThread();
     }
 
-    public void setStatus(final String status) {
-        this.status = status;
-    }
-
     public void setThread() {
         thread_connect = new Thread(new Runnable() {
             @Override
@@ -54,7 +50,7 @@ public class ControllerSocket {
                     }
 
                     //連線
-                    setStatus("連線中");
+                    status = "連線中";
                     Socket socket = new Socket();
                     socket.connect(new InetSocketAddress(IP, port));
                     writer = new PrintStream(socket.getOutputStream());
@@ -69,7 +65,7 @@ public class ControllerSocket {
                         throw new Exception();
                     }
                     rsa.setPublicKey(key);
-                    setStatus("已連線");
+                    status = "已連線";
                 } catch (IOException e) {
                     e.printStackTrace();
                     disconnection();
@@ -78,13 +74,6 @@ public class ControllerSocket {
                 } catch (final Exception e) {
                     e.printStackTrace();
                     disconnection();
-                    //除錯
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
                 }
             }
         });
@@ -97,15 +86,41 @@ public class ControllerSocket {
         return false;
     }
 
+    public boolean failConnected() {
+        if (status == "斷線") {
+            return true;
+        }
+        return false;
+    }
+
     public void disconnection() {
-        setStatus("斷線");
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(context, status, Toast.LENGTH_SHORT).show();
-            }
-        });
+        status = "斷線";
         close();
+    }
+
+    public void reset() {
+        status = "未連線";
+        close();
+    }
+
+    public String getDncryptedMsg() {
+        try {
+            String msg = getMsg();
+            if (msg == null) {
+                return null;
+            }
+            return rsa.decrypt(msg.getBytes());
+        } catch (final Exception e) {
+            e.printStackTrace();
+            disconnection();
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+            return null;
+        }
     }
 
     public void sendEncryptedMsg(final String instruction) {

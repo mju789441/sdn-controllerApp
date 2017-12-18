@@ -44,6 +44,14 @@ public class MainActivity extends AppCompatActivity {
         setListeners();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(connecting_controller != null) {
+            connecting_controller.thread_connect.start();
+        }
+    }
+
     private void initView() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -51,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
         list = new ArrayList<Controller>();
         adapter = new ControllerAdapter(MainActivity.this, list);
         listView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
     }
 
     private void setListeners() {
@@ -97,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
                                     Toast.makeText(MainActivity.this, "尚未連線", Toast.LENGTH_SHORT).show();
                                     break;
                                 }
+                                connecting_controller.reset();
                                 Intent intent = new Intent();
                                 intent.setClass(MainActivity.this, SwitchActivity.class);
                                 Bundle bundle = new Bundle();

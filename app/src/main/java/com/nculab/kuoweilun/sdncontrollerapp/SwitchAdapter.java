@@ -45,8 +45,8 @@ public class SwitchAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = layoutInflater.inflate(R.layout.layout_switchitem, parent, false);
             holder = new SwitchViewHolder();
-            holder.textView_switchID = (TextView) convertView.findViewById(R.id.textview_switchID);
-            holder.textView_flow = (TextView) convertView.findViewById(R.id.textview_flow);
+            holder.textView_switchID = (TextView) convertView.findViewById(R.id.textView_switchID);
+            holder.textView_flow = (TextView) convertView.findViewById(R.id.textView_flow);
             convertView.setTag(holder);
         } else {
             holder = (SwitchViewHolder) convertView.getTag();

@@ -90,13 +90,6 @@ public class Controller {
                 } catch (final Exception e) {
                     e.printStackTrace();
                     disconnection();
-                    //除錯
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
                 } finally {
                     busy = false;
                 }
@@ -116,18 +109,17 @@ public class Controller {
         close();
     }
 
+    public void reset() {
+        setStatus("未連線");
+        close();
+    }
+
     public void sendEncryptedMsg(final String instruction) {
         try {
             sendMsg(rsa.encrypt(instruction.getBytes()));
         } catch (final Exception e) {
             e.printStackTrace();
             disconnection();
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
         }
     }
 

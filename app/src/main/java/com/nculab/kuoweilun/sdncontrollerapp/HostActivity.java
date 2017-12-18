@@ -40,10 +40,15 @@ public class HostActivity extends AppCompatActivity {
         String IP = bundle.getString("controller.IP");
         switchID = bundle.getString("switchID");
         controllerSocket = new ControllerSocket(IP, HostActivity.this);
-        controllerSocket.thread_connect.start();
         initView();
         setListeners();
         setThread();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        controllerSocket.thread_connect.start();
         thread_getHost.start();
     }
 
@@ -62,19 +67,22 @@ public class HostActivity extends AppCompatActivity {
             @Override
             public void onItemClick(final AdapterView<?> parent, final View view, final int position, long id) {
                 Host host = (Host) adapter.getItem(position);
-                //顯示資料
+                //換View
                 View view_temp = HostActivity.this.getLayoutInflater().inflate(R.layout.layout_hostproperty, null);
                 setContentView(view_temp);
+                //取得Id
                 TextView ID = (TextView) view_temp.findViewById(R.id.textViewSwitchID);
                 TextView port = (TextView) view_temp.findViewById(R.id.textViewPort);
                 TextView mac = (TextView) view_temp.findViewById(R.id.textViewMac);
                 TextView IP = (TextView) view_temp.findViewById(R.id.textViewIP);
-                Button back = (Button) view_temp.findViewById(R.id.button_backToHost);
+                Button backToHost = (Button) view_temp.findViewById(R.id.button_backToHost);
+                //設定Text
                 ID.setText(ID.getText() + host.ID);
                 port.setText(port.getText() + host.port);
                 mac.setText(mac.getText() + host.mac);
                 IP.setText(IP.getText() + host.IP);
-                back.setOnClickListener(new View.OnClickListener() {
+                //返回原先ViewView
+                backToHost.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         setContentView(activityView);
@@ -88,7 +96,7 @@ public class HostActivity extends AppCompatActivity {
             public void onClick(View v) {
                 thread_getHost.interrupt();
                 controllerSocket.thread_connect.interrupt();
-                controllerSocket.close();
+                controllerSocket.reset();
                 finish();
             }
         });
@@ -100,24 +108,28 @@ public class HostActivity extends AppCompatActivity {
             public void run() {
                 while (true) {
                     try {
-                        //未連線時拋出例外
                         while (true) {
                             if (controllerSocket.isConnected()) {
                                 break;
                             }
+                            if (controllerSocket.failConnected()) {
+                                Toast.makeText(HostActivity.this, "斷線", Toast.LENGTH_SHORT).show();
+                                throw new Exception();
+                            }
                         }
                         controllerSocket.sendEncryptedMsg("GET /v1.0/topology/hosts/");
-                        final String str = controllerSocket.getMsg();
-                        if (str == null) {
+                        final String msg = controllerSocket.getDncryptedMsg();
+                        if (msg == null) {
                             throw new Exception();
                         }
-                        final String msg = controllerSocket.rsa.decrypt(str.getBytes());
                         // 接收訊息
                         String[] temp = msg.split("\n");
                         if (temp[0].equals("host") && temp[temp.length - 1].equals("/host") && temp.length != 2) {
+                            boolean hostChanged = false;
                             for (int i = 1; i < temp.length - 1; i++) {
                                 final String[] temp2 = temp[i].split(" ");
                                 if (!HostMac.contains(new Port_mac(false, temp2[2], temp2[3]))) {
+                                    hostChanged = true;
                                     HostMac.add(new Port_mac(true, temp2[2], temp2[3]));
                                     handler.post(new Runnable() {
                                         @Override
@@ -132,18 +144,22 @@ public class HostActivity extends AppCompatActivity {
                             //判斷,Host是否還存在
                             for (int i = HostMac.size() - 1; i >= 0; i--) {
                                 if (HostMac.get(i).alive == false) {
+                                    hostChanged = true;
                                     HostMac.remove(i);
                                     list.remove(i);
                                 } else {
                                     HostMac.get(i).alive = false;
                                 }
                             }
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    adapter.notifyDataSetChanged();
-                                }
-                            });
+                            if(hostChanged) {
+                                hostChanged = false;
+                                handler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        adapter.notifyDataSetChanged();
+                                    }
+                                });
+                            }
                         } else {
                             throw new Exception();
                         }
@@ -153,14 +169,7 @@ public class HostActivity extends AppCompatActivity {
                         break;
                     } catch (final Exception e) {
                         e.printStackTrace();
-                        System.out.println(e.getMessage());
                         controllerSocket.disconnection();
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(HostActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
-                            }
-                        });
                         break;
                     }
                 }
@@ -177,7 +186,8 @@ public class HostActivity extends AppCompatActivity {
             this.alive = alive;
             this.port = port;
             this.mac = mac;
-
         }
+
     }
+
 }

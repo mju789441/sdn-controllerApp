@@ -44,8 +44,8 @@ public class ControllerAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = layoutInflater.inflate(R.layout.layout_controlleritem, parent, false);
             holder = new ControlerViewHolder();
-            holder.textView_IP = (TextView) convertView.findViewById(R.id.textview_IP);
-            holder.textView_status = (TextView) convertView.findViewById(R.id.textview_status);
+            holder.textView_IP = (TextView) convertView.findViewById(R.id.textView_IP);
+            holder.textView_status = (TextView) convertView.findViewById(R.id.textView_status);
             convertView.setTag(holder);
         } else {
             holder = (ControlerViewHolder) convertView.getTag();

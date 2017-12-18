@@ -45,8 +45,8 @@ public class HostAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = layoutInflater.inflate(R.layout.layout_hostitem, parent, false);
             holder = new HostViewHolder();
-            holder.textView_hostMac = (TextView) convertView.findViewById(R.id.textview_hostMac);
-            holder.ttextView_hostPort = (TextView) convertView.findViewById(R.id.textview_hostPort);
+            holder.textView_hostMac = (TextView) convertView.findViewById(R.id.textView_hostMac);
+            holder.ttextView_hostPort = (TextView) convertView.findViewById(R.id.textView_hostPort);
             convertView.setTag(holder);
         } else {
             holder = (HostViewHolder) convertView.getTag();
