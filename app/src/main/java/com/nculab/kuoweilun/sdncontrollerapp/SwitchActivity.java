@@ -71,21 +71,28 @@ public class SwitchActivity extends AppCompatActivity {
                 popupmenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        Button back;
+                        Intent intent = new Intent();
+                        Bundle bundle = new Bundle();
                         switch (item.getItemId()) {
                             case R.id.watch_host:
                                 thread_getSwitch.interrupt();
                                 controllerSocket.thread_connect.interrupt();
                                 controllerSocket.reset();
-                                Intent intent = new Intent();
                                 intent.setClass(SwitchActivity.this, HostActivity.class);
-                                Bundle bundle = new Bundle();
                                 bundle.putString("controller.IP", controllerSocket.IP);
                                 bundle.putString("switchID", getSwitch.ID);
                                 intent.putExtras(bundle);
                                 startActivity(intent);
                                 break;
                             case R.id.watch_flow:
+                                thread_getSwitch.interrupt();
+                                controllerSocket.thread_connect.interrupt();
+                                controllerSocket.reset();
+                                intent.setClass(SwitchActivity.this, FlowActivity.class);
+                                bundle.putString("controller.IP", controllerSocket.IP);
+                                bundle.putString("switchID", getSwitch.ID);
+                                intent.putExtras(bundle);
+                                startActivity(intent);
                                 break;
                             default:
                                 break;
@@ -165,7 +172,6 @@ public class SwitchActivity extends AppCompatActivity {
                                 }
                             }
                             if (switchChanged) {
-                                switchChanged = false;
                                 handler.post(new Runnable() {
                                     @Override
                                     public void run() {
