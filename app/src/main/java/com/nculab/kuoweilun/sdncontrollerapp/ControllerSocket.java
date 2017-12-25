@@ -116,7 +116,7 @@ public class ControllerSocket {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "未能接收訊息", Toast.LENGTH_SHORT).show();
                 }
             });
             return null;
@@ -132,7 +132,7 @@ public class ControllerSocket {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "未能傳送訊息", Toast.LENGTH_SHORT).show();
                 }
             });
         }

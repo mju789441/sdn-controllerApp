@@ -1,8 +1,11 @@
 package com.nculab.kuoweilun.sdncontrollerapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -66,28 +69,51 @@ public class HostActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(final AdapterView<?> parent, final View view, final int position, long id) {
-                Host host = (Host) adapter.getItem(position);
-                //換View
-                View view_temp = HostActivity.this.getLayoutInflater().inflate(R.layout.layout_hostproperty, null);
-                setContentView(view_temp);
-                //取得Id
-                TextView ID = (TextView) view_temp.findViewById(R.id.textViewSwitchID);
-                TextView port = (TextView) view_temp.findViewById(R.id.textViewPort);
-                TextView mac = (TextView) view_temp.findViewById(R.id.textViewMac);
-                TextView IP = (TextView) view_temp.findViewById(R.id.textViewIP);
-                Button backToHost = (Button) view_temp.findViewById(R.id.button_backToHost);
-                //設定Text
-                ID.setText(ID.getText() + host.ID);
-                port.setText(port.getText() + host.port);
-                mac.setText(mac.getText() + host.mac);
-                IP.setText(IP.getText() + host.IP);
-                //返回原先ViewView
-                backToHost.setOnClickListener(new View.OnClickListener() {
+                final Host host = (Host) adapter.getItem(position);
+                PopupMenu popupmenu = new PopupMenu(HostActivity.this, view);
+                popupmenu.getMenuInflater().inflate(R.menu.menu_host, popupmenu.getMenu());
+                popupmenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
-                    public void onClick(View v) {
-                        setContentView(activityView);
+                    public boolean onMenuItemClick(MenuItem item) {
+                        Intent intent = new Intent();
+                        Bundle bundle = new Bundle();
+                        switch (item.getItemId()) {
+                            case R.id.watch_property:
+                                //換View
+                                View view_temp = HostActivity.this.getLayoutInflater().inflate(R.layout.layout_hostproperty, null);
+                                setContentView(view_temp);
+                                //取得Id
+                                TextView ID = (TextView) view_temp.findViewById(R.id.textViewSwitchID);
+                                TextView port = (TextView) view_temp.findViewById(R.id.textViewPort);
+                                TextView mac = (TextView) view_temp.findViewById(R.id.textViewMac);
+                                TextView IP = (TextView) view_temp.findViewById(R.id.textViewIP);
+                                Button backToHost = (Button) view_temp.findViewById(R.id.button_backToHost);
+                                //設定Text
+                                ID.setText(ID.getText() + host.ID);
+                                port.setText(port.getText() + host.port);
+                                mac.setText(mac.getText() + host.mac);
+                                IP.setText(IP.getText() + host.IP);
+                                //返回原先ViewView
+                                backToHost.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        setContentView(activityView);
+                                    }
+                                });
+                                break;
+                            case R.id.Ban_IP:
+                                if (host.IP == "None") {
+                                    break;
+                                }
+                                controllerSocket.sendEncryptedMsg("POST /ban/" + host.IP);
+                                break;
+                            default:
+                                break;
+                        }
+                        return true;
                     }
                 });
+                popupmenu.show();
             }
         });
 
@@ -151,7 +177,7 @@ public class HostActivity extends AppCompatActivity {
                                     HostMac.get(i).alive = false;
                                 }
                             }
-                            if(hostChanged) {
+                            if (hostChanged) {
                                 hostChanged = false;
                                 handler.post(new Runnable() {
                                     @Override
