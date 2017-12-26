@@ -1,5 +1,6 @@
 package com.nculab.kuoweilun.sdncontrollerapp;
 
+import android.app.FragmentBreadCrumbs;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -105,7 +106,12 @@ public class HostActivity extends AppCompatActivity {
                                 if (host.IP == "None") {
                                     break;
                                 }
-                                controllerSocket.sendEncryptedMsg("POST /ban/" + host.IP);
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        controllerSocket.sendEncryptedMsg("POST /ban/" + host.IP);
+                                    }
+                                }).start();
                                 break;
                             default:
                                 break;
