@@ -17,28 +17,26 @@ import java.net.Socket;
 
 public class Controller {
 
-    String IP = "140.115.204.156";
+    //Componenet
+    private boolean rsa_switch = true;
+    public String IP = "140.115.204.156";
     private int port = 9487;
-    String status = "未連線";
-    //socket
+    public String status = "未連線";
+    private Context context = null;
+    private ControllerAdapter adapter;
+    //Socket
     private Socket socket = null;
     private BufferedReader reader = null;
     private PrintStream writer = null;
-    //rsa
-    public RSA rsa = null;
-    //conponent
-    private Context context = null;
-    private ControllerAdapter adapter;
-    //component handler
+    //Rsa
+    private RSA rsa = null;
+    //Handler
     private Handler handler = new Handler();
-    //控制thread的變數
-    public boolean busy = false;
-    //thread
+    //Thread
     public Thread thread_connect;
 
     public Controller(String IP, Context context, ControllerAdapter adapter) {
         this.IP = IP;
-        //_IP = "192.168.1.1;//測試用;
         this.context = context;
         this.adapter = adapter;
         setThread();
@@ -59,28 +57,28 @@ public class Controller {
             @Override
             public void run() {
                 try {
-                    //線程忙碌或已連線時拋出例外
-                    if (busy || isConnected()) {
+                    //已連線時拋出例外
+                    if (isConnected()) {
                         throw new InterruptedException();
                     }
-
-                    busy = true;
                     //連線
                     setStatus("連線中");
                     Socket socket = new Socket();
                     socket.connect(new InetSocketAddress(IP, port));
                     writer = new PrintStream(socket.getOutputStream());
                     reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                    rsa = new RSA();
-                    //送出MyPublicKey
-                    final String str = rsa.getMyPublicKey();
-                    sendMsg(str);
-                    //接收對方的PublicKey
-                    final String key = getMsg();
-                    if (key == null) {
-                        throw new Exception();
+                    if (rsa_switch) {
+                        rsa = new RSA();
+                        //送出MyPublicKey
+                        final String str = rsa.getMyPublicKey();
+                        sendMsg(str);
+                        //接收對方的PublicKey
+                        final String key = getMsg();
+                        if (key == null) {
+                            throw new Exception();
+                        }
+                        rsa.setPublicKey(key);
                     }
-                    rsa.setPublicKey(key);
                     setStatus("已連線");
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -90,8 +88,6 @@ public class Controller {
                 } catch (final Exception e) {
                     e.printStackTrace();
                     disconnection();
-                } finally {
-                    busy = false;
                 }
             }
         });
@@ -99,6 +95,13 @@ public class Controller {
 
     public boolean isConnected() {
         if (status == "已連線") {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean failConnected() {
+        if (status == "斷線") {
             return true;
         }
         return false;
@@ -114,20 +117,53 @@ public class Controller {
         close();
     }
 
-    public void sendEncryptedMsg(final String instruction) {
-        try {
-            sendMsg(rsa.encrypt(instruction.getBytes()));
-        } catch (final Exception e) {
-            e.printStackTrace();
-            disconnection();
-        }
-    }
-
     public void close() {
         try {
             socket.close();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public String getDncryptedMsg() {
+        try {
+            String msg = getMsg();
+            if (msg == null) {
+                return null;
+            }
+            if (!rsa_switch) {
+                return msg;
+            }
+            return rsa.decrypt(msg.getBytes());
+        } catch (final Exception e) {
+            e.printStackTrace();
+            disconnection();
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(context, "未能接收訊息", Toast.LENGTH_SHORT).show();
+                }
+            });
+            return null;
+        }
+    }
+
+    public void sendEncryptedMsg(final String instruction) {
+        try {
+            if (!rsa_switch) {
+                sendMsg(instruction);
+            } else {
+                sendMsg(rsa.encrypt(instruction.getBytes()));
+            }
+        } catch (final Exception e) {
+            e.printStackTrace();
+            disconnection();
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(context, "未能傳送訊息", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 

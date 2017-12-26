@@ -15,35 +15,83 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/textViewSwitchID"
+                android:id="@+id/textView_switchID"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="SwitchID: "
+                android:text="switchID: "
                 android:textSize="20dp" />
 
             <TextView
-                android:id="@+id/textViewPort"
+                android:id="@+id/textView_port"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Port: "
+                android:text="port: "
                 android:textSize="20dp" />
 
             <TextView
-                android:id="@+id/textViewMac"
+                android:id="@+id/textView_mac"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Mac: "
+                android:text="mac: "
                 android:textSize="20dp" />
 
             <TextView
-                android:id="@+id/textViewIP"
+                android:id="@+id/textView_IP"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="IP:  "
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/textView_speed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="speed: "
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/textView_rx"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="rx:  "
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/textView_tx"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="tx:  "
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/textView_duration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="duration:  "
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/textView_duration_nsec"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="duration_nsec:  "
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/textView_rx_errors"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="rx_errors:  "
                 android:textSize="20dp" />
 
         </LinearLayout>

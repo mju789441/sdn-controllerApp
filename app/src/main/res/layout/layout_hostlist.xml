@@ -4,22 +4,22 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/textView_hostMac"
+        android:id="@+id/textView_host_mac"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_toLeftOf="@id/textView_flow"
-        android:text="Host Mac " />
+        android:text="Host mac " />
 
     <TextView
-        android:id="@+id/textView_hostPort"
+        android:id="@+id/textView_host_port"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:text="port" />
 
     <ListView
-        android:id="@+id/list_host"
+        android:id="@+id/listView_host"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/textView_switchID">

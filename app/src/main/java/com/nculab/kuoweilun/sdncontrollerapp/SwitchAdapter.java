@@ -45,22 +45,22 @@ public class SwitchAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = layoutInflater.inflate(R.layout.layout_switchitem, parent, false);
             holder = new SwitchViewHolder();
-            holder.textView_switchID = (TextView) convertView.findViewById(R.id.textView_switchID);
+            holder.textView_switch_ID = (TextView) convertView.findViewById(R.id.textView_switch_ID);
             holder.textView_flow = (TextView) convertView.findViewById(R.id.textView_flow);
             convertView.setTag(holder);
         } else {
             holder = (SwitchViewHolder) convertView.getTag();
         }
         //Switch設定
-        Switch item = (Switch) getItem(position);
+        Switch getSwitch = (Switch) getItem(position);
         //View 內容設定
-        holder.textView_switchID.setText(item.ID);
-        holder.textView_flow.setText(item.flow);
+        holder.textView_switch_ID.setText(getSwitch.ID);
+        holder.textView_flow.setText(getSwitch.flow);
         return convertView;
     }
 
     static class SwitchViewHolder {
-        public TextView textView_switchID = null;
+        public TextView textView_switch_ID = null;
         public TextView textView_flow = null;
     }
 }

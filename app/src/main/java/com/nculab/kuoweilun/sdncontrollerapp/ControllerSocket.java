@@ -17,20 +17,21 @@ import java.net.Socket;
 
 public class ControllerSocket {
 
+    //Componenet
+    private boolean rsa_switch = true;
     String IP = "140.115.204.156";
     private int port = 9487;
-    String status = "未連線";
-    //socket
+    private String status = "未連線";
+    private Context context = null;
+    //Socket
     private Socket socket = null;
     private BufferedReader reader = null;
     private PrintStream writer = null;
-    //rsa
-    public RSA rsa = null;
-    //conponent
-    private Context context = null;
+    //Rsa
+    private RSA rsa = null;
     //component handler
     private Handler handler = new Handler();
-    //thread
+    //Thread
     public Thread thread_connect;
 
     public ControllerSocket(String IP, Context context) {
@@ -39,7 +40,7 @@ public class ControllerSocket {
         setThread();
     }
 
-    public void setThread() {
+    private void setThread() {
         thread_connect = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -48,23 +49,24 @@ public class ControllerSocket {
                     if (isConnected()) {
                         throw new InterruptedException();
                     }
-
                     //連線
                     status = "連線中";
                     Socket socket = new Socket();
                     socket.connect(new InetSocketAddress(IP, port));
                     writer = new PrintStream(socket.getOutputStream());
                     reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                    rsa = new RSA();
-                    //送出MyPublicKey
-                    final String str = rsa.getMyPublicKey();
-                    sendMsg(str);
-                    //接收對方的PublicKey
-                    final String key = getMsg();
-                    if (key == null) {
-                        throw new Exception();
+                    if (rsa_switch) {
+                        rsa = new RSA();
+                        //送出MyPublicKey
+                        final String str = rsa.getMyPublicKey();
+                        sendMsg(str);
+                        //接收對方的PublicKey
+                        final String key = getMsg();
+                        if (key == null) {
+                            throw new Exception();
+                        }
+                        rsa.setPublicKey(key);
                     }
-                    rsa.setPublicKey(key);
                     status = "已連線";
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -103,11 +105,22 @@ public class ControllerSocket {
         close();
     }
 
+    public void close() {
+        try {
+            socket.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public String getDncryptedMsg() {
         try {
             String msg = getMsg();
             if (msg == null) {
                 return null;
+            }
+            if (!rsa_switch) {
+                return msg;
             }
             return rsa.decrypt(msg.getBytes());
         } catch (final Exception e) {
@@ -125,7 +138,11 @@ public class ControllerSocket {
 
     public void sendEncryptedMsg(final String instruction) {
         try {
-            sendMsg(rsa.encrypt(instruction.getBytes()));
+            if (!rsa_switch) {
+                sendMsg(instruction);
+            } else {
+                sendMsg(rsa.encrypt(instruction.getBytes()));
+            }
         } catch (final Exception e) {
             e.printStackTrace();
             disconnection();
@@ -135,14 +152,6 @@ public class ControllerSocket {
                     Toast.makeText(context, "未能傳送訊息", Toast.LENGTH_SHORT).show();
                 }
             });
-        }
-    }
-
-    public void close() {
-        try {
-            socket.close();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

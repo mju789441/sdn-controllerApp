@@ -1,6 +1,5 @@
 package com.nculab.kuoweilun.sdncontrollerapp;
 
-import android.app.FragmentBreadCrumbs;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,7 +10,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -22,18 +20,17 @@ import java.util.ArrayList;
 
 public class HostActivity extends AppCompatActivity {
 
-    View activityView;
-    ControllerSocket controllerSocket;
-    String switchID;
-    ListView listView;
+    //Component
+    private View activityView;
+    private ControllerSocket controllerSocket;
+    private ListView listView;
     private ArrayList<Host> list;
     private HostAdapter adapter;
-    private ArrayList<Port_mac> HostMac;
-    Button button_backToSwitch;
+    private Button button_backToSwitch;
     //Handler
-    Handler handler = new Handler();
+    private Handler handler = new Handler();
     //Thread
-    public Thread thread_getHost;
+    private Thread thread_getHost;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,9 +38,8 @@ public class HostActivity extends AppCompatActivity {
         activityView = HostActivity.this.getLayoutInflater().inflate(R.layout.layout_hostlist, null);
         setContentView(activityView);
         Bundle bundle = this.getIntent().getExtras();
-        String IP = bundle.getString("controller.IP");
-        switchID = bundle.getString("switchID");
-        controllerSocket = new ControllerSocket(IP, HostActivity.this);
+        String connect_IP = bundle.getString("controller.IP");
+        controllerSocket = new ControllerSocket(connect_IP, HostActivity.this);
         initView();
         setListeners();
         setThread();
@@ -56,13 +52,19 @@ public class HostActivity extends AppCompatActivity {
         thread_getHost.start();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        thread_getHost.interrupt();
+        controllerSocket.thread_connect.interrupt();
+        controllerSocket.reset();
+    }
 
     private void initView() {
-        listView = (ListView) findViewById(R.id.list_host);
+        listView = (ListView) findViewById(R.id.listView_host);
         list = new ArrayList<Host>();
         adapter = new HostAdapter(HostActivity.this, list);
         listView.setAdapter(adapter);
-        HostMac = new ArrayList<Port_mac>();
         button_backToSwitch = (Button) findViewById(R.id.button_backToSwitch);
     }
 
@@ -80,27 +82,11 @@ public class HostActivity extends AppCompatActivity {
                         Bundle bundle = new Bundle();
                         switch (item.getItemId()) {
                             case R.id.watch_property:
-                                //換View
-                                View view_temp = HostActivity.this.getLayoutInflater().inflate(R.layout.layout_hostproperty, null);
-                                setContentView(view_temp);
-                                //取得Id
-                                TextView ID = (TextView) view_temp.findViewById(R.id.textViewSwitchID);
-                                TextView port = (TextView) view_temp.findViewById(R.id.textViewPort);
-                                TextView mac = (TextView) view_temp.findViewById(R.id.textViewMac);
-                                TextView IP = (TextView) view_temp.findViewById(R.id.textViewIP);
-                                Button backToHost = (Button) view_temp.findViewById(R.id.button_backToHost);
-                                //設定Text
-                                ID.setText(ID.getText() + host.ID);
-                                port.setText(port.getText() + host.port);
-                                mac.setText(mac.getText() + host.mac);
-                                IP.setText(IP.getText() + host.IP);
-                                //返回原先ViewView
-                                backToHost.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        setContentView(activityView);
-                                    }
-                                });
+                                intent.setClass(HostActivity.this, HostPropertyActivity.class);
+                                bundle.putString("controller.IP", controllerSocket.IP);
+                                bundle.putSerializable("host", host);
+                                intent.putExtras(bundle);
+                                startActivity(intent);
                                 break;
                             case R.id.Ban_IP:
                                 if (host.IP == "None") {
@@ -126,9 +112,6 @@ public class HostActivity extends AppCompatActivity {
         button_backToSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                thread_getHost.interrupt();
-                controllerSocket.thread_connect.interrupt();
-                controllerSocket.reset();
                 finish();
             }
         });
@@ -140,6 +123,7 @@ public class HostActivity extends AppCompatActivity {
             public void run() {
                 while (true) {
                     try {
+                        //等待連線
                         while (true) {
                             if (controllerSocket.isConnected()) {
                                 break;
@@ -149,42 +133,33 @@ public class HostActivity extends AppCompatActivity {
                                 throw new Exception();
                             }
                         }
+                        //傳送請求
                         controllerSocket.sendEncryptedMsg("GET /v1.0/topology/hosts/");
+                        //接收回復
                         final String msg = controllerSocket.getDncryptedMsg();
                         if (msg == null) {
                             throw new Exception();
                         }
-                        // 接收訊息
                         String[] temp = msg.split("\n");
-                        if (temp[0].equals("host") && temp[temp.length - 1].equals("/host") && temp.length != 2) {
+                        if (temp.length > 2 && temp[0].equals("host") && temp[temp.length - 1].equals("/host")) {
                             boolean hostChanged = false;
-                            for (int i = 1; i < temp.length - 1; i++) {
-                                final String[] temp2 = temp[i].split(" ");
-                                if (!HostMac.contains(new Port_mac(false, temp2[2], temp2[3]))) {
-                                    hostChanged = true;
-                                    HostMac.add(new Port_mac(true, temp2[2], temp2[3]));
-                                    handler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            list.add(new Host(temp2[0], temp2[1], temp2[2], temp2[temp2.length - 1]));
-                                        }
-                                    });
-                                } else {
-                                    HostMac.get(HostMac.indexOf(new Port_mac(false, temp2[2], temp2[3]))).alive = true;
+                            if (list.size() > temp.length - 2) {
+                                hostChanged = true;
+                                for (int i = temp.length - 2; i < list.size(); i++) {
+                                    list.remove(i);
                                 }
                             }
-                            //判斷,Host是否還存在
-                            for (int i = HostMac.size() - 1; i >= 0; i--) {
-                                if (HostMac.get(i).alive == false) {
+                            for (int i = 1; i < temp.length - 1; i++) {
+                                final String[] temp2 = temp[i].split(" ");
+                                if (list.size() <= temp2.length - 2) {
                                     hostChanged = true;
-                                    HostMac.remove(i);
-                                    list.remove(i);
-                                } else {
-                                    HostMac.get(i).alive = false;
+                                    list.add(new Host(temp2[0], temp2[1], temp2[2], temp2[temp2.length - 1]));
+                                } else if (!list.get(i - 1).equals(new Host(temp2[0], temp2[1], temp2[2], temp2[temp2.length - 1]))) {
+                                    hostChanged = true;
+                                    list.set(i - 1, new Host(temp2[0], temp2[1], temp2[2], temp2[temp2.length - 1]));
                                 }
                             }
                             if (hostChanged) {
-                                hostChanged = false;
                                 handler.post(new Runnable() {
                                     @Override
                                     public void run() {
@@ -193,6 +168,12 @@ public class HostActivity extends AppCompatActivity {
                                 });
                             }
                         } else {
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(HostActivity.this, "取得資料錯誤", Toast.LENGTH_SHORT).show();
+                                }
+                            });
                             throw new Exception();
                         }
                         Thread.sleep(1000);
@@ -207,19 +188,6 @@ public class HostActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    private class Port_mac {
-        boolean alive = false;
-        String port;
-        String mac;
-
-        Port_mac(boolean alive, String port, String mac) {
-            this.alive = alive;
-            this.port = port;
-            this.mac = mac;
-        }
-
     }
 
 }

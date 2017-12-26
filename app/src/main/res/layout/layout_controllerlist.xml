@@ -25,10 +25,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:text="Status" />
+            android:text="status" />
 
         <ListView
-            android:id="@+id/list_controller"
+            android:id="@+id/listView_controller"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/textView_IP" />
