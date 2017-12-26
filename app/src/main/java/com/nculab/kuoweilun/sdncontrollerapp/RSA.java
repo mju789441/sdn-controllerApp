@@ -18,11 +18,11 @@ import javax.crypto.Cipher;
  */
 
 public class RSA {
-    //自己的PublicKey
-    private static PublicKey myPublicKey = null;
+    //自己的Key
+    private static PublicKey myPublicKey;
+    private static PrivateKey privateKey;
     //對方的PublicKey
     private static PublicKey publicKey;
-    private static PrivateKey privateKey;
 
     public RSA() throws NoSuchAlgorithmException {
         KeyPair keyPair = buildKeyPair();
@@ -45,6 +45,7 @@ public class RSA {
         return getKeyString(myPublicKey);
     }
 
+    //創造Key
     public KeyPair buildKeyPair() throws NoSuchAlgorithmException {
         final int keySize = 2048;
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");

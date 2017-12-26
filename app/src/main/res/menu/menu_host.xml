@@ -7,4 +7,7 @@
     <item
         android:id="@+id/Ban_IP"
         android:title="Ban" />
+    <item
+        android:id="@+id/unBan_IP"
+        android:title="unBan" />
 </menu>

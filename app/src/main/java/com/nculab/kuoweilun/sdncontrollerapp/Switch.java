@@ -8,8 +8,8 @@ public class Switch {
     String ID = "";
     String flow = "";
 
-    public Switch(String switchID, String flow) {
-        this.ID = switchID;
+    public Switch(String ID, String flow) {
+        this.ID = ID;
         this.flow = flow;
     }
 }

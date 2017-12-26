@@ -3,13 +3,10 @@ package com.nculab.kuoweilun.sdncontrollerapp;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,9 +19,6 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    LayoutInflater inflater;
-    //View
-    private View view_main;
     //Component
     private Toolbar toolbar;
     private ListView listView;
@@ -35,11 +29,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //設定View
-        inflater = getLayoutInflater();
-        view_main = inflater.inflate(R.layout.activity_main, null);
-        setContentView(view_main);
-
+        setContentView(R.layout.activity_main);
         initView();
         setListeners();
     }
@@ -47,15 +37,24 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        if(connecting_controller != null) {
+        if (connecting_controller != null) {
             connecting_controller.thread_connect.start();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (connecting_controller != null) {
+            connecting_controller.thread_connect.interrupt();
+            connecting_controller.reset();
         }
     }
 
     private void initView() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        listView = (ListView) findViewById(R.id.list_controller);
+        listView = (ListView) findViewById(R.id.listView_controller);
         list = new ArrayList<Controller>();
         adapter = new ControllerAdapter(MainActivity.this, list);
         listView.setAdapter(adapter);
@@ -65,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(final AdapterView<?> parent, final View view, final int position, long id) {
-                adapter.notifyDataSetChanged();
                 PopupMenu popupmenu = new PopupMenu(MainActivity.this, view);
                 popupmenu.getMenuInflater().inflate(R.menu.menu_controller, popupmenu.getMenu());
                 popupmenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -73,17 +71,18 @@ public class MainActivity extends AppCompatActivity {
                     public boolean onMenuItemClick(MenuItem item) {
                         final Controller controller = (Controller) parent.getItemAtPosition(position);
                         switch (item.getItemId()) {
-                            case R.id.delete:
-                                controller.thread_connect.interrupt();
-                                controller.close();
-                                //目標是已連線的controller
-                                if (connecting_controller != null) {
-                                    if (connecting_controller.equals(controller)) {
-                                        connecting_controller = null;
-                                    }
+                            case R.id.watch_switch:
+                                if (!controller.isConnected()) {
+                                    Toast.makeText(MainActivity.this, "尚未連線", Toast.LENGTH_SHORT).show();
+                                    break;
                                 }
-                                list.remove(parent.getItemAtPosition(position));
-                                adapter.notifyDataSetChanged();
+                                connecting_controller.reset();
+                                Intent intent = new Intent();
+                                intent.setClass(MainActivity.this, SwitchActivity.class);
+                                Bundle bundle = new Bundle();
+                                bundle.putString("controller.IP", controller.IP);
+                                intent.putExtras(bundle);
+                                startActivity(intent);
                                 break;
                             case R.id.connect:
                                 //把已連線的controller停止連線
@@ -99,18 +98,17 @@ public class MainActivity extends AppCompatActivity {
                                 controller.thread_connect.start();
                                 connecting_controller = controller;
                                 break;
-                            case R.id.watch_switch:
-                                if (!controller.isConnected()) {
-                                    Toast.makeText(MainActivity.this, "尚未連線", Toast.LENGTH_SHORT).show();
-                                    break;
+                            case R.id.delete:
+                                controller.thread_connect.interrupt();
+                                controller.close();
+                                //目標是已連線的controller
+                                if (connecting_controller != null) {
+                                    if (connecting_controller.equals(controller)) {
+                                        connecting_controller = null;
+                                    }
                                 }
-                                connecting_controller.reset();
-                                Intent intent = new Intent();
-                                intent.setClass(MainActivity.this, SwitchActivity.class);
-                                Bundle bundle = new Bundle();
-                                bundle.putString("controller.IP", controller.IP);
-                                intent.putExtras(bundle);
-                                startActivity(intent);
+                                list.remove(parent.getItemAtPosition(position));
+                                adapter.notifyDataSetChanged();
                                 break;
                             default:
                                 break;

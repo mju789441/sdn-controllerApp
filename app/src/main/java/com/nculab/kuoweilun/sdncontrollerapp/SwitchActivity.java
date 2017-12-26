@@ -1,6 +1,5 @@
 package com.nculab.kuoweilun.sdncontrollerapp;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,16 +20,16 @@ import java.util.ArrayList;
 
 public class SwitchActivity extends AppCompatActivity {
 
-    ControllerSocket controllerSocket;
-    ListView listView;
+    //Component
+    private ControllerSocket controllerSocket;
+    private ListView listView;
     private ArrayList<Switch> list;
     private SwitchAdapter adapter;
-    private ArrayList<SwitchID> switchID;
-    Button button_backToController;
+    private Button button_backToController;
     //Handler
-    Handler handler = new Handler();
+    private Handler handler = new Handler();
     //Thread
-    public Thread thread_getSwitch;
+    private Thread thread_getSwitch;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,12 +50,19 @@ public class SwitchActivity extends AppCompatActivity {
         thread_getSwitch.start();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        thread_getSwitch.interrupt();
+        controllerSocket.thread_connect.interrupt();
+        controllerSocket.reset();
+    }
+
     private void initView() {
-        listView = (ListView) findViewById(R.id.list_switch);
+        listView = (ListView) findViewById(R.id.listView_switch);
         list = new ArrayList<Switch>();
         adapter = new SwitchAdapter(SwitchActivity.this, list);
         listView.setAdapter(adapter);
-        switchID = new ArrayList<SwitchID>();
         button_backToController = (Button) findViewById(R.id.button_backToController);
     }
 
@@ -75,24 +81,12 @@ public class SwitchActivity extends AppCompatActivity {
                         Bundle bundle = new Bundle();
                         switch (item.getItemId()) {
                             case R.id.watch_host:
-                                thread_getSwitch.interrupt();
-                                controllerSocket.thread_connect.interrupt();
-                                controllerSocket.reset();
                                 intent.setClass(SwitchActivity.this, HostActivity.class);
                                 bundle.putString("controller.IP", controllerSocket.IP);
-                                bundle.putString("switchID", getSwitch.ID);
                                 intent.putExtras(bundle);
                                 startActivity(intent);
                                 break;
                             case R.id.watch_flow:
-                                thread_getSwitch.interrupt();
-                                controllerSocket.thread_connect.interrupt();
-                                controllerSocket.reset();
-                                intent.setClass(SwitchActivity.this, FlowActivity.class);
-                                bundle.putString("controller.IP", controllerSocket.IP);
-                                bundle.putString("switchID", getSwitch.ID);
-                                intent.putExtras(bundle);
-                                startActivity(intent);
                                 break;
                             default:
                                 break;
@@ -108,9 +102,6 @@ public class SwitchActivity extends AppCompatActivity {
         button_backToController.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                thread_getSwitch.interrupt();
-                controllerSocket.thread_connect.interrupt();
-                controllerSocket.reset();
                 finish();
             }
         });
@@ -122,6 +113,7 @@ public class SwitchActivity extends AppCompatActivity {
             public void run() {
                 while (true) {
                     try {
+                        //等待連線
                         while (true) {
                             if (controllerSocket.isConnected()) {
                                 break;
@@ -131,44 +123,30 @@ public class SwitchActivity extends AppCompatActivity {
                                 throw new Exception();
                             }
                         }
+                        //傳送請求
                         controllerSocket.sendEncryptedMsg("GET switch -ID -bytes");
+                        //接收回復
                         final String msg = controllerSocket.getDncryptedMsg();
                         if (msg == null) {
                             throw new Exception();
                         }
-                        // 接收訊息
                         String[] temp = msg.split("\n");
-                        if (temp[0].equals("switch_speed") && temp[temp.length - 1].equals("/switch_speed")) {
+                        if (temp.length > 2 && temp[0].equals("switch_speed") && temp[temp.length - 1].equals("/switch_speed")) {
                             boolean switchChanged = false;
-                            for (int i = 1; i < temp.length - 1; i++) {
-                                final String[] temp2 = temp[i].split(" ");
-                                if (!switchID.contains(new SwitchID(false, temp2[0]))) {
-                                    switchChanged = true;
-                                    switchID.add(new SwitchID(true, temp2[0]));
-                                    handler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            list.add(new Switch(temp2[0], temp2[temp2.length - 1]));
-                                        }
-                                    });
-                                } else {
-                                    int index = switchID.indexOf(new SwitchID(false, temp2[0]));
-                                    switchID.get(index).alive = true;
-                                    String flow = list.get(index).flow;
-                                    if (flow == temp2[temp2.length - 1]) {
-                                        switchChanged = true;
-                                        list.get(index).flow = temp2[temp2.length - 1];
-                                    }
+                            if (list.size() > temp.length - 2) {
+                                switchChanged = true;
+                                for (int i = temp.length - 2; i < list.size(); i++) {
+                                    list.remove(i);
                                 }
                             }
-                            //判斷,Host是否還存在
-                            for (int i = switchID.size() - 1; i >= 0; i--) {
-                                if (switchID.get(i).alive == false) {
+                            for (int i = 1; i < temp.length - 1; i++) {
+                                final String[] temp2 = temp[i].split(" ");
+                                if (list.size() < temp.length - 2) {
                                     switchChanged = true;
-                                    switchID.remove(i);
-                                    list.remove(i);
-                                } else {
-                                    switchID.get(i).alive = false;
+                                    list.add(new Switch(temp2[0], temp2[temp2.length - 1]));
+                                } else if (!list.get(i - 1).equals(new Switch(temp2[0], temp2[temp2.length - 1]))) {
+                                    switchChanged = true;
+                                    list.set(i - 1, new Switch(temp2[0], temp2[temp2.length - 1]));
                                 }
                             }
                             if (switchChanged) {
@@ -180,6 +158,12 @@ public class SwitchActivity extends AppCompatActivity {
                                 });
                             }
                         } else {
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(SwitchActivity.this, "取得資料錯誤", Toast.LENGTH_SHORT).show();
+                                }
+                            });
                             throw new Exception();
                         }
                         Thread.sleep(1000);
@@ -194,17 +178,6 @@ public class SwitchActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    private class SwitchID {
-        boolean alive = false;
-        String ID;
-
-        SwitchID(boolean alive, String ID) {
-            this.alive = alive;
-            this.ID = ID;
-        }
-
     }
 
 }
