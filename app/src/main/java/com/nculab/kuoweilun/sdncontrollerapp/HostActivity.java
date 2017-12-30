@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -97,7 +98,11 @@ public class HostActivity extends AppCompatActivity {
                                     public void run() {
                                         thread_getHost.interrupt();
                                         controllerSocket.sendEncryptedMsg("POST /ban/" + host.IP);
-                                        controllerSocket.retsetBufferedReader();
+                                        try {
+                                            controllerSocket.getMsg();
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
                                         thread_getHost.start();
                                     }
                                 }).start();
@@ -111,7 +116,11 @@ public class HostActivity extends AppCompatActivity {
                                     public void run() {
                                         thread_getHost.interrupt();
                                         controllerSocket.sendEncryptedMsg("POST /unban/" + host.IP);
-                                        controllerSocket.retsetBufferedReader();
+                                        try {
+                                            controllerSocket.getMsg();
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
                                         thread_getHost.start();
                                     }
                                 }).start();

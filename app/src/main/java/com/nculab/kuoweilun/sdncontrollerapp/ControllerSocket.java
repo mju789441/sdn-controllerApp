@@ -163,12 +163,4 @@ public class ControllerSocket {
         writer.println(msg);
     }
 
-    public void retsetBufferedReader(){
-        try {
-            reader.reset();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 }
