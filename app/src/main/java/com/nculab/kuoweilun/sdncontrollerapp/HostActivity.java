@@ -168,7 +168,11 @@ public class HostActivity extends AppCompatActivity {
                             }
                             for (int i = 1; i < temp.length - 1; i++) {
                                 final String[] temp2 = temp[i].split(" ");
+<<<<<<< HEAD
                                 if (list.size() < temp.length - 2) {
+=======
+                                if (list.size() <= temp2.length - 2) {
+>>>>>>> 3dc6081a8913212f49a018f19df237bb6f38b41a
                                     hostChanged = true;
                                     list.add(new Host(temp2[0], temp2[1], temp2[2], temp2[temp2.length - 1]));
                                 } else if (!list.get(i - 1).equals(new Host(temp2[0], temp2[1], temp2[2], temp2[temp2.length - 1]))) {
