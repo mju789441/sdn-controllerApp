@@ -179,10 +179,10 @@ public class HostActivity extends AppCompatActivity {
                                 final String[] temp2 = temp[i].split(" ");
                                 if (list.size() < temp.length - 2) {
                                     hostChanged = true;
-                                    list.add(new Host(temp2[0], temp2[1], temp2[2], temp2[temp2.length - 1]));
-                                } else if (!list.get(i - 1).equals(new Host(temp2[0], temp2[1], temp2[2], temp2[temp2.length - 1]))) {
+                                    list.add(new Host(temp2[0], temp2[1], temp2[2], temp2[3]));
+                                } else if (!list.get(i - 1).equals(new Host(temp2[0], temp2[1], temp2[2], temp2[3]))) {
                                     hostChanged = true;
-                                    list.set(i - 1, new Host(temp2[0], temp2[1], temp2[2], temp2[temp2.length - 1]));
+                                    list.set(i - 1, new Host(temp2[0], temp2[1], temp2[2], temp2[3]));
                                 }
                             }
                             if (hostChanged) {

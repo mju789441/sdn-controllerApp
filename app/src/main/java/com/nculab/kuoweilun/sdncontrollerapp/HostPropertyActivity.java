@@ -27,6 +27,7 @@ public class HostPropertyActivity extends AppCompatActivity {
     private TextView duration;
     private TextView duration_nsec;
     private TextView rx_errors;
+    private TextView ipstat;
     private Button button_backToHost;
     private Host host;
     private Property property = null;
@@ -79,6 +80,7 @@ public class HostPropertyActivity extends AppCompatActivity {
         duration = (TextView) findViewById(R.id.textView_duration);
         duration_nsec = (TextView) findViewById(R.id.textView_duration_nsec);
         rx_errors = (TextView) findViewById(R.id.textView_rx_errors);
+        ipstat = (TextView) findViewById(R.id.textView_ipstat);
         button_backToHost = (Button) findViewById(R.id.button_backToHost);
     }
 
@@ -119,7 +121,7 @@ public class HostPropertyActivity extends AppCompatActivity {
                             final String[] temp2 = temp[1].split(" ");
                             if (property == null) {
                                 getProperty(temp2);
-                            } else if (!property.equals(new Property(temp2[0], temp2[1], temp2[2], temp2[3], temp2[4], temp2[temp2.length - 1]))) {
+                            } else if (!property.equals(new Property(temp2[0], temp2[1], temp2[2], temp2[3], temp2[4], temp2[5], temp2[6]))) {
                                 getProperty(temp2);
                             }
                         } else {
@@ -146,7 +148,7 @@ public class HostPropertyActivity extends AppCompatActivity {
     }
 
     private void getProperty(String temp2[]) {
-        property = new Property(temp2[0], temp2[1], temp2[2], temp2[3], temp2[4], temp2[temp2.length - 1]);
+        property = new Property(temp2[0], temp2[1], temp2[2], temp2[3], temp2[4], temp2[5], temp2[6]);
         handler.post(new Runnable() {
                          @Override
                          public void run() {
@@ -156,6 +158,7 @@ public class HostPropertyActivity extends AppCompatActivity {
                              duration.setText("duration: " + property.duration);
                              duration_nsec.setText("duration_nsec: " + property.duration_nsec);
                              rx_errors.setText("rx_errors: " + property.rx_errors);
+                             ipstat.setText("ipstat: " + property.ipstat);
                          }
                      }
         );
@@ -168,14 +171,16 @@ public class HostPropertyActivity extends AppCompatActivity {
         String duration = "";
         String duration_nsec = "";
         String rx_errors = "";
+        String ipstat = "";
 
-        public Property(String speed, String rx, String tx, String duration, String duration_nsec, String rx_errors) {
+        public Property(String speed, String rx, String tx, String duration, String duration_nsec, String rx_errors, String ipstat) {
             this.speed = speed;
             this.rx = rx;
             this.tx = tx;
             this.duration = duration;
             this.duration_nsec = duration_nsec;
             this.rx_errors = rx_errors;
+            this.ipstat = ipstat;
         }
     }
 

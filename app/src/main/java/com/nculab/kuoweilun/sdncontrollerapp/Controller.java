@@ -18,7 +18,7 @@ import java.net.Socket;
 public class Controller {
 
     //Componenet
-    private boolean rsa_switch = true;
+    private boolean rsa_switch = false;
     public String IP = "140.115.204.156";
     private int port = 9487;
     public String status = "未連線";

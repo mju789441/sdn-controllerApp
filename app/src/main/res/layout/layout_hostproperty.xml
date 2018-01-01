@@ -94,6 +94,14 @@
                 android:text="rx_errors:  "
                 android:textSize="20dp" />
 
+            <TextView
+                android:id="@+id/textView_ipstat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ipstat:  "
+                android:textSize="20dp" />
+
         </LinearLayout>
     </ScrollView>
 

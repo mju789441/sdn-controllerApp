@@ -18,7 +18,7 @@ import java.net.Socket;
 public class ControllerSocket {
 
     //Componenet
-    private boolean rsa_switch = true;
+    private boolean rsa_switch = false;
     String IP = "140.115.204.156";
     private int port = 9487;
     private String status = "未連線";
@@ -120,6 +120,12 @@ public class ControllerSocket {
                 return null;
             }
             if (!rsa_switch) {
+                String temp;
+                //由於一次只能讀到"\n"所以要讀入多行。字串包含"/"代表最後一行
+                for (; !(temp = getMsg()).contains("/"); ) {
+                    msg += '\n' + temp;
+                }
+                msg += '\n' + temp;
                 return msg;
             }
             return rsa.decrypt(msg.getBytes());
