@@ -70,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         final Controller controller = (Controller) parent.getItemAtPosition(position);
+                        Intent intent = new Intent();
+                        Bundle bundle = new Bundle();
                         switch (item.getItemId()) {
                             case R.id.watch_switch:
                                 if (!controller.isConnected()) {
@@ -77,9 +79,13 @@ public class MainActivity extends AppCompatActivity {
                                     break;
                                 }
                                 connecting_controller.reset();
-                                Intent intent = new Intent();
                                 intent.setClass(MainActivity.this, SwitchActivity.class);
-                                Bundle bundle = new Bundle();
+                                bundle.putString("controller.IP", controller.IP);
+                                intent.putExtras(bundle);
+                                startActivity(intent);
+                                break;
+                            case R.id.watch_topology:
+                                intent.setClass(MainActivity.this, TopologyActivity.class);
                                 bundle.putString("controller.IP", controller.IP);
                                 intent.putExtras(bundle);
                                 startActivity(intent);

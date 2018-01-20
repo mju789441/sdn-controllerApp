@@ -5,6 +5,9 @@
         android:id="@+id/watch_switch"
         android:title="查看Switch" />
     <item
+        android:id="@+id/watch_topology"
+        android:title="查看Topology" />
+    <item
         android:id="@+id/connect"
         android:title="連線" />
     <item
