@@ -1,80 +1,71 @@
 <!DOCTYPE html>
 <html>
 
-  <head>
+<head>
     <link rel="stylesheet" href="style.css">
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.js"></script>
-	<script src="cytoscape.js"></script>
-	<script type="text/javascript">
-			var cy;
-			$(function() {
-				cy = cytoscape({
-					container: document.getElementById('cy'),
-					style: [
-						{
-							selector: 'node',
-							css: {
-								width: 50,
-								height: 50,
-								content: 'data(id)'
-							}
-						}
-					],
-					elements: {
-						nodes: [
-					        {data: { id: "123" } }
-					    ],
-					},
-					layout: {
-					    name: 'breadthfirst',
-					    directed: true,
-					    padding: 10,
-					    fit: true
-					}
-				});
-			cy.on('tap', 'node', function(evt){
-			  	var node = evt.target;
-				callAndroid(node.id());
-				add_eles([
-				  { group: "nodes", data: { id: "a" } },
-				  { group: "nodes", data: { id: "b" } },
-				  { group: "nodes", data: { id: "c" } },
-				  { group: "nodes", data: { id: "d" } },
-				  	{ group: "nodes", data: { id: "e" } },
-  				      { group: "edges", data: { id: 'eab', source: 'a', target: 'b' } },
-  				      { group: "edges", data: { id: 'eac', source: 'a', target: 'c' } },
-  				      { group: "edges", data: { id: 'ead', source: 'a', target: 'd' } },
-  				      { group: "edges", data: { id: 'ebd', source: 'b', target: 'd' } },
-  				      { group: "edges", data: { id: 'ecd', source: 'c', target: 'd' } },
-  				      { group: "edges", data: { id: 'edd', source: 'd', target: 'd' } },
-  				      { group: "edges", data: { id: 'ede', source: 'd', target: 'e' } },
-				  { group: "edges", data: { id: 'eab', source: 'a', target: 'b' } }
-				]);
-			});
-			/*
-			cy.add(
-			  { group: "nodes", data: { id: "n0" }}
-			);*/
-		})
-		function add_eles(eles){
-			cy.add(eles);
-			cy.fit();
-			cy.layout({
-					    name: 'breadthfirst',
-					    directed: true,
-					    padding: 10,
-					    fit: true
-					}).run();
-		}
-		function callAndroid(msg){
-       		// 由于对象映射，所以调用test对象等于调用Android映射的对象
-			android_click.click_msg(msg);
-         }
-	</script>
-  </head>
+    <script src="cytoscape.js"></script>
+    <script type="text/javascript">
+    var cy;
+    reset();
 
-  <body>
+    function reset() {
+        $(function() {
+            cy = cytoscape({
+                container: document.getElementById('cy'),
+                style: [{
+                    selector: 'node',
+                    css: {
+                        width: 50,
+                        height: 50,
+                        content: 'data(id)'
+                    }
+                }],
+                elements: {
+                    nodes: [
+                        { data: { id: 'controller' } },
+                        { data: { id: 'switch' } },
+                        { data: { id: 'host' } }
+                    ]
+                },
+                layout: {
+                    name: 'breadthfirst',
+                    directed: true,
+                    padding: 10,
+                    fit: true
+                }
+            });
+            cy.on('tap', 'node', function(evt) {
+                var id = this.id();
+                var parent = this.parent().id();
+                android.click_node(id, parent);
+            });
+        })
+    }
+
+    function add_eles(eles) {
+        cy.add(eles);
+        cy.layout({
+            name: 'breadthfirst',
+            directed: true,
+            padding: 10,
+            fit: true
+        }).run();
+    }
+
+    function rearrange() {
+        cy.layout({
+            name: 'breadthfirst',
+            directed: true,
+            padding: 10,
+            fit: true
+        }).run();
+    }
+    </script>
+</head>
+
+<body>
     <div id="cy"></div>
-  </body>
+</body>
 
 </html>

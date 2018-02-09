@@ -40,23 +40,22 @@ public class HostActivity extends AppCompatActivity {
         setContentView(activityView);
         Bundle bundle = this.getIntent().getExtras();
         String connect_IP = bundle.getString("controller.IP");
-        controllerSocket = new ControllerSocket(connect_IP, HostActivity.this);
         initView();
         setListeners();
-        setThread();
+        controllerSocket = new ControllerSocket(connect_IP, HostActivity.this, list, adapter);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         controllerSocket.thread_connect.start();
-        thread_getHost.start();
+        controllerSocket.thread_getHost.start();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        thread_getHost.interrupt();
+        controllerSocket.thread_getHost.interrupt();
         controllerSocket.thread_connect.interrupt();
         controllerSocket.reset();
     }
@@ -139,79 +138,6 @@ public class HostActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
-            }
-        });
-    }
-
-    private void setThread() {
-        thread_getHost = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        //等待連線
-                        while (true) {
-                            if (controllerSocket.isConnected()) {
-                                break;
-                            }
-                            if (controllerSocket.failConnected()) {
-                                Toast.makeText(HostActivity.this, "斷線", Toast.LENGTH_SHORT).show();
-                                throw new Exception();
-                            }
-                        }
-                        //傳送請求
-                        controllerSocket.sendEncryptedMsg("GET /v1.0/topology/hosts/");
-                        //接收回復
-                        final String msg = controllerSocket.getDncryptedMsg();
-                        if (msg == null) {
-                            throw new Exception();
-                        }
-                        String[] temp = msg.split("\n");
-                        if (temp.length > 2 && temp[0].equals("host") && temp[temp.length - 1].equals("/host")) {
-                            boolean hostChanged = false;
-                            if (list.size() > temp.length - 2) {
-                                hostChanged = true;
-                                for (int i = temp.length - 2; i < list.size(); i++) {
-                                    list.remove(i);
-                                }
-                            }
-                            for (int i = 1; i < temp.length - 1; i++) {
-                                final String[] temp2 = temp[i].split(" ");
-                                if (list.size() < temp.length - 2) {
-                                    hostChanged = true;
-                                    list.add(new Host(temp2[0], temp2[1], temp2[2], temp2[3]));
-                                } else if (!list.get(i - 1).equals(new Host(temp2[0], temp2[1], temp2[2], temp2[3]))) {
-                                    hostChanged = true;
-                                    list.set(i - 1, new Host(temp2[0], temp2[1], temp2[2], temp2[3]));
-                                }
-                            }
-                            if (hostChanged) {
-                                handler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                });
-                            }
-                        } else {
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(HostActivity.this, "取得資料錯誤", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                            throw new Exception();
-                        }
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        break;
-                    } catch (final Exception e) {
-                        e.printStackTrace();
-                        controllerSocket.disconnection();
-                        break;
-                    }
-                }
             }
         });
     }

@@ -11,13 +11,16 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.nculab.kuoweilun.sdncontrollerapp.ControllerSocket;
+import com.nculab.kuoweilun.sdncontrollerapp.R;
+
 import java.util.ArrayList;
 
 public class ControllerAdapter extends BaseAdapter {
     private LayoutInflater layoutInflater;
-    private ArrayList<Controller> list;
+    private ArrayList<ControllerSocket> list;
 
-    ControllerAdapter(Context context, ArrayList<Controller> list) {
+    ControllerAdapter(Context context, ArrayList<ControllerSocket> list) {
         layoutInflater = LayoutInflater.from(context);
         this.list = list;
     }
@@ -51,7 +54,7 @@ public class ControllerAdapter extends BaseAdapter {
             holder = (ControlerViewHolder) convertView.getTag();
         }
         //Controller設定
-        Controller controller = (Controller) getItem(position);
+        ControllerSocket controller = (ControllerSocket) getItem(position);
         //View 內容設定
         holder.textView_IP.setText(controller.IP);
         holder.textView_status.setText(controller.status);

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/button_property"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="詳細資料" />
+
+    <Button
+        android:id="@+id/button_ban"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="ban" />
+
+    <Button
+        android:id="@+id/button_unban"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="unban" />
+</LinearLayout>

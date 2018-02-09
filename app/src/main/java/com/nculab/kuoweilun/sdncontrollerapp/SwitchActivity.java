@@ -28,8 +28,6 @@ public class SwitchActivity extends AppCompatActivity {
     private Button button_backToController;
     //Handler
     private Handler handler = new Handler();
-    //Thread
-    private Thread thread_getSwitch;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -37,23 +35,22 @@ public class SwitchActivity extends AppCompatActivity {
         setContentView(R.layout.layout_switchlist);
         Bundle bundle = this.getIntent().getExtras();
         String IP = bundle.getString("controller.IP");
-        controllerSocket = new ControllerSocket(IP, SwitchActivity.this);
         initView();
         setListeners();
-        setThread();
+        controllerSocket = new ControllerSocket(IP, SwitchActivity.this, list, adapter);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         controllerSocket.thread_connect.start();
-        thread_getSwitch.start();
+        controllerSocket.thread_getSwitch.start();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        thread_getSwitch.interrupt();
+        controllerSocket.thread_getSwitch.interrupt();
         controllerSocket.thread_connect.interrupt();
         controllerSocket.reset();
     }
@@ -103,79 +100,6 @@ public class SwitchActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
-            }
-        });
-    }
-
-    private void setThread() {
-        thread_getSwitch = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        //等待連線
-                        while (true) {
-                            if (controllerSocket.isConnected()) {
-                                break;
-                            }
-                            if (controllerSocket.failConnected()) {
-                                Toast.makeText(SwitchActivity.this, "斷線", Toast.LENGTH_SHORT).show();
-                                throw new Exception();
-                            }
-                        }
-                        //傳送請求
-                        controllerSocket.sendEncryptedMsg("GET switch -ID -bytes");
-                        //接收回復
-                        final String msg = controllerSocket.getDncryptedMsg();
-                        if (msg == null) {
-                            throw new Exception();
-                        }
-                        String[] temp = msg.split("\n");
-                        if (temp.length > 2 && temp[0].equals("switch_speed") && temp[temp.length - 1].equals("/switch_speed")) {
-                            boolean switchChanged = false;
-                            if (list.size() > temp.length - 2) {
-                                switchChanged = true;
-                                for (int i = temp.length - 2; i < list.size(); i++) {
-                                    list.remove(i);
-                                }
-                            }
-                            for (int i = 1; i < temp.length - 1; i++) {
-                                final String[] temp2 = temp[i].split(" ");
-                                if (list.size() < temp.length - 2) {
-                                    switchChanged = true;
-                                    list.add(new Switch(temp2[0], temp2[1]));
-                                } else if (!list.get(i - 1).equals(new Switch(temp2[0], temp2[1]))) {
-                                    switchChanged = true;
-                                    list.set(i - 1, new Switch(temp2[0], temp2[1]));
-                                }
-                            }
-                            if (switchChanged) {
-                                handler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                });
-                            }
-                        } else {
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(SwitchActivity.this, "取得資料錯誤", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                            throw new Exception();
-                        }
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        break;
-                    } catch (final Exception e) {
-                        e.printStackTrace();
-                        controllerSocket.disconnection();
-                        break;
-                    }
-                }
             }
         });
     }

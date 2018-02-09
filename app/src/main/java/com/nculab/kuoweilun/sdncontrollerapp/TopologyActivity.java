@@ -1,6 +1,7 @@
 package com.nculab.kuoweilun.sdncontrollerapp;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -10,12 +11,12 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.Object;
+import java.util.ArrayList;
 
 /**
  * Created by Kuo Wei Lun on 2018/1/18.
@@ -24,17 +25,17 @@ import java.lang.Object;
 public class TopologyActivity extends AppCompatActivity {
 
     //Component
-    private ControllerSocket controllerSocket;
+    public ControllerSocket controllerSocket;
     private WebView webView;
     private WebSettings webSettings;
     private Button button_backToController;
-    private Boolean loadedUrl = false;
+    private boolean urlLoad = false;
+    public ArrayList<Switch> switchArrayList;
+    public ArrayList<Host> hostArrayList;
     //Handler
     private Handler handler = new Handler();
     //Thread
     private Thread thread_getTopology;
-
-    JSONObject test;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,10 +43,10 @@ public class TopologyActivity extends AppCompatActivity {
         setContentView(R.layout.layout_topology);
         Bundle bundle = this.getIntent().getExtras();
         String connect_IP = bundle.getString("controller.IP");
-        controllerSocket = new ControllerSocket(connect_IP, TopologyActivity.this);
         initView();
         setListeners();
         setThread();
+        controllerSocket = new ControllerSocket(connect_IP, TopologyActivity.this, switchArrayList, hostArrayList);
     }
 
     @Override
@@ -65,21 +66,27 @@ public class TopologyActivity extends AppCompatActivity {
 
     @SuppressLint("JavascriptInterface")
     private void initView() {
+        switchArrayList = new ArrayList<Switch>();
+        hostArrayList = new ArrayList<Host>();
         webView = (WebView) findViewById(R.id.webView);
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new WebViewClient() {
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                urlLoad = false;
+            }
+
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                urlLoad = true;
+            }
+        });
         webView.setWebChromeClient(new WebChromeClient());
         webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         webView.loadUrl("file:///android_asset/topology.html");
         button_backToController = (Button) findViewById(R.id.button_backToController);
-        try {
-            test = new JSONObject("{\"group\":\"nodes\",\"data\":{\"id\":\"n0\"}}");
-            webView.loadUrl("javascript:add_eles(" + test.toString() + ")");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        webView.addJavascriptInterface(new JSInterface(TopologyActivity.this, getLayoutInflater(), webView), "android_click");
+        webView.addJavascriptInterface(new JSInterface(TopologyActivity.this, getLayoutInflater(), webView), "android");
     }
 
     private void setListeners() {
@@ -95,70 +102,56 @@ public class TopologyActivity extends AppCompatActivity {
         thread_getTopology = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (true) {
-                    try {
-                        //等待連線
-                        while (true) {
-                            if (controllerSocket.isConnected()) {
-                                break;
-                            }
-                            if (controllerSocket.failConnected()) {
-                                Toast.makeText(TopologyActivity.this, "斷線", Toast.LENGTH_SHORT).show();
-                                throw new Exception();
-                            }
-                        }
-                        //傳送請求
-                        controllerSocket.sendEncryptedMsg("GET /v1.0/topology/hosts/");
-                        //接收回復
-                        final String msg = controllerSocket.getDncryptedMsg();
-                        if (msg == null) {
-                            throw new Exception();
-                        }
-                        String[] temp = msg.split("\n");
-                        if (temp.length > 2 && temp[0].equals("host") && temp[temp.length - 1].equals("/host")) {
-                            boolean hostChanged = false;
-                            if (list.size() > temp.length - 2) {
-                                hostChanged = true;
-                                for (int i = temp.length - 2; i < list.size(); i++) {
-                                    list.remove(i);
-                                }
-                            }
-                            for (int i = 1; i < temp.length - 1; i++) {
-                                final String[] temp2 = temp[i].split(" ");
-                                if (list.size() < temp.length - 2) {
-                                    hostChanged = true;
-                                    list.add(new Host(temp2[0], temp2[1], temp2[2], temp2[3]));
-                                } else if (!list.get(i - 1).equals(new Host(temp2[0], temp2[1], temp2[2], temp2[3]))) {
-                                    hostChanged = true;
-                                    list.set(i - 1, new Host(temp2[0], temp2[1], temp2[2], temp2[3]));
-                                }
-                            }
-                            if (hostChanged) {
-                                handler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                });
-                            }
-                        } else {
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(HostActivity.this, "取得資料錯誤", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                            throw new Exception();
-                        }
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        break;
-                    } catch (final Exception e) {
-                        e.printStackTrace();
-                        controllerSocket.disconnection();
-                        break;
+                try {
+                    while (!urlLoad) {
                     }
+                    //取得controller
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            JSONArray getSetting = new JSONArray();
+                            try {
+                                getSetting.put(new JSONObject("{ group: 'nodes', data: { id: 'c0', parent: 'controller' } }"));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            webView.loadUrl("javascript:add_eles(" + getSetting.toString() + ")");
+                        }
+                    });
+                    controllerSocket.getSwitchArrayList();
+                    controllerSocket.getHostArrayList();
+                    final JSONArray getSwitch = new JSONArray();
+                    for (int i = 0; i < switchArrayList.size(); i++) {
+                        JSONObject switchID = new JSONObject("{ group: 'nodes', data: { id: 's" + switchArrayList.get(i).ID + "', parent: 'switch' } }");
+                        getSwitch.put(switchID);
+                        JSONObject switchEdge = new JSONObject("{ group: 'edges', data: { id: 'ec0s" + switchArrayList.get(i).ID + "', source: 'c0', target: 's" + switchArrayList.get(i).ID + "' } }");
+                        getSwitch.put(switchEdge);
+                    }
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            webView.loadUrl("javascript:add_eles(" + getSwitch.toString() + ")");
+                        }
+                    });
+                    final JSONArray getHost = new JSONArray();
+                    for (int i = 0; i < hostArrayList.size(); i++) {
+                        JSONObject hostID = new JSONObject("{ group: 'nodes', data: { id: 'h" + hostArrayList.get(i).port + "', parent: 'host' } }");
+                        getHost.put(hostID);
+                        JSONObject hostEdge = new JSONObject("{ group: 'edges', data: { id: 'ec" + hostArrayList.get(i).ID + "h" + hostArrayList.get(i).port + "', source: 's" + hostArrayList.get(i).ID + "', target: 'h" + hostArrayList.get(i).port + "' } }");
+                        getHost.put(hostEdge);
+                    }
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            webView.loadUrl("javascript:add_eles(" + getHost.toString() + ")");
+                            webView.loadUrl("javascript:rearrange()");
+                        }
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    controllerSocket.disconnection();
                 }
             }
         });

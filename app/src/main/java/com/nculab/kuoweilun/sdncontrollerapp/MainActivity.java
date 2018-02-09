@@ -22,9 +22,9 @@ public class MainActivity extends AppCompatActivity {
     //Component
     private Toolbar toolbar;
     private ListView listView;
-    private ArrayList<Controller> list;
+    private ArrayList<ControllerSocket> list;
     private ControllerAdapter adapter;
-    private Controller connecting_controller = null;
+    private ControllerSocket connecting_controller = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         listView = (ListView) findViewById(R.id.listView_controller);
-        list = new ArrayList<Controller>();
+        list = new ArrayList<ControllerSocket>();
         adapter = new ControllerAdapter(MainActivity.this, list);
         listView.setAdapter(adapter);
     }
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                 popupmenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        final Controller controller = (Controller) parent.getItemAtPosition(position);
+                        final ControllerSocket controller = (ControllerSocket) parent.getItemAtPosition(position);
                         Intent intent = new Intent();
                         Bundle bundle = new Bundle();
                         switch (item.getItemId()) {
@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         // 在此處理 input
-                        Controller controller = new Controller(input.getText().toString(), MainActivity.this, adapter);
+                        ControllerSocket controller = new ControllerSocket(input.getText().toString(), MainActivity.this, adapter);
                         list.add(controller);
                         adapter.notifyDataSetChanged();
                         //如果有未連線的controller自動連線
