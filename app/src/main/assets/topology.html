@@ -13,21 +13,18 @@
         $(function() {
             cy = cytoscape({
                 container: document.getElementById('cy'),
-                style: [{
-                    selector: 'node',
-                    css: {
-                        width: 50,
-                        height: 50,
+                style: cytoscape.stylesheet()
+                    .selector('node')
+                    .css({
+                        height: 80,
+                        width: 80,
                         content: 'data(id)'
-                    }
-                }],
-                elements: {
-                    nodes: [
-                        { data: { id: 'controller' } },
-                        { data: { id: 'switch' } },
-                        { data: { id: 'host' } }
-                    ]
-                },
+                    })
+                    .selector('edge')
+                    .css({
+                        content: 'data(flow)',
+                        color: 'green'
+                    }),
                 layout: {
                     name: 'breadthfirst',
                     directed: true,
@@ -51,6 +48,11 @@
             padding: 10,
             fit: true
         }).run();
+    }
+
+    function set_edge_flow(edgename, flowbytes) {
+        var eles = cy.edges("#" + edgename);
+        eles.data('flow', flowbytes);
     }
 
     function rearrange() {

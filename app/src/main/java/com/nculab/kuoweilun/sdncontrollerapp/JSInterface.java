@@ -60,8 +60,13 @@ public class JSInterface extends Object implements View.OnClickListener {
                 if (node == "host") {
                     break;
                 }
-                view = layoutInflater.inflate(R.layout.layout_popup_host, null);
+                view = layoutInflater.inflate(R.layout.layout_popup_switch, null);
                 popupWindow.setContentView(view);
+                popupWindow.showAsDropDown(webView);
+                Button button_watch_host = (Button) view.findViewById(R.id.button_watch_host);
+                button_watch_host.setOnClickListener(this);
+                Button button_watch_flow = (Button) view.findViewById(R.id.button_watch_flow);
+                button_watch_flow.setOnClickListener(this);
                 break;
             case "host":
                 view = layoutInflater.inflate(R.layout.layout_popup_host, null);
@@ -86,6 +91,14 @@ public class JSInterface extends Object implements View.OnClickListener {
         Bundle bundle = new Bundle();
         final Host host = topologyActivity.hostArrayList.get(topologyActivity.controllerSocket.hostPortArrayList.indexOf(node.substring(1)));
         switch (view.getId()) {
+            case R.id.button_watch_host:
+                intent.setClass(topologyActivity, SwitchActivity.class);
+                bundle.putString("controller.IP", topologyActivity.controllerSocket.IP);
+                intent.putExtras(bundle);
+                topologyActivity.startActivity(intent);
+                break;
+            case R.id.button_watch_flow:
+                break;
             case R.id.button_property:
                 intent.setClass(topologyActivity, HostPropertyActivity.class);
                 bundle.putString("controller.IP", topologyActivity.controllerSocket.IP);
@@ -94,36 +107,10 @@ public class JSInterface extends Object implements View.OnClickListener {
                 topologyActivity.startActivity(intent);
                 break;
             case R.id.button_ban:
-                if (host.IP == "None") {
-                    break;
-                }
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        topologyActivity.controllerSocket.sendEncryptedMsg("POST /ban/" + host.IP);
-                        try {
-                            topologyActivity.controllerSocket.getMsg();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
+                topologyActivity.controllerSocket.ban(host);
                 break;
             case R.id.button_unban:
-                if (host.IP == "None") {
-                    break;
-                }
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        topologyActivity.controllerSocket.sendEncryptedMsg("POST /unban/" + host.IP);
-                        try {
-                            topologyActivity.controllerSocket.getMsg();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
+                topologyActivity.controllerSocket.unban(host);
                 break;
             default:
                 break;

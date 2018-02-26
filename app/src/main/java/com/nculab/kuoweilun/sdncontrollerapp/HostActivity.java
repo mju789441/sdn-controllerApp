@@ -89,40 +89,10 @@ public class HostActivity extends AppCompatActivity {
                                 startActivity(intent);
                                 break;
                             case R.id.Ban_IP:
-                                if (host.IP == "None") {
-                                    break;
-                                }
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        thread_getHost.interrupt();
-                                        controllerSocket.sendEncryptedMsg("POST /ban/" + host.IP);
-                                        try {
-                                            controllerSocket.getMsg();
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
-                                        thread_getHost.start();
-                                    }
-                                }).start();
+                                controllerSocket.ban(host);
                                 break;
                             case R.id.unBan_IP:
-                                if (host.IP == "None") {
-                                    break;
-                                }
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        thread_getHost.interrupt();
-                                        controllerSocket.sendEncryptedMsg("POST /unban/" + host.IP);
-                                        try {
-                                            controllerSocket.getMsg();
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
-                                        thread_getHost.start();
-                                    }
-                                }).start();
+                                controllerSocket.unban(host);
                                 break;
                             default:
                                 break;

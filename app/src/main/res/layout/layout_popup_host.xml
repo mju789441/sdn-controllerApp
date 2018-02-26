@@ -8,17 +8,20 @@
         android:id="@+id/button_property"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="詳細資料" />
+        android:text="詳細資料"
+        android:textAllCaps="false" />
 
     <Button
         android:id="@+id/button_ban"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="ban" />
+        android:text="ban"
+        android:textAllCaps="false" />
 
     <Button
         android:id="@+id/button_unban"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="unban" />
+        android:text="unban"
+        android:textAllCaps="false" />
 </LinearLayout>

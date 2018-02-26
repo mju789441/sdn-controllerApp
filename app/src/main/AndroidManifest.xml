@@ -3,6 +3,7 @@
     package="com.nculab.kuoweilun.sdncontrollerapp">
 
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -25,6 +26,7 @@
         <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.HostActivity"></activity>
         <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.HostPropertyActivity"></activity>
         <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.TopologyActivity"></activity>
+        />
     </application>
 
 </manifest>
