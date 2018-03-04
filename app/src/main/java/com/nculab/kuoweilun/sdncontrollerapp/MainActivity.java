@@ -22,9 +22,8 @@ public class MainActivity extends AppCompatActivity {
     //Component
     private Toolbar toolbar;
     private ListView listView;
-    private ArrayList<ControllerSocket> list;
+    private ArrayList<String> list;
     private ControllerAdapter adapter;
-    private ControllerSocket connecting_controller = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,25 +36,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        if (connecting_controller != null) {
-            connecting_controller.thread_connect.start();
-        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (connecting_controller != null) {
-            connecting_controller.thread_connect.interrupt();
-            connecting_controller.reset();
-        }
     }
 
     private void initView() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         listView = (ListView) findViewById(R.id.listView_controller);
-        list = new ArrayList<ControllerSocket>();
+        list = new ArrayList<String>();
         adapter = new ControllerAdapter(MainActivity.this, list);
         listView.setAdapter(adapter);
     }
@@ -69,51 +61,24 @@ public class MainActivity extends AppCompatActivity {
                 popupmenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        final ControllerSocket controller = (ControllerSocket) parent.getItemAtPosition(position);
+                        final String controller = (String) parent.getItemAtPosition(position);
                         Intent intent = new Intent();
                         Bundle bundle = new Bundle();
                         switch (item.getItemId()) {
                             case R.id.watch_switch:
-                                if (!controller.isConnected()) {
-                                    Toast.makeText(MainActivity.this, "尚未連線", Toast.LENGTH_SHORT).show();
-                                    break;
-                                }
-                                connecting_controller.reset();
                                 intent.setClass(MainActivity.this, SwitchActivity.class);
-                                bundle.putString("controller.IP", controller.IP);
+                                bundle.putString("controller.IP", controller);
                                 intent.putExtras(bundle);
                                 startActivity(intent);
                                 break;
                             case R.id.watch_topology:
                                 intent.setClass(MainActivity.this, TopologyActivity.class);
-                                bundle.putString("controller.IP", controller.IP);
+                                bundle.putString("controller.IP", controller);
                                 intent.putExtras(bundle);
                                 startActivity(intent);
                                 break;
-                            case R.id.connect:
-                                //把已連線的controller停止連線
-                                if (connecting_controller != null) {
-                                    //目標是已連線的controller
-                                    if (connecting_controller.equals(controller) && controller.isConnected()) {
-                                        break;
-                                    }
-
-                                    controller.thread_connect.interrupt();
-                                    connecting_controller.disconnection();
-                                }
-                                controller.thread_connect.start();
-                                connecting_controller = controller;
-                                break;
                             case R.id.delete:
-                                controller.thread_connect.interrupt();
-                                controller.close();
-                                //目標是已連線的controller
-                                if (connecting_controller != null) {
-                                    if (connecting_controller.equals(controller)) {
-                                        connecting_controller = null;
-                                    }
-                                }
-                                list.remove(parent.getItemAtPosition(position));
+                                list.remove(controller);
                                 adapter.notifyDataSetChanged();
                                 break;
                             default:
@@ -135,14 +100,9 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         // 在此處理 input
-                        ControllerSocket controller = new ControllerSocket(input.getText().toString(), MainActivity.this, adapter);
+                        String controller = input.getText().toString();
                         list.add(controller);
                         adapter.notifyDataSetChanged();
-                        //如果有未連線的controller自動連線
-                        if (connecting_controller == null) {
-                            controller.thread_connect.start();
-                            connecting_controller = controller;
-                        }
                     }
                 })
                 .show();

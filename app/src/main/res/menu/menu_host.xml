@@ -5,9 +5,9 @@
         android:id="@+id/watch_property"
         android:title="詳細資料" />
     <item
-        android:id="@+id/Ban_IP"
+        android:id="@+id/ban"
         android:title="Ban" />
     <item
-        android:id="@+id/unBan_IP"
+        android:id="@+id/unban"
         android:title="unBan" />
 </menu>

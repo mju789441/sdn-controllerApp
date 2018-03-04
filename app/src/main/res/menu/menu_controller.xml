@@ -8,9 +8,6 @@
         android:id="@+id/watch_topology"
         android:title="查看Topology" />
     <item
-        android:id="@+id/connect"
-        android:title="連線" />
-    <item
         android:id="@+id/delete"
         android:title="刪除" />
 </menu>

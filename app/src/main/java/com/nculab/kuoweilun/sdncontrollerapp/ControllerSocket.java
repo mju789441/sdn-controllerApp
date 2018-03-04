@@ -140,86 +140,86 @@ public class ControllerSocket {
         thread_getSwitch = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (true) {
-                    try {
-                        //等待連線
-                        while (true) {
-                            if (isConnected()) {
-                                break;
-                            }
-                            if (failConnected()) {
-                                Toast.makeText(context, "斷線", Toast.LENGTH_SHORT).show();
-                                throw new Exception();
-                            }
-                        }
-                        //傳送請求
-                        sendEncryptedMsg("GET switch -ID -bytes");
-                        //接收回復
-                        final String msg = getDncryptedMsg();
-                        if (msg == null) {
-                            throw new Exception();
-                        }
-                        String[] temp = msg.split("\n");
-                        if (temp.length > 2 && temp[0].equals("switch_speed") && temp[temp.length - 1].equals("/switch_speed")) {
-                            boolean switchChanged = false;
-                            if (switchArrayList.size() > temp.length - 2) {
-                                switchChanged = true;
-                                for (int i = temp.length - 2; i < switchArrayList.size(); i++) {
-                                    switchArrayList.remove(i);
-                                    switchIDArrayList.remove(i);
-                                }
-                            }
-                            for (int i = 1; i < temp.length - 1; i++) {
-                                final String[] temp2 = temp[i].split(" ");
-                                if (switchArrayList.size() < temp.length - 2) {
-                                    switchChanged = true;
-                                    switchArrayList.add(new Switch(temp2[0], temp2[1]));
-                                    switchIDArrayList.add(temp2[0]);
-                                } else if (!switchArrayList.get(i - 1).equals(new Switch(temp2[0], temp2[1]))) {
-                                    switchChanged = true;
-                                    switchArrayList.set(i - 1, new Switch(temp2[0], temp2[1]));
-                                    switchIDArrayList.set(i - 1, temp2[0]);
-                                }
-                            }
-                            if (switchAdapter != null && switchChanged) {
-                                handler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        switchAdapter.notifyDataSetChanged();
-                                    }
-                                });
-                            }
-                        } else {
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(context, "取得資料錯誤", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                            throw new Exception();
-                        }
-                        if (forTopology) {
-                            threadComplete = true;
-                            break;
-                        }
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        if (forTopology) {
-                            threadComplete = true;
-                            break;
-                        }
-                        break;
-                    } catch (final Exception e) {
-                        e.printStackTrace();
-                        disconnection();
-                        if (forTopology) {
-                            threadComplete = true;
-                            break;
-                        }
-                        break;
-                    }
-                }
+//                while (true) {
+//                    try {
+//                        //等待連線
+//                        while (true) {
+//                            if (isConnected()) {
+//                                break;
+//                            }
+//                            if (failConnected()) {
+//                                Toast.makeText(context, "斷線", Toast.LENGTH_SHORT).show();
+//                                throw new Exception();
+//                            }
+//                        }
+//                        //傳送請求
+//                        sendEncryptedMsg("GET switch -ID -bytes");
+//                        //接收回復
+//                        final String msg = getDncryptedMsg();
+//                        if (msg == null) {
+//                            throw new Exception();
+//                        }
+//                        String[] temp = msg.split("\n");
+//                        if (temp.length > 2 && temp[0].equals("switch_speed") && temp[temp.length - 1].equals("/switch_speed")) {
+//                            boolean switchChanged = false;
+//                            if (switchArrayList.size() > temp.length - 2) {
+//                                switchChanged = true;
+//                                for (int i = temp.length - 2; i < switchArrayList.size(); i++) {
+//                                    switchArrayList.remove(i);
+//                                    switchIDArrayList.remove(i);
+//                                }
+//                            }
+//                            for (int i = 1; i < temp.length - 1; i++) {
+//                                final String[] temp2 = temp[i].split(" ");
+//                                if (switchArrayList.size() < temp.length - 2) {
+//                                    switchChanged = true;
+//                                    switchArrayList.add(new Switch(temp2[0], temp2[1]));
+//                                    switchIDArrayList.add(temp2[0]);
+//                                } else if (!switchArrayList.get(i - 1).equals(new Switch(temp2[0], temp2[1]))) {
+//                                    switchChanged = true;
+//                                    switchArrayList.set(i - 1, new Switch(temp2[0], temp2[1]));
+//                                    switchIDArrayList.set(i - 1, temp2[0]);
+//                                }
+//                            }
+//                            if (switchAdapter != null && switchChanged) {
+//                                handler.post(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        switchAdapter.notifyDataSetChanged();
+//                                    }
+//                                });
+//                            }
+//                        } else {
+//                            handler.post(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    Toast.makeText(context, "取得資料錯誤", Toast.LENGTH_SHORT).show();
+//                                }
+//                            });
+//                            throw new Exception();
+//                        }
+//                        if (forTopology) {
+//                            threadComplete = true;
+//                            break;
+//                        }
+//                        Thread.sleep(1000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                        if (forTopology) {
+//                            threadComplete = true;
+//                            break;
+//                        }
+//                        break;
+//                    } catch (final Exception e) {
+//                        e.printStackTrace();
+//                        disconnection();
+//                        if (forTopology) {
+//                            threadComplete = true;
+//                            break;
+//                        }
+//                        break;
+//                    }
+//                }
             }
         });
     }
@@ -229,184 +229,184 @@ public class ControllerSocket {
         thread_getHost = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (true) {
-                    try {
-                        //等待連線
-                        while (true) {
-                            if (isConnected()) {
-                                break;
-                            }
-                            if (failConnected()) {
-                                Toast.makeText(context, "斷線", Toast.LENGTH_SHORT).show();
-                                throw new Exception();
-                            }
-                        }
-                        //傳送請求
-                        sendEncryptedMsg("GET /v1.0/topology/hosts/");
-                        //接收回復
-                        final String msg = getDncryptedMsg();
-                        if (msg == null) {
-                            throw new Exception();
-                        }
-                        String[] temp = msg.split("\n");
-                        if (temp.length > 2 && temp[0].equals("host") && temp[temp.length - 1].equals("/host")) {
-                            boolean hostChanged = false;
-                            if (hostArrayList.size() > temp.length - 2) {
-                                hostChanged = true;
-                                for (int i = temp.length - 2; i < hostArrayList.size(); i++) {
-                                    hostArrayList.remove(i);
-                                    hostPortArrayList.remove(i);
-                                }
-                            }
-                            for (int i = 1; i < temp.length - 1; i++) {
-                                final String[] temp2 = temp[i].split(" ");
-                                if (hostArrayList.size() < temp.length - 2) {
-                                    hostChanged = true;
-                                    hostArrayList.add(new Host(temp2[0], temp2[1], temp2[2], temp2[3]));
-                                    hostPortArrayList.add(temp2[1]);
-                                } else if (!hostArrayList.get(i - 1).equals(new Host(temp2[0], temp2[1], temp2[2], temp2[3]))) {
-                                    hostChanged = true;
-                                    hostArrayList.set(i - 1, new Host(temp2[0], temp2[1], temp2[2], temp2[3]));
-                                    hostPortArrayList.set(i - 1, temp2[1]);
-                                }
-                            }
-                            if (hostAdapter != null && hostChanged) {
-                                handler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        hostAdapter.notifyDataSetChanged();
-                                    }
-                                });
-                            }
-                        } else {
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(context, "取得資料錯誤", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                            throw new Exception();
-                        }
-                        if (forTopology) {
-                            threadComplete = true;
-                            break;
-                        }
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        if (forTopology) {
-                            threadComplete = true;
-                            break;
-                        }
-                        break;
-                    } catch (final Exception e) {
-                        e.printStackTrace();
-                        disconnection();
-                        if (forTopology) {
-                            threadComplete = true;
-                            break;
-                        }
-                        break;
-                    }
-                }
+//                while (true) {
+//                    try {
+//                        //等待連線
+//                        while (true) {
+//                            if (isConnected()) {
+//                                break;
+//                            }
+//                            if (failConnected()) {
+//                                Toast.makeText(context, "斷線", Toast.LENGTH_SHORT).show();
+//                                throw new Exception();
+//                            }
+//                        }
+//                        //傳送請求
+//                        sendEncryptedMsg("GET /v1.0/topology/hosts/");
+//                        //接收回復
+//                        final String msg = getDncryptedMsg();
+//                        if (msg == null) {
+//                            throw new Exception();
+//                        }
+//                        String[] temp = msg.split("\n");
+//                        if (temp.length > 2 && temp[0].equals("host") && temp[temp.length - 1].equals("/host")) {
+//                            boolean hostChanged = false;
+//                            if (hostArrayList.size() > temp.length - 2) {
+//                                hostChanged = true;
+//                                for (int i = temp.length - 2; i < hostArrayList.size(); i++) {
+//                                    hostArrayList.remove(i);
+//                                    hostPortArrayList.remove(i);
+//                                }
+//                            }
+//                            for (int i = 1; i < temp.length - 1; i++) {
+//                                final String[] temp2 = temp[i].split(" ");
+//                                if (hostArrayList.size() < temp.length - 2) {
+//                                    hostChanged = true;
+//                                    hostArrayList.add(new Host(temp2[0], temp2[1], temp2[2], temp2[3]));
+//                                    hostPortArrayList.add(temp2[1]);
+//                                } else if (!hostArrayList.get(i - 1).equals(new Host(temp2[0], temp2[1], temp2[2], temp2[3]))) {
+//                                    hostChanged = true;
+//                                    hostArrayList.set(i - 1, new Host(temp2[0], temp2[1], temp2[2], temp2[3]));
+//                                    hostPortArrayList.set(i - 1, temp2[1]);
+//                                }
+//                            }
+//                            if (hostAdapter != null && hostChanged) {
+//                                handler.post(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        hostAdapter.notifyDataSetChanged();
+//                                    }
+//                                });
+//                            }
+//                        } else {
+//                            handler.post(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    Toast.makeText(context, "取得資料錯誤", Toast.LENGTH_SHORT).show();
+//                                }
+//                            });
+//                            throw new Exception();
+//                        }
+//                        if (forTopology) {
+//                            threadComplete = true;
+//                            break;
+//                        }
+//                        Thread.sleep(1000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                        if (forTopology) {
+//                            threadComplete = true;
+//                            break;
+//                        }
+//                        break;
+//                    } catch (final Exception e) {
+//                        e.printStackTrace();
+//                        disconnection();
+//                        if (forTopology) {
+//                            threadComplete = true;
+//                            break;
+//                        }
+//                        break;
+//                    }
+//                }
             }
         });
     }
 
     public void ban(final Host host) {
-        if (host.IP != "None") {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    thread_getHost.interrupt();
-                    sendEncryptedMsg("POST /ban/" + host.IP);
-                    try {
-                        getMsg();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    thread_getHost.start();
-                }
-            }).start();
-        }
+//        if (host.IP != "None") {
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    thread_getHost.interrupt();
+//                    sendEncryptedMsg("POST /ban/" + host.IP);
+//                    try {
+//                        getMsg();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                    thread_getHost.start();
+//                }
+//            }).start();
+//        }
     }
 
     public void unban(final Host host) {
-        if (host.IP != "None") {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    thread_getHost.interrupt();
-                    sendEncryptedMsg("POST /unban/" + host.IP);
-                    try {
-                        getMsg();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    thread_getHost.start();
-                }
-            }).start();
-        }
+//        if (host.IP != "None") {
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    thread_getHost.interrupt();
+//                    sendEncryptedMsg("POST /unban/" + host.IP);
+//                    try {
+//                        getMsg();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                    thread_getHost.start();
+//                }
+//            }).start();
+//        }
     }
 
     public void getSwitchArrayList() {
         try {
-            //等待連線
-            while (true) {
-                if (isConnected()) {
-                    break;
-                }
-                if (failConnected()) {
-                    Toast.makeText(context, "斷線", Toast.LENGTH_SHORT).show();
-                    throw new Exception();
-                }
-            }
-            //傳送請求
-            sendEncryptedMsg("GET switch -ID -bytes");
-            //接收回復
-            final String msg = getDncryptedMsg();
-            if (msg == null) {
-                throw new Exception();
-            }
-            String[] temp = msg.split("\n");
-            if (temp.length > 2 && temp[0].equals("switch_speed") && temp[temp.length - 1].equals("/switch_speed")) {
-                boolean switchChanged = false;
-                if (switchArrayList.size() > temp.length - 2) {
-                    switchChanged = true;
-                    for (int i = temp.length - 2; i < switchArrayList.size(); i++) {
-                        switchArrayList.remove(i);
-                        switchIDArrayList.remove(i);
-                    }
-                }
-                for (int i = 1; i < temp.length - 1; i++) {
-                    final String[] temp2 = temp[i].split(" ");
-                    if (switchArrayList.size() < temp.length - 2) {
-                        switchChanged = true;
-                        switchArrayList.add(new Switch(temp2[0], temp2[1]));
-                        switchIDArrayList.add(temp2[0]);
-                    } else if (!switchArrayList.get(i - 1).equals(new Switch(temp2[0], temp2[1]))) {
-                        switchChanged = true;
-                        switchArrayList.set(i - 1, new Switch(temp2[0], temp2[1]));
-                        switchIDArrayList.set(i - 1, temp2[0]);
-                    }
-                }
-                if (switchAdapter != null && switchChanged) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            switchAdapter.notifyDataSetChanged();
-                        }
-                    });
-                }
-            } else {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(context, "取得資料錯誤", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                throw new Exception();
-            }
+//            //等待連線
+//            while (true) {
+//                if (isConnected()) {
+//                    break;
+//                }
+//                if (failConnected()) {
+//                    Toast.makeText(context, "斷線", Toast.LENGTH_SHORT).show();
+//                    throw new Exception();
+//                }
+//            }
+//            //傳送請求
+//            sendEncryptedMsg("GET switch -ID -bytes");
+//            //接收回復
+//            final String msg = getDncryptedMsg();
+//            if (msg == null) {
+//                throw new Exception();
+//            }
+//            String[] temp = msg.split("\n");
+//            if (temp.length > 2 && temp[0].equals("switch_speed") && temp[temp.length - 1].equals("/switch_speed")) {
+//                boolean switchChanged = false;
+//                if (switchArrayList.size() > temp.length - 2) {
+//                    switchChanged = true;
+//                    for (int i = temp.length - 2; i < switchArrayList.size(); i++) {
+//                        switchArrayList.remove(i);
+//                        switchIDArrayList.remove(i);
+//                    }
+//                }
+//                for (int i = 1; i < temp.length - 1; i++) {
+//                    final String[] temp2 = temp[i].split(" ");
+//                    if (switchArrayList.size() < temp.length - 2) {
+//                        switchChanged = true;
+//                        switchArrayList.add(new Switch(temp2[0], temp2[1]));
+//                        switchIDArrayList.add(temp2[0]);
+//                    } else if (!switchArrayList.get(i - 1).equals(new Switch(temp2[0], temp2[1]))) {
+//                        switchChanged = true;
+//                        switchArrayList.set(i - 1, new Switch(temp2[0], temp2[1]));
+//                        switchIDArrayList.set(i - 1, temp2[0]);
+//                    }
+//                }
+//                if (switchAdapter != null && switchChanged) {
+//                    handler.post(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            switchAdapter.notifyDataSetChanged();
+//                        }
+//                    });
+//                }
+//            } else {
+//                handler.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Toast.makeText(context, "取得資料錯誤", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//                throw new Exception();
+//            }
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -418,62 +418,62 @@ public class ControllerSocket {
 
     public void getHostArrayList() {
         try {
-            //等待連線
-            while (true) {
-                if (isConnected()) {
-                    break;
-                }
-                if (failConnected()) {
-                    Toast.makeText(context, "斷線", Toast.LENGTH_SHORT).show();
-                    throw new Exception();
-                }
-            }
-            //傳送請求
-            sendEncryptedMsg("GET /v1.0/topology/hosts/");
-            //接收回復
-            final String msg = getDncryptedMsg();
-            if (msg == null) {
-                throw new Exception();
-            }
-            String[] temp = msg.split("\n");
-            if (temp.length > 2 && temp[0].equals("host") && temp[temp.length - 1].equals("/host")) {
-                boolean hostChanged = false;
-                if (hostArrayList.size() > temp.length - 2) {
-                    hostChanged = true;
-                    for (int i = temp.length - 2; i < hostArrayList.size(); i++) {
-                        hostArrayList.remove(i);
-                        hostPortArrayList.remove(i);
-                    }
-                }
-                for (int i = 1; i < temp.length - 1; i++) {
-                    final String[] temp2 = temp[i].split(" ");
-                    if (hostArrayList.size() < temp.length - 2) {
-                        hostChanged = true;
-                        hostArrayList.add(new Host(temp2[0], temp2[1], temp2[2], temp2[3]));
-                        hostPortArrayList.add(temp2[1]);
-                    } else if (!hostArrayList.get(i - 1).equals(new Host(temp2[0], temp2[1], temp2[2], temp2[3]))) {
-                        hostChanged = true;
-                        hostArrayList.set(i - 1, new Host(temp2[0], temp2[1], temp2[2], temp2[3]));
-                        hostPortArrayList.set(i - 1, temp2[1]);
-                    }
-                }
-                if (hostAdapter != null && hostChanged) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            hostAdapter.notifyDataSetChanged();
-                        }
-                    });
-                }
-            } else {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(context, "取得資料錯誤", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                throw new Exception();
-            }
+//            //等待連線
+//            while (true) {
+//                if (isConnected()) {
+//                    break;
+//                }
+//                if (failConnected()) {
+//                    Toast.makeText(context, "斷線", Toast.LENGTH_SHORT).show();
+//                    throw new Exception();
+//                }
+//            }
+//            //傳送請求
+//            sendEncryptedMsg("GET /v1.0/topology/hosts/");
+//            //接收回復
+//            final String msg = getDncryptedMsg();
+//            if (msg == null) {
+//                throw new Exception();
+//            }
+//            String[] temp = msg.split("\n");
+//            if (temp.length > 2 && temp[0].equals("host") && temp[temp.length - 1].equals("/host")) {
+//                boolean hostChanged = false;
+//                if (hostArrayList.size() > temp.length - 2) {
+//                    hostChanged = true;
+//                    for (int i = temp.length - 2; i < hostArrayList.size(); i++) {
+//                        hostArrayList.remove(i);
+//                        hostPortArrayList.remove(i);
+//                    }
+//                }
+//                for (int i = 1; i < temp.length - 1; i++) {
+//                    final String[] temp2 = temp[i].split(" ");
+//                    if (hostArrayList.size() < temp.length - 2) {
+//                        hostChanged = true;
+//                        hostArrayList.add(new Host(temp2[0], temp2[1], temp2[2], temp2[3]));
+//                        hostPortArrayList.add(temp2[1]);
+//                    } else if (!hostArrayList.get(i - 1).equals(new Host(temp2[0], temp2[1], temp2[2], temp2[3]))) {
+//                        hostChanged = true;
+//                        hostArrayList.set(i - 1, new Host(temp2[0], temp2[1], temp2[2], temp2[3]));
+//                        hostPortArrayList.set(i - 1, temp2[1]);
+//                    }
+//                }
+//                if (hostAdapter != null && hostChanged) {
+//                    handler.post(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            hostAdapter.notifyDataSetChanged();
+//                        }
+//                    });
+//                }
+//            } else {
+//                handler.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Toast.makeText(context, "取得資料錯誤", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//                throw new Exception();
+//            }
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();

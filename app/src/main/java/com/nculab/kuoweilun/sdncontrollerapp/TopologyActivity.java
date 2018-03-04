@@ -29,16 +29,15 @@ import java.util.ArrayList;
 public class TopologyActivity extends AppCompatActivity {
 
     //Component
-    public ControllerSocket controllerSocket;
+    public ControllerURLConnection controllerURLConnection;
     private View view_topology;
     private View view_settings;
     private WebView webView;
     private WebSettings webSettings;
     private Toolbar toolbar;
     private Button button_backToController;
-    private boolean urlLoad = false;
-    public ArrayList<Switch> switchArrayList;
     public ArrayList<Host> hostArrayList;
+    private boolean urlLoad = false;
     //Settings
     private android.widget.Switch switch_online;
     private android.widget.Switch switch_flowError;
@@ -61,13 +60,12 @@ public class TopologyActivity extends AppCompatActivity {
         initView();
         setListeners();
         setThread();
-        controllerSocket = new ControllerSocket(connect_IP, TopologyActivity.this, switchArrayList, hostArrayList);
+        controllerURLConnection = new ControllerURLConnection(connect_IP);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        controllerSocket.thread_connect.start();
         thread_getTopology.start();
     }
 
@@ -75,14 +73,12 @@ public class TopologyActivity extends AppCompatActivity {
     public void onPause() {
         super.onPause();
         thread_getTopology.interrupt();
-        controllerSocket.thread_connect.interrupt();
     }
 
     @SuppressLint("JavascriptInterface")
     private void initView() {
-        //topology
-        switchArrayList = new ArrayList<Switch>();
         hostArrayList = new ArrayList<Host>();
+        //topology
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         webView = (WebView) findViewById(R.id.webView);
         webView.setWebViewClient(new WebViewClient() {
@@ -154,21 +150,31 @@ public class TopologyActivity extends AppCompatActivity {
                     getTopology.put(new JSONObject("{ group: 'nodes', data: { id: 'switch' } }"));
                     getTopology.put(new JSONObject("{ group: 'nodes', data: { id: 'host' } }"));
                     getTopology.put(new JSONObject("{ group: 'nodes', data: { id: 'c0', parent: 'controller' } }"));
-                    controllerSocket.getSwitchArrayList();
-                    controllerSocket.getHostArrayList();
-                    for (int i = 0; i < switchArrayList.size(); i++) {
-                        JSONObject switchID = new JSONObject("{ group: 'nodes', data: { id: 's" + switchArrayList.get(i).ID + "', parent: 'switch' } }");
-                        getTopology.put(switchID);
-                        JSONObject switchEdge = new JSONObject("{ group: 'edges', data: { id: 'ec0s" + switchArrayList.get(i).ID + "', source: 'c0', target: 's" +
-                                switchArrayList.get(i).ID + "', flow: '" + switchArrayList.get(i).flow + "' } }");
+                    JSONArray switchArray = controllerURLConnection.getAllSwitch();
+                    for (int i = 0; i < switchArray.length(); i++) {
+                        String switch_ID = String.valueOf(switchArray.getInt(i));
+                        JSONObject switchObject = new JSONObject("{ group: 'nodes', data: { id: 's"
+                                + switch_ID + "', parent: 'switch' } }");
+                        getTopology.put(switchObject);
+                        JSONObject switchFlowStats = controllerURLConnection
+                                .getAggregateFlowStats(switch_ID);
+                        JSONObject switchEdge = new JSONObject("{ group: 'edges', data: { id: 'ec0s"
+                                + switch_ID + "', source: 'c0', target: 's" +
+                                switch_ID + "', flow: '" + switchFlowStats
+                                .getJSONArray(switch_ID)
+                                .getJSONObject(0)
+                                .getString("byte_count") + "' } }");
                         getTopology.put(switchEdge);
-                    }
-                    for (int i = 0; i < hostArrayList.size(); i++) {
-                        JSONObject hostID = new JSONObject("{ group: 'nodes', data: { id: 'h" + hostArrayList.get(i).port + "', parent: 'host' } }");
-                        getTopology.put(hostID);
-                        JSONObject hostEdge = new JSONObject("{ group: 'edges', data: { id: 'ec" + hostArrayList.get(i).ID + "h" + hostArrayList.get(i).port +
-                                "', source: 's" + hostArrayList.get(i).ID + "', target: 'h" + hostArrayList.get(i).port + "' } }");
-                        getTopology.put(hostEdge);
+                        JSONArray hostPort = controllerURLConnection.getProtDesc(switch_ID).getJSONArray(switch_ID);
+                        for (int j = 0; j < hostPort.length(); j++) {
+                            String port_no = hostPort.getJSONObject(j).getString("port_no");
+                            JSONObject hostID = new JSONObject("{ group: 'nodes', data: { id: 'h" + port_no + "', parent: 'host' } }");
+                            getTopology.put(hostID);
+                            JSONObject hostEdge = new JSONObject("{ group: 'edges', data: { id: 'ec" + switch_ID + "h" + port_no +
+                                    "', source: 's" + switch_ID + "', target: 'h" + port_no + "' } }");
+                            getTopology.put(hostEdge);
+                            hostArrayList.add(new Host(switch_ID, hostPort.getJSONObject(j)));
+                        }
                     }
                     //等待網頁載入
                     while (!urlLoad) {
@@ -181,16 +187,26 @@ public class TopologyActivity extends AppCompatActivity {
                         }
                     });
                     while (true) {
-                        controllerSocket.getSwitchArrayList();
-                        for (int i = 0; i < switchArrayList.size(); i++) {
-                            final int j = i;
+                        switchArray = controllerURLConnection.getAllSwitch();
+                        for (int i = 0; i < switchArray.length(); i++) {
                             //等待網頁載入
                             while (!urlLoad) {
                             }
+                            final String switch_ID = String.valueOf(switchArray.getInt(i));
+                            final JSONObject switchFlowStats = controllerURLConnection
+                                    .getAllFlowStats(switch_ID);
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    webView.loadUrl("javascript:set_edge_flow( 'ec0s" + controllerSocket.switchArrayList.get(j).ID + "', '" + controllerSocket.switchArrayList.get(j).flow + "')");
+                                    try {
+                                        webView.loadUrl("javascript:set_edge_flow( 'ec0s"
+                                                + switch_ID + "', '" + switchFlowStats
+                                                .getJSONArray(switch_ID)
+                                                .getJSONObject(0)
+                                                .getString("byte_count") + "')");
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             });
                         }
@@ -200,7 +216,6 @@ public class TopologyActivity extends AppCompatActivity {
                     e.printStackTrace();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    controllerSocket.disconnection();
                 }
             }
         });

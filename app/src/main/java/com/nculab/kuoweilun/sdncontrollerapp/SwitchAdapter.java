@@ -55,7 +55,7 @@ public class SwitchAdapter extends BaseAdapter {
         Switch getSwitch = (Switch) getItem(position);
         //View 內容設定
         holder.textView_switch_ID.setText(getSwitch.ID);
-        holder.textView_flow.setText(getSwitch.flow);
+        holder.textView_flow.setText(getSwitch.byte_count);
         return convertView;
     }
 

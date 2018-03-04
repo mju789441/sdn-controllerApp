@@ -1,5 +1,8 @@
 package com.nculab.kuoweilun.sdncontrollerapp;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.Serializable;
 
 /**
@@ -7,15 +10,17 @@ import java.io.Serializable;
  */
 
 public class Host implements Serializable {
-    String ID = "";
-    String port = "";
-    String mac = "";
-    String IP = "";
+    String ID = null;
+    String port = null;
+    String mac = null;
 
-    public Host(String ID, String port, String mac, String IP) {
+    public Host(String ID, JSONObject hostObject) {
         this.ID = ID;
-        this.port = port;
-        this.mac = mac;
-        this.IP = IP;
+        try {
+            this.port = hostObject.getString("port_no");
+            this.mac = hostObject.getString("hw_addr");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

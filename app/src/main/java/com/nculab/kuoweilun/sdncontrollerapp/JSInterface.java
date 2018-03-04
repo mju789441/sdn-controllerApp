@@ -1,27 +1,23 @@
 package com.nculab.kuoweilun.sdncontrollerapp;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.widget.PopupMenu;
-import android.view.Gravity;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.PopupWindow;
-import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.zip.Inflater;
 
 /**
  * Created by Kuo Wei Lun on 2018/1/21.
@@ -89,28 +85,65 @@ public class JSInterface extends Object implements View.OnClickListener {
         popupWindow.dismiss();
         Intent intent = new Intent();
         Bundle bundle = new Bundle();
-        final Host host = topologyActivity.hostArrayList.get(topologyActivity.controllerSocket.hostPortArrayList.indexOf(node.substring(1)));
+        final Host host = topologyActivity.hostArrayList.get(Integer.parseInt(node.substring(1)));
         switch (view.getId()) {
             case R.id.button_watch_host:
-                intent.setClass(topologyActivity, SwitchActivity.class);
-                bundle.putString("controller.IP", topologyActivity.controllerSocket.IP);
+                intent.setClass(topologyActivity, HostActivity.class);
+                bundle.putString("controller.IP", topologyActivity.controllerURLConnection.urlstr);
+                System.out.println(topologyActivity.controllerURLConnection.urlstr);
+                bundle.putString("switch.ID", host.ID);
                 intent.putExtras(bundle);
                 topologyActivity.startActivity(intent);
                 break;
             case R.id.button_watch_flow:
                 break;
             case R.id.button_property:
-                intent.setClass(topologyActivity, HostPropertyActivity.class);
-                bundle.putString("controller.IP", topologyActivity.controllerSocket.IP);
+                intent.setClass(topologyActivity, HostStatsActivity.class);
+                bundle.putString("controller.IP", topologyActivity.controllerURLConnection.urlstr);
+                bundle.putString("switch.ID", host.ID);
                 bundle.putSerializable("host", host);
                 intent.putExtras(bundle);
                 topologyActivity.startActivity(intent);
                 break;
             case R.id.button_ban:
-                topologyActivity.controllerSocket.ban(host);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JSONObject flow = new JSONObject();
+                        try {
+                            flow.put("dpid", host.ID);
+                            flow.put("priority", "867");
+                            flow.put("match", new JSONObject()
+                                    .put("in_port", host.port));
+                            flow.put("actions", new JSONArray("[]"));
+                            topologyActivity.controllerURLConnection.addFlowEntry(flow.toString());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
                 break;
             case R.id.button_unban:
-                topologyActivity.controllerSocket.unban(host);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JSONObject flow = new JSONObject();
+                        try {
+                            flow.put("dpid", host.ID);
+                            flow.put("priority", "867");
+                            flow.put("match", new JSONObject()
+                                    .put("in_port", host.port));
+                            flow.put("actions", new JSONArray("[]"));
+                            topologyActivity.controllerURLConnection.deleteFlowEntry(flow.toString());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
                 break;
             default:
                 break;
