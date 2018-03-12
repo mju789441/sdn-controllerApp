@@ -157,12 +157,13 @@ public class HostActivity extends AppCompatActivity {
             public void run() {
                 try {
                     while (true) {
-                        JSONArray host = controllerURLConnection.getProtDesc(switch_ID).getJSONArray(switch_ID);
-                        for (int i = host.length(); i < list.size(); i++) {
+                        JSONArray host = controllerURLConnection.getPortDesc(switch_ID).getJSONArray(switch_ID);
+                        int host_length = host.length() - 1;
+                        for (int i = host_length; i < list.size(); i++) {
                             list.remove(i);
                         }
-                        for (int i = 0; i < host.length(); i++) {
-                            JSONObject hostObject = host.getJSONObject(i);
+                        for (int i = 0; i < host_length; i++) {
+                            JSONObject hostObject = host.getJSONObject(i + 1);
                             if (list.size() < i + 1) {
                                 list.add(new Host(switch_ID, hostObject));
                             } else {

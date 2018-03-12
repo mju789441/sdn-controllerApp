@@ -20,7 +20,7 @@
             android:textSize="20dp" />
 
         <TextView
-            android:id="@+id/textView_flow"
+            android:id="@+id/textView_curr_speed"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"

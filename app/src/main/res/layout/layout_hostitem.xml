@@ -9,25 +9,26 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/textView_host_mac"
+            android:id="@+id/textView_host_port"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:layout_marginLeft="3.0dip"
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:text="wrong"
             android:textSize="20dp" />
 
         <TextView
-            android:id="@+id/textView_host_port"
+            android:id="@+id/textView_host_curr_speed"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
+            android:layout_marginLeft="3.0dip"
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:text="wrong"
             android:textColor="@android:color/holo_green_light"
             android:textSize="20dp" />
+
     </RelativeLayout>
 </LinearLayout>

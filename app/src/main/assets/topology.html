@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="style.css">
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.js"></script>
     <script src="cytoscape.js"></script>
+    <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-cose-bilkent/1.6.5/cytoscape-cose-bilkent.js"></script>
     <script type="text/javascript">
     var cy;
     reset();
@@ -16,20 +17,20 @@
                 style: cytoscape.stylesheet()
                     .selector('node')
                     .css({
-                        height: 80,
-                        width: 80,
-                        content: 'data(id)'
+                        'height': 80,
+                        'width': 80,
+                        'content': 'data(id)'
                     })
                     .selector('edge')
                     .css({
-                        content: 'data(flow)',
-                        color: 'green'
+                        'content': 'data(flow)',
+                        'line-color': 'green'
                     }),
                 layout: {
-                    name: 'breadthfirst',
-                    directed: true,
-                    padding: 10,
-                    fit: true
+                    'name': 'cose-bilkent',
+                    'directed': true,
+                    'padding': 10,
+                    'fit': true
                 }
             });
             cy.on('tap', 'node', function(evt) {
@@ -42,25 +43,24 @@
 
     function add_eles(eles) {
         cy.add(eles);
-        cy.layout({
-            name: 'breadthfirst',
-            directed: true,
-            padding: 10,
-            fit: true
-        }).run();
     }
 
     function set_edge_flow(edgename, flowbytes) {
         var eles = cy.edges("#" + edgename);
         eles.data('flow', flowbytes);
+        eles.layout({
+            'content': 'data(flow)',
+            'line-color': 'green'
+        }).run();
+
     }
 
     function rearrange() {
         cy.layout({
-            name: 'breadthfirst',
-            directed: true,
-            padding: 10,
-            fit: true
+            'name': 'cose-bilkent',
+            'directed': true,
+            'padding': 10,
+            'fit': true
         }).run();
     }
     </script>

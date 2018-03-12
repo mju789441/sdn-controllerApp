@@ -26,7 +26,7 @@ public class HostStatsActivity extends AppCompatActivity {
     private TextView switchID;
     private TextView port;
     private TextView mac;
-    private TextView speed;
+    private TextView curr_speed;
     private TextView rx;
     private TextView tx;
     private TextView duration;
@@ -75,6 +75,8 @@ public class HostStatsActivity extends AppCompatActivity {
         port.setText(port.getText() + host.port);
         mac = (TextView) findViewById(R.id.textView_mac);
         mac.setText(mac.getText() + host.mac);
+        curr_speed = (TextView) findViewById(R.id.textView_curr_speed);
+        curr_speed.setText(curr_speed.getText() + host.curr_speed);
         rx = (TextView) findViewById(R.id.textView_rx);
         tx = (TextView) findViewById(R.id.textView_tx);
         duration = (TextView) findViewById(R.id.textView_duration);
@@ -97,8 +99,8 @@ public class HostStatsActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    if(host.port != "LOCAL"){
-                        JSONObject hostStats = controllerURLConnection.getProtStats(switch_ID + "/" + host.port);
+                    if (host.port != "LOCAL") {
+                        JSONObject hostStats = controllerURLConnection.getPortStats(switch_ID + "/" + host.port);
                         setStats(hostStats.getJSONArray(switch_ID).getJSONObject(0));
                     }
                 } catch (IOException e) {

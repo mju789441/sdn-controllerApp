@@ -20,6 +20,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -146,34 +147,63 @@ public class TopologyActivity extends AppCompatActivity {
                     }
                     //取得controller
                     final JSONArray getTopology = new JSONArray();
-                    getTopology.put(new JSONObject("{ group: 'nodes', data: { id: 'controller' } }"));
-                    getTopology.put(new JSONObject("{ group: 'nodes', data: { id: 'switch' } }"));
-                    getTopology.put(new JSONObject("{ group: 'nodes', data: { id: 'host' } }"));
-                    getTopology.put(new JSONObject("{ group: 'nodes', data: { id: 'c0', parent: 'controller' } }"));
                     JSONArray switchArray = controllerURLConnection.getAllSwitch();
-                    for (int i = 0; i < switchArray.length(); i++) {
+                    int switch_length = switchArray.length();
+                    int host_num = 1;
+                    //所有switch
+                    for (int i = 0; i < switch_length; i++) {
                         String switch_ID = String.valueOf(switchArray.getInt(i));
                         JSONObject switchObject = new JSONObject("{ group: 'nodes', data: { id: 's"
                                 + switch_ID + "', parent: 'switch' } }");
                         getTopology.put(switchObject);
-                        JSONObject switchFlowStats = controllerURLConnection
-                                .getAggregateFlowStats(switch_ID);
-                        JSONObject switchEdge = new JSONObject("{ group: 'edges', data: { id: 'ec0s"
-                                + switch_ID + "', source: 'c0', target: 's" +
-                                switch_ID + "', flow: '" + switchFlowStats
-                                .getJSONArray(switch_ID)
-                                .getJSONObject(0)
-                                .getString("byte_count") + "' } }");
-                        getTopology.put(switchEdge);
-                        JSONArray hostPort = controllerURLConnection.getProtDesc(switch_ID).getJSONArray(switch_ID);
-                        for (int j = 0; j < hostPort.length(); j++) {
-                            String port_no = hostPort.getJSONObject(j).getString("port_no");
-                            JSONObject hostID = new JSONObject("{ group: 'nodes', data: { id: 'h" + port_no + "', parent: 'host' } }");
-                            getTopology.put(hostID);
-                            JSONObject hostEdge = new JSONObject("{ group: 'edges', data: { id: 'ec" + switch_ID + "h" + port_no +
-                                    "', source: 's" + switch_ID + "', target: 'h" + port_no + "' } }");
-                            getTopology.put(hostEdge);
-                            hostArrayList.add(new Host(switch_ID, hostPort.getJSONObject(j)));
+
+                        JSONArray portArray = controllerURLConnection.getPortDesc(switch_ID)
+                                .getJSONArray(switch_ID);
+                        JSONArray getSwitch = controllerURLConnection.getTopologySwitch(switch_ID)
+                                .getJSONObject(0).getJSONArray("ports");
+                        //Switch有幾個port
+                        for (int j = 0; j < getSwitch.length(); j++) {
+                            String hw_addr = getSwitch.getJSONObject(j).getString("hw_addr");
+                            JSONArray getSwitchLink = controllerURLConnection.getTopologyLink(switch_ID);
+
+                            Boolean findLink = false;
+                            //檢查有沒有switch相連
+                            for (int k = 0; k < getSwitchLink.length(); k++) {
+                                JSONObject getLink = getSwitchLink.getJSONObject(k);
+                                String link_hw_addr = getLink.getJSONObject("src")
+                                        .getString("hw_addr");
+                                if (hw_addr.equals(link_hw_addr)) {
+                                    findLink = true;
+                                    int dst_dpid = Integer.parseInt(getLink.getJSONObject("dst")
+                                            .getString("dpid"));
+                                    int port_no = Integer.parseInt(getLink.getJSONObject("src")
+                                            .getString("port_no"));
+                                    JSONObject switchEdge = new JSONObject("{ group: 'edges', data: { id: 'es"
+                                            + switch_ID + "s" + dst_dpid + "', source: 's" + switch_ID
+                                            + "', target: 's" + dst_dpid + "', flow: '" +
+                                            portArray.getJSONObject(port_no)
+                                                    .getString("curr_speed") + "' } }");
+                                    getTopology.put(switchEdge);
+                                    break;
+                                }
+                            }
+                            //預設沒有相連switch的都是單一獨立的host
+                            if (!findLink) {
+                                int port_no = Integer.parseInt(getSwitch.getJSONObject(j)
+                                        .getString("port_no"));
+                                String curr_speed = portArray.getJSONObject(port_no)
+                                        .getString("curr_speed");
+                                JSONObject hostObject = new JSONObject("{ group: 'nodes', data: { id: 'h"
+                                        + host_num + "', parent: 'host' } }");
+                                getTopology.put(hostObject);
+                                JSONObject hostEdge = new JSONObject("{ group: 'edges', data: { id: 'ec"
+                                        + switch_ID + "h" + host_num +
+                                        "', source: 's" + switch_ID + "', target: 'h" + host_num
+                                        + "', flow: '" + curr_speed + "' } }");
+                                getTopology.put(hostEdge);
+                                hostArrayList.add(new Host(switch_ID, portArray.getJSONObject(j)));
+                                host_num++;
+                            }
                         }
                     }
                     //等待網頁載入
@@ -186,32 +216,6 @@ public class TopologyActivity extends AppCompatActivity {
                             webView.loadUrl("javascript:rearrange()");
                         }
                     });
-                    while (true) {
-                        switchArray = controllerURLConnection.getAllSwitch();
-                        for (int i = 0; i < switchArray.length(); i++) {
-                            //等待網頁載入
-                            while (!urlLoad) {
-                            }
-                            final String switch_ID = String.valueOf(switchArray.getInt(i));
-                            final JSONObject switchFlowStats = controllerURLConnection
-                                    .getAllFlowStats(switch_ID);
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        webView.loadUrl("javascript:set_edge_flow( 'ec0s"
-                                                + switch_ID + "', '" + switchFlowStats
-                                                .getJSONArray(switch_ID)
-                                                .getJSONObject(0)
-                                                .getString("byte_count") + "')");
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-                        }
-                        Thread.sleep(100);
-                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } catch (Exception e) {

@@ -80,6 +80,51 @@ public class ControllerURLConnection {
         return output;
     }
 
+    public JSONArray getTopologySwitch() throws IOException, JSONException {
+        // 初始化 URL
+        URL url = new URL(hostname + "/v1.0/topology/switches");
+        return new JSONArray(get(url));
+    }
+
+    public JSONArray getTopologySwitch(String dpid) throws IOException, JSONException {
+        // 初始化 URL
+        while (dpid.length() < 16) {
+            dpid = '0' + dpid;
+        }
+        URL url = new URL(hostname + "/v1.0/topology/switches/" + dpid);
+        return new JSONArray(get(url));
+    }
+
+    public JSONArray getTopologyLink() throws IOException, JSONException {
+        // 初始化 URL
+        URL url = new URL(hostname + "/v1.0/topology/links");
+        return new JSONArray(get(url));
+    }
+
+    public JSONArray getTopologyLink(String dpid) throws IOException, JSONException {
+        // 初始化 URL
+        while (dpid.length() < 16) {
+            dpid = '0' + dpid;
+        }
+        URL url = new URL(hostname + "/v1.0/topology/links/" + dpid);
+        return new JSONArray(get(url));
+    }
+
+    public JSONArray getTopologyHost() throws IOException, JSONException {
+        // 初始化 URL
+        URL url = new URL(hostname + "/v1.0/topology/hosts");
+        return new JSONArray(get(url));
+    }
+
+    public JSONArray getTopologyHost(String dpid) throws IOException, JSONException {
+        // 初始化 URL
+        while (dpid.length() < 16) {
+            dpid = '0' + dpid;
+        }
+        URL url = new URL(hostname + "/v1.0/topology/hosts/" + dpid);
+        return new JSONArray(get(url));
+    }
+
     public JSONArray getAllSwitch() throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/switches");
@@ -128,13 +173,13 @@ public class ControllerURLConnection {
         return new JSONObject(get(url));
     }
 
-    public JSONObject getProtStats(String dpid) throws IOException, JSONException {
+    public JSONObject getPortStats(String dpid) throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/port/" + dpid);
         return new JSONObject(get(url));
     }
 
-    public JSONObject getProtDesc(String dpid) throws IOException, JSONException {
+    public JSONObject getPortDesc(String dpid) throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/portdesc/" + dpid);
         return new JSONObject(get(url));

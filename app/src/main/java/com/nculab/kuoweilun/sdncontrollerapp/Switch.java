@@ -9,14 +9,16 @@ import org.json.JSONObject;
 
 public class Switch {
     public String ID = null;
-    public String byte_count = null;
+    public String curr_speed = null;
+    public JSONObject jsonObject = null;
 
     public Switch(String ID, JSONObject switchObject) {
         this.ID = ID;
+        jsonObject = switchObject;
         try {
-            byte_count = switchObject.getJSONArray(ID)
+            curr_speed = switchObject.getJSONArray(ID)
                     .getJSONObject(0)
-                    .getString("byte_count");
+                    .getString("curr_speed");
         } catch (JSONException e) {
             e.printStackTrace();
         }

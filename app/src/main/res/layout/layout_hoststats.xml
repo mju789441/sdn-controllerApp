@@ -39,6 +39,14 @@
                 android:textSize="20dp" />
 
             <TextView
+                android:id="@+id/textView_curr_speed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="curr_speed(kbps): "
+                android:textSize="20dp" />
+
+            <TextView
                 android:id="@+id/textView_rx"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

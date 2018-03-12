@@ -128,8 +128,8 @@ public class SwitchActivity extends AppCompatActivity {
                             list.remove(i);
                         }
                         for (int i = 0; i < switchID.length(); i++) {
-                            JSONObject switchObject = controllerURLConnection
-                                    .getAggregateFlowStats(String.valueOf(switchID.getInt(i)));
+                            String dpid = String.valueOf(switchID.getInt(i));
+                            JSONObject switchObject = controllerURLConnection.getPortDesc(dpid);
                             if (list.size() < i + 1) {
                                 list.add(new Switch(String.valueOf(switchID.getInt(i)), switchObject));
                             } else {

@@ -4,19 +4,18 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/textView_host_mac"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@id/textView_flow"
-        android:text="Host mac " />
-
-    <TextView
         android:id="@+id/textView_host_port"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:text="Host port" />
+
+    <TextView
+        android:id="@+id/textView_host_curr_speed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:text="port" />
+        android:text="curr_speed(kbps)" />
 
     <ListView
         android:id="@+id/listView_host"
