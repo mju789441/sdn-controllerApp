@@ -13,7 +13,6 @@ import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -34,6 +33,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
     }
@@ -42,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     public void onPause() {
         super.onPause();
     }
+
 
     private void initView() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);

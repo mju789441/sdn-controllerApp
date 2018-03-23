@@ -14,14 +14,16 @@ public class Host implements Serializable {
     String ID = null;
     String port = null;
     String mac = null;
-    String curr_speed = null;
+    String speed = null;
+    String jsonString = null;
 
-    public Host(String ID, JSONObject hostObject) {
+    public Host(String ID, JSONObject hostObject, int speed) {
         this.ID = ID;
         try {
             port = hostObject.getString("port_no");
             mac = hostObject.getString("hw_addr");
-            curr_speed = hostObject.getString("curr_speed");
+            jsonString = hostObject.toString();
+            this.speed = String.valueOf(speed);
         } catch (JSONException e) {
             e.printStackTrace();
         }

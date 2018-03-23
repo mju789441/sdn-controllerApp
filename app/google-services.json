@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "912966623615",
+    "firebase_url": "https://sdn-controller-app.firebaseio.com",
+    "project_id": "sdn-controller-app",
+    "storage_bucket": "sdn-controller-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:912966623615:android:b72af96540389bf5",
+        "android_client_info": {
+          "package_name": "com.nculab.kuoweilun.sdncontrollerapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "912966623615-36p5ddep02bqecpvgkap534urp4pq7i9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nculab.kuoweilun.sdncontrollerapp",
+            "certificate_hash": "2fed71d377859279a06d62ff6d20605e7b7fa279"
+          }
+        },
+        {
+          "client_id": "912966623615-mbr6el4a2isfdc068a69k2cirfceiul6.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "912966623615-hmc17olvpalvqvdvk6fvti98j42076ec.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuf6NxqwA21S5NoxIGkgTcQW9vTbI1mDg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

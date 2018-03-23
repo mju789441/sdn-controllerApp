@@ -124,16 +124,22 @@ public class SwitchActivity extends AppCompatActivity {
                 try {
                     while (true) {
                         JSONArray switchID = controllerURLConnection.getAllSwitch();
+                        JSONObject allSpeed = controllerURLConnection.getAllSpeed();
                         for (int i = switchID.length(); i < list.size(); i++) {
                             list.remove(i);
                         }
                         for (int i = 0; i < switchID.length(); i++) {
                             String dpid = String.valueOf(switchID.getInt(i));
-                            JSONObject switchObject = controllerURLConnection.getPortDesc(dpid);
+                            JSONObject switchSpeed = allSpeed.getJSONObject(dpid);
+                            int speed = 0;
+                            for (int j = 1; j <= switchSpeed.length(); j++) {
+                                speed += switchSpeed.getInt("" + j);
+                            }
+
                             if (list.size() < i + 1) {
-                                list.add(new Switch(String.valueOf(switchID.getInt(i)), switchObject));
+                                list.add(new Switch(dpid, speed));
                             } else {
-                                list.set(i, new Switch(String.valueOf(switchID.getInt(i)), switchObject));
+                                list.set(i, new Switch(dpid, speed));
                             }
                         }
                         handler.post(new Runnable() {

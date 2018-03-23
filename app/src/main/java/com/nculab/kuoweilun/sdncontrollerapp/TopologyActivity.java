@@ -1,6 +1,7 @@
 package com.nculab.kuoweilun.sdncontrollerapp;
 
 import android.annotation.SuppressLint;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -38,6 +39,8 @@ public class TopologyActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private Button button_backToController;
     public ArrayList<Host> hostArrayList;
+    public JSONObject switch_link = new JSONObject();
+    public JSONObject switch_host = new JSONObject();
     private boolean urlLoad = false;
     //Settings
     private android.widget.Switch switch_online;
@@ -148,7 +151,9 @@ public class TopologyActivity extends AppCompatActivity {
                     //取得controller
                     final JSONArray getTopology = new JSONArray();
                     JSONArray switchArray = controllerURLConnection.getAllSwitch();
+                    JSONObject allSpeed = controllerURLConnection.getAllSpeed();
                     int switch_length = switchArray.length();
+                    //host編號
                     int host_num = 1;
                     //所有switch
                     for (int i = 0; i < switch_length; i++) {
@@ -175,33 +180,35 @@ public class TopologyActivity extends AppCompatActivity {
                                 if (hw_addr.equals(link_hw_addr)) {
                                     findLink = true;
                                     int dst_dpid = Integer.parseInt(getLink.getJSONObject("dst")
-                                            .getString("dpid"));
+                                            .getString("dpid"), 16);
                                     int port_no = Integer.parseInt(getLink.getJSONObject("src")
-                                            .getString("port_no"));
+                                            .getString("port_no"), 16);
                                     JSONObject switchEdge = new JSONObject("{ group: 'edges', data: { id: 'es"
                                             + switch_ID + "s" + dst_dpid + "', source: 's" + switch_ID
                                             + "', target: 's" + dst_dpid + "', flow: '" +
-                                            portArray.getJSONObject(port_no)
-                                                    .getString("curr_speed") + "' } }");
+                                            allSpeed.getJSONObject(switch_ID).getInt("" + port_no) + "' } }");
                                     getTopology.put(switchEdge);
+                                    switch_link.put("s" + switch_ID, new JSONObject()
+                                            .put("s" + dst_dpid, getLink));
                                     break;
                                 }
                             }
                             //預設沒有相連switch的都是單一獨立的host
                             if (!findLink) {
                                 int port_no = Integer.parseInt(getSwitch.getJSONObject(j)
-                                        .getString("port_no"));
-                                String curr_speed = portArray.getJSONObject(port_no)
-                                        .getString("curr_speed");
+                                        .getString("port_no"), 16);
+                                int speed = allSpeed.getJSONObject(switch_ID).getInt("" + port_no);
                                 JSONObject hostObject = new JSONObject("{ group: 'nodes', data: { id: 'h"
                                         + host_num + "', parent: 'host' } }");
                                 getTopology.put(hostObject);
                                 JSONObject hostEdge = new JSONObject("{ group: 'edges', data: { id: 'ec"
                                         + switch_ID + "h" + host_num +
                                         "', source: 's" + switch_ID + "', target: 'h" + host_num
-                                        + "', flow: '" + curr_speed + "' } }");
+                                        + "', flow: '" + speed + "' } }");
                                 getTopology.put(hostEdge);
-                                hostArrayList.add(new Host(switch_ID, portArray.getJSONObject(j)));
+                                hostArrayList.add(new Host(switch_ID, portArray.getJSONObject(j), speed));
+                                switch_host.put("s" + switch_ID, new JSONObject()
+                                        .put("h" + host_num, getSwitch.getJSONObject(j)));
                                 host_num++;
                             }
                         }

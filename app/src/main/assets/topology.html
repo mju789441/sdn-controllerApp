@@ -38,6 +38,12 @@
                 var parent = this.parent().id();
                 android.click_node(id, parent);
             });
+            cy.on('tap', 'edge', function(evt) {
+                var id = this.id();
+                var source = this.data("source");
+                var target = this.data("target");
+                android.click_edge(id, source, target);
+            });
         })
     }
 

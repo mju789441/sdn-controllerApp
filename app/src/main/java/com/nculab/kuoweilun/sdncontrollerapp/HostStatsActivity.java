@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,18 +24,10 @@ public class HostStatsActivity extends AppCompatActivity {
     private View activityView;
     private String IP;
     private String switch_ID;
-    private TextView switchID;
-    private TextView port;
-    private TextView mac;
-    private TextView curr_speed;
-    private TextView rx;
-    private TextView tx;
-    private TextView duration;
-    private TextView duration_nsec;
-    private TextView rx_errors;
-    private TextView ipstat;
+    private TextView content;
     private Button button_backToHost;
     private Host host;
+    private String hostCotent;
     private ControllerURLConnection controllerURLConnection;
     //Handler
     private Handler handler = new Handler();
@@ -69,20 +62,10 @@ public class HostStatsActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        switchID = (TextView) findViewById(R.id.textView_switchID);
-        switchID.setText(switchID.getText() + host.ID);
-        port = (TextView) findViewById(R.id.textView_port);
-        port.setText(port.getText() + host.port);
-        mac = (TextView) findViewById(R.id.textView_mac);
-        mac.setText(mac.getText() + host.mac);
-        curr_speed = (TextView) findViewById(R.id.textView_curr_speed);
-        curr_speed.setText(curr_speed.getText() + host.curr_speed);
-        rx = (TextView) findViewById(R.id.textView_rx);
-        tx = (TextView) findViewById(R.id.textView_tx);
-        duration = (TextView) findViewById(R.id.textView_duration);
-        duration_nsec = (TextView) findViewById(R.id.textView_duration_nsec);
-        rx_errors = (TextView) findViewById(R.id.textView_rx_errors);
+        content = (TextView) findViewById(R.id.content);
         button_backToHost = (Button) findViewById(R.id.button_backToHost);
+        hostCotent = "ID: " + host.ID + "\nport: " + host.port + "\nmac: " + host.mac +
+                "\nspeed: " + host.speed + "\n";
     }
 
     private void setListeners() {
@@ -100,8 +83,10 @@ public class HostStatsActivity extends AppCompatActivity {
             public void run() {
                 try {
                     if (host.port != "LOCAL") {
-                        JSONObject hostStats = controllerURLConnection.getPortStats(switch_ID + "/" + host.port);
-                        setStats(hostStats.getJSONArray(switch_ID).getJSONObject(0));
+                        JSONObject hostStats = controllerURLConnection
+                                .getPortStats(switch_ID + "/" + host.port)
+                                .getJSONArray(switch_ID).getJSONObject(0);
+                        setStats(hostStats);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -112,40 +97,24 @@ public class HostStatsActivity extends AppCompatActivity {
         });
     }
 
-    private void setStats(JSONObject hostStats) {
-        final Stats stats = new Stats(hostStats);
-        handler.post(new Runnable() {
-                         @Override
-                         public void run() {
-                             rx.setText("rx:" + stats.rx);
-                             tx.setText("tx:" + stats.tx);
-                             duration.setText("duration:" + stats.duration);
-                             duration_nsec.setText("duration_nsec:" + stats.duration_nsec);
-                             rx_errors.setText("rx_errors:" + stats.rx_errors);
-                         }
-                     }
-        );
-    }
-
-    private class Stats {
-        String rx = null;
-        String tx = null;
-        String duration = null;
-        String duration_nsec = null;
-        String rx_errors = null;
-
-        public Stats(JSONObject hostStats) {
+    private void setStats(final JSONObject hostStats) {
+        String temp = "";
+        JSONArray names = hostStats.names();
+        for (int i = 0; i < names.length(); i++) {
             try {
-                rx = hostStats.getString("rx_bytes");
-                tx = hostStats.getString("tx_bytes");
-                duration = hostStats.getString("duration_sec");
-                duration_nsec = hostStats.getString("duration_nsec");
-                rx_errors = hostStats.getString("rx_errors");
+                temp += names.getString(i) + ": " + hostStats.getString(names.getString(i)) + "\n";
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
+        final String stats = temp;
+        handler.post(new Runnable() {
+                         @Override
+                         public void run() {
+                             content.setText(hostCotent + stats);
+                         }
+                     }
+        );
     }
-
 
 }

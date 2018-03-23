@@ -8,15 +8,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@id/textView_curr_speed"
+        android:layout_toLeftOf="@id/textView_speed"
         android:text="Switch ID" />
 
     <TextView
-        android:id="@+id/textView_curr_speed"
+        android:id="@+id/textView_speed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:text="curr_speed(kps)" />
+        android:text="speed(kps)" />
 
     <ListView
         android:id="@+id/listView_switch"

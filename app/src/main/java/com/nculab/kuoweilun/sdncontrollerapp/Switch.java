@@ -9,18 +9,10 @@ import org.json.JSONObject;
 
 public class Switch {
     public String ID = null;
-    public String curr_speed = null;
-    public JSONObject jsonObject = null;
+    public String speed = null;
 
-    public Switch(String ID, JSONObject switchObject) {
+    public Switch(String ID, int speed) {
         this.ID = ID;
-        jsonObject = switchObject;
-        try {
-            curr_speed = switchObject.getJSONArray(ID)
-                    .getJSONObject(0)
-                    .getString("curr_speed");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        this.speed = String.valueOf(speed);
     }
 }

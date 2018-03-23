@@ -80,6 +80,70 @@ public class ControllerURLConnection {
         return output;
     }
 
+    public String put(URL url, String input) throws IOException {
+        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+        httpURLConnection.setDoOutput(true);
+        httpURLConnection.setRequestMethod("PUT");
+        httpURLConnection.setRequestProperty("Content-Type", "application/json");
+
+        OutputStream os = httpURLConnection.getOutputStream();
+        os.write(input.getBytes());
+        os.flush();
+        int responseCode = httpURLConnection.getResponseCode();
+        if (responseCode != HttpURLConnection.HTTP_CREATED
+                && responseCode != HttpURLConnection.HTTP_OK) {
+            throw new RuntimeException("Failed : HTTP error code : "
+                    + httpURLConnection.getResponseCode());
+        }
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(
+                (httpURLConnection.getInputStream())));
+
+        String temp;
+        String output = "";
+        while ((temp = br.readLine()) != null) {
+            output += temp;
+        }
+
+        httpURLConnection.disconnect();
+        return output;
+    }
+
+    public String delete(URL url, String input) throws IOException {
+        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+        httpURLConnection.setDoOutput(true);
+        httpURLConnection.setRequestMethod("DELETE");
+        httpURLConnection.setRequestProperty("Content-Type", "application/json");
+
+        OutputStream os = httpURLConnection.getOutputStream();
+        os.write(input.getBytes());
+        os.flush();
+        int responseCode = httpURLConnection.getResponseCode();
+        if (responseCode != HttpURLConnection.HTTP_CREATED
+                && responseCode != HttpURLConnection.HTTP_OK) {
+            throw new RuntimeException("Failed : HTTP error code : "
+                    + httpURLConnection.getResponseCode());
+        }
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(
+                (httpURLConnection.getInputStream())));
+
+        String temp;
+        String output = "";
+        while ((temp = br.readLine()) != null) {
+            output += temp;
+        }
+
+        httpURLConnection.disconnect();
+        return output;
+    }
+
+    public JSONObject getAllSpeed() throws IOException, JSONException {
+        // 初始化 URL
+        URL url = new URL(hostname + "/speed/port");
+        return new JSONObject(get(url));
+    }
+
     public JSONArray getTopologySwitch() throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/v1.0/topology/switches");
@@ -88,6 +152,7 @@ public class ControllerURLConnection {
 
     public JSONArray getTopologySwitch(String dpid) throws IOException, JSONException {
         // 初始化 URL
+        dpid = Integer.toHexString(Integer.parseInt(dpid));
         while (dpid.length() < 16) {
             dpid = '0' + dpid;
         }
@@ -103,6 +168,7 @@ public class ControllerURLConnection {
 
     public JSONArray getTopologyLink(String dpid) throws IOException, JSONException {
         // 初始化 URL
+        dpid = Integer.toHexString(Integer.parseInt(dpid));
         while (dpid.length() < 16) {
             dpid = '0' + dpid;
         }
@@ -118,6 +184,7 @@ public class ControllerURLConnection {
 
     public JSONArray getTopologyHost(String dpid) throws IOException, JSONException {
         // 初始化 URL
+        dpid = Integer.toHexString(Integer.parseInt(dpid));
         while (dpid.length() < 16) {
             dpid = '0' + dpid;
         }

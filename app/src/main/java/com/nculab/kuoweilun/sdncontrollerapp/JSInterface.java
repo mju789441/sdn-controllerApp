@@ -41,7 +41,6 @@ public class JSInterface extends Object implements View.OnClickListener {
     @JavascriptInterface
     public void click_node(final String node, String parent) {
         this.node = node;
-        System.out.println("JS调用了Android的hello方法\n" + node + "\n" + parent + "\n");
         View view;
         popupWindow = new PopupWindow(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         popupWindow.setOutsideTouchable(true);
@@ -80,6 +79,21 @@ public class JSInterface extends Object implements View.OnClickListener {
         }
     }
 
+    @JavascriptInterface
+    public void click_edge(final String edge, String source, String target) {
+        Intent intent = new Intent();
+        Bundle bundle = new Bundle();
+        System.out.println(source + " " + target + " " + edge);
+        if (target.contains("s")) {
+
+        } else {
+
+        }
+        intent.setClass(topologyActivity, NotificationActivity.class);
+        intent.putExtras(bundle);
+        topologyActivity.startActivity(intent);
+    }
+
     @Override
     public void onClick(View view) {
         popupWindow.dismiss();
@@ -90,7 +104,6 @@ public class JSInterface extends Object implements View.OnClickListener {
             case R.id.button_watch_host:
                 intent.setClass(topologyActivity, HostActivity.class);
                 bundle.putString("controller.IP", topologyActivity.controllerURLConnection.urlstr);
-                System.out.println(topologyActivity.controllerURLConnection.urlstr);
                 bundle.putString("switch.ID", host.ID);
                 intent.putExtras(bundle);
                 topologyActivity.startActivity(intent);

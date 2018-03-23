@@ -11,17 +11,16 @@
         android:text="Host port" />
 
     <TextView
-        android:id="@+id/textView_host_curr_speed"
+        android:id="@+id/textView_host_speed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:text="curr_speed(kbps)" />
+        android:text="speed(kbps)" />
 
     <ListView
         android:id="@+id/listView_host"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/textView_switchID">
+        android:layout_height="match_parent">
 
     </ListView>
 

@@ -46,7 +46,7 @@ public class SwitchAdapter extends BaseAdapter {
             convertView = layoutInflater.inflate(R.layout.layout_switchitem, parent, false);
             holder = new SwitchViewHolder();
             holder.textView_switch_ID = (TextView) convertView.findViewById(R.id.textView_switch_ID);
-            holder.textView_curr_speed = (TextView) convertView.findViewById(R.id.textView_curr_speed);
+            holder.textView_speed = (TextView) convertView.findViewById(R.id.textView_speed);
             convertView.setTag(holder);
         } else {
             holder = (SwitchViewHolder) convertView.getTag();
@@ -55,12 +55,12 @@ public class SwitchAdapter extends BaseAdapter {
         Switch getSwitch = (Switch) getItem(position);
         //View 內容設定
         holder.textView_switch_ID.setText(getSwitch.ID);
-        holder.textView_curr_speed.setText(getSwitch.curr_speed);
+        holder.textView_speed.setText(getSwitch.speed);
         return convertView;
     }
 
     static class SwitchViewHolder {
         public TextView textView_switch_ID = null;
-        public TextView textView_curr_speed = null;
+        public TextView textView_speed = null;
     }
 }

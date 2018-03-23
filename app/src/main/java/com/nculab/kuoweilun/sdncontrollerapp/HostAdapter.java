@@ -47,7 +47,7 @@ public class HostAdapter extends BaseAdapter {
             holder = new HostViewHolder();
             holder.ttextView_host_port = (TextView) convertView.findViewById(R.id.textView_host_port);
 
-            holder.textView_host_curr_speed = (TextView) convertView.findViewById(R.id.textView_host_curr_speed);
+            holder.textView_host_speed = (TextView) convertView.findViewById(R.id.textView_host_speed);
             convertView.setTag(holder);
         } else {
             holder = (HostViewHolder) convertView.getTag();
@@ -57,12 +57,12 @@ public class HostAdapter extends BaseAdapter {
         //View 內容設定
         holder.ttextView_host_port.setText(host.port);
 
-        holder.textView_host_curr_speed.setText(host.curr_speed);
+        holder.textView_host_speed.setText(host.speed);
         return convertView;
     }
 
     private static class HostViewHolder {
         TextView ttextView_host_port = null;
-        TextView textView_host_curr_speed = null;
+        TextView textView_host_speed = null;
     }
 }

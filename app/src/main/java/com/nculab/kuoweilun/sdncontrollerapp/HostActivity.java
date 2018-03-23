@@ -158,16 +158,27 @@ public class HostActivity extends AppCompatActivity {
                 try {
                     while (true) {
                         JSONArray host = controllerURLConnection.getPortDesc(switch_ID).getJSONArray(switch_ID);
-                        int host_length = host.length() - 1;
-                        for (int i = host_length; i < list.size(); i++) {
+                        JSONObject dpidSpeed = controllerURLConnection.getAllSpeed().getJSONObject(switch_ID);
+                        int host_length = host.length();
+                        //不算LOCAL port
+                        for (int i = host_length - 1; i < list.size(); i++) {
                             list.remove(i);
                         }
-                        for (int i = 0; i < host_length; i++) {
-                            JSONObject hostObject = host.getJSONObject(i + 1);
-                            if (list.size() < i + 1) {
-                                list.add(new Host(switch_ID, hostObject));
+                        boolean findLocal = false;
+                        int j = 0;
+                        for (int i = 0; i < host_length; i++, j++) {
+                            JSONObject hostObject = host.getJSONObject(i);
+                            String port_no = hostObject.getString("port_no");
+                            if (port_no.equals("LOCAL")) {
+                                findLocal = true;
+                                j--;
+                                continue;
+                            }
+                            int speed = dpidSpeed.getInt(port_no);
+                            if (list.size() < j + 1) {
+                                list.add(new Host(switch_ID, hostObject, speed));
                             } else {
-                                list.set(i, new Host(switch_ID, hostObject));
+                                list.set(j, new Host(switch_ID, hostObject, speed));
                             }
                         }
                         handler.post(new Runnable() {
