@@ -22,7 +22,7 @@ public class HostStatsActivity extends AppCompatActivity {
 
     //Component
     private View activityView;
-    private String IP;
+    private String connect_IP;
     private String switch_ID;
     private TextView content;
     private Button button_backToHost;
@@ -40,10 +40,10 @@ public class HostStatsActivity extends AppCompatActivity {
         activityView = HostStatsActivity.this.getLayoutInflater().inflate(R.layout.layout_hoststats, null);
         setContentView(activityView);
         Bundle bundle = this.getIntent().getExtras();
-        IP = bundle.getString("controller.IP");
+        connect_IP = bundle.getString("controller.IP");
         switch_ID = bundle.getString("switch.ID");
         host = (Host) bundle.getSerializable("host");
-        controllerURLConnection = new ControllerURLConnection(IP);
+        controllerURLConnection = new ControllerURLConnection(connect_IP);
         initView();
         setListeners();
         setThread();

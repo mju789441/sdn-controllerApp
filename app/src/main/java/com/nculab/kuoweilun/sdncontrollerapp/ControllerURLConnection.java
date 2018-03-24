@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
@@ -80,7 +81,7 @@ public class ControllerURLConnection {
         return output;
     }
 
-    public String put(URL url, String input) throws IOException {
+    public void put(URL url, String input) throws IOException {
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
         httpURLConnection.setDoOutput(true);
         httpURLConnection.setRequestMethod("PUT");
@@ -96,20 +97,10 @@ public class ControllerURLConnection {
                     + httpURLConnection.getResponseCode());
         }
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(
-                (httpURLConnection.getInputStream())));
-
-        String temp;
-        String output = "";
-        while ((temp = br.readLine()) != null) {
-            output += temp;
-        }
-
         httpURLConnection.disconnect();
-        return output;
     }
 
-    public String delete(URL url, String input) throws IOException {
+    public void delete(URL url, String input) throws IOException {
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
         httpURLConnection.setDoOutput(true);
         httpURLConnection.setRequestMethod("DELETE");
@@ -125,17 +116,27 @@ public class ControllerURLConnection {
                     + httpURLConnection.getResponseCode());
         }
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(
-                (httpURLConnection.getInputStream())));
-
-        String temp;
-        String output = "";
-        while ((temp = br.readLine()) != null) {
-            output += temp;
-        }
-
         httpURLConnection.disconnect();
-        return output;
+    }
+
+    public void subscribe(String input) throws IOException {
+        URL url = new URL(hostname + "/subscribe");
+        post(url, input);
+    }
+
+    public JSONObject publish() throws IOException, JSONException {
+        URL url = new URL(hostname + "/publish");
+        return new JSONObject(get(url));
+    }
+
+    public void unsubscribe(String input) throws IOException {
+        URL url = new URL(hostname + "/unsubscribe");
+        delete(url, input);
+    }
+
+    public void modify_suscribe(String input) throws IOException {
+        URL url = new URL(hostname + "/modify_suscribe");
+        put(url, input);
     }
 
     public JSONObject getAllSpeed() throws IOException, JSONException {

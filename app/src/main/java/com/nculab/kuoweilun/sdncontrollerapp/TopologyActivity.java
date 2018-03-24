@@ -1,6 +1,7 @@
 package com.nculab.kuoweilun.sdncontrollerapp;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -17,10 +18,13 @@ import android.widget.Button;
 import android.support.v7.widget.Toolbar;
 import android.widget.CompoundButton;
 
+import com.google.firebase.iid.FirebaseInstanceId;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -31,6 +35,7 @@ import java.util.ArrayList;
 public class TopologyActivity extends AppCompatActivity {
 
     //Component
+    private String connect_IP;
     public ControllerURLConnection controllerURLConnection;
     private View view_topology;
     private View view_settings;
@@ -42,12 +47,6 @@ public class TopologyActivity extends AppCompatActivity {
     public JSONObject switch_link = new JSONObject();
     public JSONObject switch_host = new JSONObject();
     private boolean urlLoad = false;
-    //Settings
-    private android.widget.Switch switch_online;
-    private android.widget.Switch switch_flowError;
-    private Button button_backToTopology;
-    private Boolean online = true;
-    private Boolean flowError = true;
     //Handler
     private Handler handler = new Handler();
     //Thread
@@ -60,7 +59,10 @@ public class TopologyActivity extends AppCompatActivity {
         view_settings = getLayoutInflater().inflate(R.layout.layout_topologysettings, null);
         setContentView(view_topology);
         Bundle bundle = this.getIntent().getExtras();
-        String connect_IP = bundle.getString("controller.IP");
+        connect_IP = bundle.getString("controller.IP");
+        controllerURLConnection = new ControllerURLConnection(connect_IP);
+        //Subscribe
+        new Subscribe(new AppFile(this), controllerURLConnection).subscrbe();
         initView();
         setListeners();
         setThread();
@@ -103,12 +105,6 @@ public class TopologyActivity extends AppCompatActivity {
         webView.loadUrl("file:///android_asset/topology.html");
         button_backToController = (Button) findViewById(R.id.button_backToController);
         webView.addJavascriptInterface(new JSInterface(TopologyActivity.this, getLayoutInflater(), webView), "android");
-        //settings
-        switch_online = (android.widget.Switch) view_settings.findViewById(R.id.switch_online);
-        switch_online.setChecked(online);
-        switch_flowError = (android.widget.Switch) view_settings.findViewById(R.id.switch_flowError);
-        switch_flowError.setChecked(flowError);
-        button_backToTopology = (Button) view_settings.findViewById(R.id.button_backToTopology);
     }
 
     private void setListeners() {
@@ -117,25 +113,6 @@ public class TopologyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
-            }
-        });
-        //settings
-        switch_online.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                online = isChecked;
-            }
-        });
-        switch_flowError.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                flowError = isChecked;
-            }
-        });
-        button_backToTopology.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setContentView(view_topology);
             }
         });
     }
@@ -249,6 +226,12 @@ public class TopologyActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.settings) {
+            Intent intent = new Intent();
+            Bundle bundle = new Bundle();
+            intent.setClass(TopologyActivity.this, TopologySettingActivity.class);
+            bundle.putString("controller.IP", connect_IP);
+            intent.putExtras(bundle);
+            startActivity(intent);
             setContentView(view_settings);
             return true;
         }

@@ -17,6 +17,8 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,7 +35,7 @@ public class SwitchActivity extends AppCompatActivity {
     //Component
     private ControllerSocket controllerSocket;
     private ListView listView;
-    private String IP;
+    private String connect_IP;
     private ArrayList<Switch> list;
     private SwitchAdapter adapter;
     private Button button_backToController;
@@ -48,8 +50,10 @@ public class SwitchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_switchlist);
         Bundle bundle = this.getIntent().getExtras();
-        IP = bundle.getString("controller.IP");
-        controllerURLConnection = new ControllerURLConnection(IP);
+        connect_IP = bundle.getString("controller.IP");
+        controllerURLConnection = new ControllerURLConnection(connect_IP);
+        //Subscribe
+        new Subscribe(new AppFile(this), controllerURLConnection).subscrbe();
         initView();
         setListeners();
         setThread();
@@ -91,7 +95,7 @@ public class SwitchActivity extends AppCompatActivity {
                         switch (item.getItemId()) {
                             case R.id.watch_host:
                                 intent.setClass(SwitchActivity.this, HostActivity.class);
-                                bundle.putString("controller.IP", IP);
+                                bundle.putString("controller.IP", connect_IP);
                                 bundle.putString("switch.ID", getSwitch.ID);
                                 intent.putExtras(bundle);
                                 startActivity(intent);

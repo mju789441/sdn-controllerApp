@@ -31,7 +31,7 @@ public class HostActivity extends AppCompatActivity {
     private HostAdapter adapter;
     private Button button_backToSwitch;
     private ControllerURLConnection controllerURLConnection;
-    private String controller_IP;
+    private String connect_IP;
     private String switch_ID;
     //Handler
     private Handler handler = new Handler();
@@ -44,9 +44,9 @@ public class HostActivity extends AppCompatActivity {
         activityView = HostActivity.this.getLayoutInflater().inflate(R.layout.layout_hostlist, null);
         setContentView(activityView);
         Bundle bundle = this.getIntent().getExtras();
-        controller_IP = bundle.getString("controller.IP");
+        connect_IP = bundle.getString("controller.IP");
         switch_ID = bundle.getString("switch.ID");
-        controllerURLConnection = new ControllerURLConnection(controller_IP);
+        controllerURLConnection = new ControllerURLConnection(connect_IP);
         initView();
         setListeners();
         setThread();
@@ -87,7 +87,7 @@ public class HostActivity extends AppCompatActivity {
                         switch (item.getItemId()) {
                             case R.id.watch_property:
                                 intent.setClass(HostActivity.this, HostStatsActivity.class);
-                                bundle.putString("controller.IP", controller_IP);
+                                bundle.putString("controller.IP", connect_IP);
                                 bundle.putString("switch.ID", switch_ID);
                                 bundle.putSerializable("host", host);
                                 intent.putExtras(bundle);
