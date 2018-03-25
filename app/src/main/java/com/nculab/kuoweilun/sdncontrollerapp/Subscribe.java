@@ -24,6 +24,7 @@ public class Subscribe {
             @Override
             public void run() {
                 JSONObject subscribe = new JSONObject();
+                JSONObject unsubscribe = new JSONObject();
                 //傳送token
                 String token;
                 JSONObject setting;
@@ -52,10 +53,21 @@ public class Subscribe {
                 //包裝
                 try {
                     String uuid = appFile.getUuid();
-                    subscribe.put("token:" + token, uuid);
-                    subscribe.put("swich_online:" + setting.getBoolean("swich_online"), uuid);
-                    subscribe.put("flow_error:" + setting.getBoolean("flow_error"), uuid);
+                    subscribe.put("token", token);
+                    if (setting.getBoolean("swich_online")) {
+                        subscribe.put("EventSwitchEnter", uuid);
+                        subscribe.put("EventSwitchLeave", uuid);
+                    } else {
+                        unsubscribe.put("EventSwitchEnter", uuid);
+                        unsubscribe.put("EventSwitchLeave", uuid);
+                    }
+                    if (setting.getBoolean("flow_error")) {
+
+                    } else {
+
+                    }
                     controllerURLConnection.subscribe(subscribe.toString());
+                    controllerURLConnection.unsubscribe(unsubscribe.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
