@@ -232,7 +232,6 @@ public class TopologyActivity extends AppCompatActivity {
             bundle.putString("controller.IP", connect_IP);
             intent.putExtras(bundle);
             startActivity(intent);
-            setContentView(view_settings);
             return true;
         }
 

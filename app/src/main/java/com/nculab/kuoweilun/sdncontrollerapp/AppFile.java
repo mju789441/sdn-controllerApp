@@ -43,13 +43,21 @@ public class AppFile {
         outputStream.close();
     }
 
-    public String getUuid() throws IOException {
+    public String getUuid(String name) throws IOException, JSONException {
+        JSONObject uuid = null;
         try {
-            return readFile("uuid.txt");
-        } catch (IOException e) {
-            String uuid = UUID.randomUUID().toString();
-            saveFile("uuid.txt", uuid);
-            return uuid;
+            uuid = new JSONObject(readFile("uuid.txt").toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            uuid = new JSONObject();
+        }
+        try {
+            return uuid.getString(name);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            uuid.put(name, UUID.randomUUID().toString());
+            saveFile("uuid.txt", uuid.toString());
+            return uuid.getString(name);
         }
     }
 

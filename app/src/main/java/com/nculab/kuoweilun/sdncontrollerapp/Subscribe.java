@@ -52,22 +52,25 @@ public class Subscribe {
                 }
                 //包裝
                 try {
-                    String uuid = appFile.getUuid();
                     subscribe.put("token", token);
                     if (setting.getBoolean("swich_online")) {
-                        subscribe.put("EventSwitchEnter", uuid);
-                        subscribe.put("EventSwitchLeave", uuid);
+                        subscribe.put("EventSwitchEnter", appFile.getUuid("EventSwitchEnter"));
+                        subscribe.put("EventSwitchLeave", appFile.getUuid("EventSwitchLeave"));
                     } else {
-                        unsubscribe.put("EventSwitchEnter", uuid);
-                        unsubscribe.put("EventSwitchLeave", uuid);
+                        unsubscribe.put("EventSwitchEnter", appFile.getUuid("EventSwitchEnter"));
+                        unsubscribe.put("EventSwitchLeave", appFile.getUuid("EventSwitchLeave"));
                     }
                     if (setting.getBoolean("flow_error")) {
 
                     } else {
 
                     }
+                    System.out.println(subscribe.toString());
+                    System.out.println(unsubscribe.toString());
                     controllerURLConnection.subscribe(subscribe.toString());
-                    controllerURLConnection.unsubscribe(unsubscribe.toString());
+                    if(!unsubscribe.equals(new JSONObject())){
+                        controllerURLConnection.unsubscribe(unsubscribe.toString());
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

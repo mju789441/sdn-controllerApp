@@ -28,6 +28,7 @@
         <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.HostActivity"></activity>
         <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.HostStatsActivity"></activity>
         <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.TopologyActivity"></activity>
+        <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.TopologySettingActivity"></activity>
         <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.NotificationActivity"></activity>
 
         <service android:name=".MyFirebaseInstanceIDService">
