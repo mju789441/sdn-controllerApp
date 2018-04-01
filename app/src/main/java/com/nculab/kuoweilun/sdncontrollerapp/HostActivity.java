@@ -37,6 +37,7 @@ public class HostActivity extends AppCompatActivity {
     private Handler handler = new Handler();
     //Thread
     private Thread thread_getHost;
+    private Runnable runnable_getHost;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,12 +50,13 @@ public class HostActivity extends AppCompatActivity {
         controllerURLConnection = new ControllerURLConnection(connect_IP);
         initView();
         setListeners();
-        setThread();
+        setRunnable();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        thread_getHost = new Thread(runnable_getHost);
         thread_getHost.start();
     }
 
@@ -151,8 +153,8 @@ public class HostActivity extends AppCompatActivity {
         });
     }
 
-    private void setThread() {
-        thread_getHost = new Thread(new Runnable() {
+    private void setRunnable() {
+        runnable_getHost = new Runnable() {
             @Override
             public void run() {
                 try {
@@ -197,6 +199,6 @@ public class HostActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-        });
+        };
     }
 }

@@ -44,12 +44,11 @@ public class TopologyActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private Button button_backToController;
     public ArrayList<Host> hostArrayList;
-    public JSONObject switch_link = new JSONObject();
-    public JSONObject switch_host = new JSONObject();
     private boolean urlLoad = false;
     //Handler
     private Handler handler = new Handler();
     //Thread
+    private Runnable runnable_getTopology;
     private Thread thread_getTopology;
 
     @Override
@@ -65,13 +64,13 @@ public class TopologyActivity extends AppCompatActivity {
         new Subscribe(new AppFile(this), controllerURLConnection).subscrbe();
         initView();
         setListeners();
-        setThread();
-        controllerURLConnection = new ControllerURLConnection(connect_IP);
+        setRunnable();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        thread_getTopology = new Thread(runnable_getTopology);
         thread_getTopology.start();
     }
 
@@ -108,7 +107,6 @@ public class TopologyActivity extends AppCompatActivity {
     }
 
     private void setListeners() {
-        //topology
         button_backToController.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,8 +115,8 @@ public class TopologyActivity extends AppCompatActivity {
         });
     }
 
-    private void setThread() {
-        thread_getTopology = new Thread(new Runnable() {
+    private void setRunnable() {
+        runnable_getTopology = new Runnable() {
             @Override
             public void run() {
                 try {
@@ -130,13 +128,15 @@ public class TopologyActivity extends AppCompatActivity {
                     JSONArray switchArray = controllerURLConnection.getAllSwitch();
                     JSONObject allSpeed = controllerURLConnection.getAllSpeed();
                     int switch_length = switchArray.length();
+                    //紀錄避免重複的edge
+                    JSONObject switch_link = new JSONObject();
                     //host編號
                     int host_num = 1;
                     //所有switch
                     for (int i = 0; i < switch_length; i++) {
                         String switch_ID = String.valueOf(switchArray.getInt(i));
                         JSONObject switchObject = new JSONObject("{ group: 'nodes', data: { id: 's"
-                                + switch_ID + "', parent: 'switch' } }");
+                                + switch_ID + "', type: 'switch' } }");
                         getTopology.put(switchObject);
 
                         JSONArray portArray = controllerURLConnection.getPortDesc(switch_ID)
@@ -152,21 +152,34 @@ public class TopologyActivity extends AppCompatActivity {
                             //檢查有沒有switch相連
                             for (int k = 0; k < getSwitchLink.length(); k++) {
                                 JSONObject getLink = getSwitchLink.getJSONObject(k);
-                                String link_hw_addr = getLink.getJSONObject("src")
+                                String src_hw_addr = getLink.getJSONObject("src")
                                         .getString("hw_addr");
-                                if (hw_addr.equals(link_hw_addr)) {
+                                String src_port_no = String.valueOf(Integer.parseInt(getLink.getJSONObject("src")
+                                        .getString("port_no"), 16));
+                                String dest_hw_addr = getLink.getJSONObject("dst").getString("hw_addr");
+                                String dst_port_no = String.valueOf(Integer.parseInt(getLink.getJSONObject("dst")
+                                        .getString("port_no"), 16));
+                                if (hw_addr.equals(src_hw_addr)) {
                                     findLink = true;
+                                    //避免重複的edge
+                                    if (!switch_link.isNull(src_hw_addr)) {
+                                        if (!switch_link.getJSONObject(src_hw_addr).isNull(src_port_no)) {
+                                            if (switch_link.getJSONObject(src_hw_addr).get(src_port_no) == dest_hw_addr) {
+                                                break;
+                                            }
+                                        }
+                                    }
                                     int dst_dpid = Integer.parseInt(getLink.getJSONObject("dst")
                                             .getString("dpid"), 16);
-                                    int port_no = Integer.parseInt(getLink.getJSONObject("src")
-                                            .getString("port_no"), 16);
                                     JSONObject switchEdge = new JSONObject("{ group: 'edges', data: { id: 'es"
                                             + switch_ID + "s" + dst_dpid + "', source: 's" + switch_ID
-                                            + "', target: 's" + dst_dpid + "', flow: '" +
-                                            allSpeed.getJSONObject(switch_ID).getInt("" + port_no) + "' } }");
+                                            + "', target: 's" + dst_dpid + "', port_no: '" + src_port_no
+                                            + "', flow: '" + allSpeed.getJSONObject(switch_ID)
+                                            .getInt("" + src_port_no) + "' } }");
                                     getTopology.put(switchEdge);
-                                    switch_link.put("s" + switch_ID, new JSONObject()
-                                            .put("s" + dst_dpid, getLink));
+                                    //紀錄連線
+                                    switch_link.put(src_hw_addr, new JSONObject().put(src_port_no, dest_hw_addr));
+                                    switch_link.put(dest_hw_addr, new JSONObject().put(dst_port_no, src_hw_addr));
                                     break;
                                 }
                             }
@@ -176,16 +189,14 @@ public class TopologyActivity extends AppCompatActivity {
                                         .getString("port_no"), 16);
                                 int speed = allSpeed.getJSONObject(switch_ID).getInt("" + port_no);
                                 JSONObject hostObject = new JSONObject("{ group: 'nodes', data: { id: 'h"
-                                        + host_num + "', parent: 'host' } }");
+                                        + host_num + "', type: 'host' } }");
                                 getTopology.put(hostObject);
                                 JSONObject hostEdge = new JSONObject("{ group: 'edges', data: { id: 'ec"
-                                        + switch_ID + "h" + host_num +
-                                        "', source: 's" + switch_ID + "', target: 'h" + host_num
+                                        + switch_ID + "h" + host_num + "', source: 's" + switch_ID
+                                        + "', target: 'h" + host_num + "', port_no: '" + port_no
                                         + "', flow: '" + speed + "' } }");
                                 getTopology.put(hostEdge);
                                 hostArrayList.add(new Host(switch_ID, portArray.getJSONObject(j), speed));
-                                switch_host.put("s" + switch_ID, new JSONObject()
-                                        .put("h" + host_num, getSwitch.getJSONObject(j)));
                                 host_num++;
                             }
                         }
@@ -206,7 +217,7 @@ public class TopologyActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-        });
+        };
     }
 
     @Override

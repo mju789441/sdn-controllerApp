@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,25 +39,18 @@ public class JSInterface extends Object implements View.OnClickListener {
     }
 
     @JavascriptInterface
-    public void click_node(final String node, String parent) {
+    public void click_node(final String node, String type) {
         this.node = node;
+        System.out.println("click_node: " + node + " " + type);
         View view;
         popupWindow = new PopupWindow(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         popupWindow.setOutsideTouchable(true);
         popupWindow.setBackgroundDrawable(new ColorDrawable(0x00000000));
-        switch (parent) {
-            case "controller":
-                if (node == "switch") {
-                    break;
-                }
-                break;
+        switch (type) {
             case "switch":
-                if (node == "host") {
-                    break;
-                }
                 view = layoutInflater.inflate(R.layout.layout_popup_switch, null);
                 popupWindow.setContentView(view);
-                popupWindow.showAsDropDown(webView);
+                popupWindow.showAtLocation(webView, Gravity.BOTTOM, 0, -1 * view.getScrollY());
                 Button button_watch_host = (Button) view.findViewById(R.id.button_watch_host);
                 button_watch_host.setOnClickListener(this);
                 Button button_watch_flow = (Button) view.findViewById(R.id.button_watch_flow);
@@ -66,7 +59,7 @@ public class JSInterface extends Object implements View.OnClickListener {
             case "host":
                 view = layoutInflater.inflate(R.layout.layout_popup_host, null);
                 popupWindow.setContentView(view);
-                popupWindow.showAsDropDown(webView);
+                popupWindow.showAtLocation(webView, Gravity.BOTTOM, 0, -1 * view.getScrollY());
                 Button button_property = (Button) view.findViewById(R.id.button_property);
                 button_property.setOnClickListener(this);
                 Button button_ban = (Button) view.findViewById(R.id.button_ban);
@@ -80,16 +73,13 @@ public class JSInterface extends Object implements View.OnClickListener {
     }
 
     @JavascriptInterface
-    public void click_edge(final String edge, String source, String target) {
+    public void click_edge(final String edge, String source, String target, String port_no) {
         Intent intent = new Intent();
         Bundle bundle = new Bundle();
-        System.out.println(source + " " + target + " " + edge);
-        if (target.contains("s")) {
-
-        } else {
-
-        }
-        intent.setClass(topologyActivity, NotificationActivity.class);
+        System.out.println("click_edge: " + source + " " + target + " " + edge + " " + port_no);
+        intent.setClass(topologyActivity, FlowErrorActivity.class);
+        bundle.putString("dpid", source.substring(1));
+        bundle.putString("port_no", port_no);
         intent.putExtras(bundle);
         topologyActivity.startActivity(intent);
     }

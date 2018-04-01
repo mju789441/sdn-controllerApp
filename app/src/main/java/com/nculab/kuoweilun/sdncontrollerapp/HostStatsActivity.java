@@ -32,6 +32,7 @@ public class HostStatsActivity extends AppCompatActivity {
     //Handler
     private Handler handler = new Handler();
     //Thread
+    private Runnable runnable_getHostProperty;
     private Thread thread_getHostProperty;
 
     @Override
@@ -46,12 +47,13 @@ public class HostStatsActivity extends AppCompatActivity {
         controllerURLConnection = new ControllerURLConnection(connect_IP);
         initView();
         setListeners();
-        setThread();
+        setRunnable();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        thread_getHostProperty = new Thread(runnable_getHostProperty);
         thread_getHostProperty.start();
     }
 
@@ -77,8 +79,8 @@ public class HostStatsActivity extends AppCompatActivity {
         });
     }
 
-    private void setThread() {
-        thread_getHostProperty = new Thread(new Runnable() {
+    private void setRunnable() {
+        runnable_getHostProperty = new Runnable() {
             @Override
             public void run() {
                 try {
@@ -94,7 +96,7 @@ public class HostStatsActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-        });
+        };
     }
 
     private void setStats(final JSONObject hostStats) {

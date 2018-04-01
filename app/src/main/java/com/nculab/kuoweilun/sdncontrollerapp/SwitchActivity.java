@@ -1,23 +1,15 @@
 package com.nculab.kuoweilun.sdncontrollerapp;
 
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
-
-import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,6 +36,7 @@ public class SwitchActivity extends AppCompatActivity {
     private Handler handler = new Handler();
     //Thread
     private Thread thread_getSwitch;
+    private Runnable runnable_getSwitch;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,12 +49,13 @@ public class SwitchActivity extends AppCompatActivity {
         new Subscribe(new AppFile(this), controllerURLConnection).subscrbe();
         initView();
         setListeners();
-        setThread();
+        setRunnable();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        thread_getSwitch = new Thread(runnable_getSwitch);
         thread_getSwitch.start();
     }
 
@@ -121,8 +115,8 @@ public class SwitchActivity extends AppCompatActivity {
         });
     }
 
-    private void setThread() {
-        thread_getSwitch = new Thread(new Runnable() {
+    private void setRunnable() {
+        runnable_getSwitch = new Runnable() {
             @Override
             public void run() {
                 try {
@@ -162,7 +156,6 @@ public class SwitchActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-        });
+        };
     }
-
 }

@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
  * Created by kuo on 2018/3/19.
  */
 
-public class NotificationActivity extends AppCompatActivity {
+public class FlowErrorActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

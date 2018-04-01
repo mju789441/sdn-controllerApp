@@ -35,14 +35,15 @@
             });
             cy.on('tap', 'node', function(evt) {
                 var id = this.id();
-                var parent = this.parent().id();
-                android.click_node(id, parent);
+                var type = this.data("type");
+                android.click_node(id, type);
             });
             cy.on('tap', 'edge', function(evt) {
                 var id = this.id();
                 var source = this.data("source");
                 var target = this.data("target");
-                android.click_edge(id, source, target);
+                var port_no = this.data("port_no");
+                android.click_edge(id, source, target, port_no);
             });
         })
     }
