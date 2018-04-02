@@ -37,8 +37,6 @@ public class TopologyActivity extends AppCompatActivity {
     //Component
     public String connect_IP;
     public ControllerURLConnection controllerURLConnection;
-    private View view_topology;
-    private View view_settings;
     private WebView webView;
     private WebSettings webSettings;
     private Toolbar toolbar;
@@ -54,9 +52,7 @@ public class TopologyActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        view_topology = getLayoutInflater().inflate(R.layout.layout_topology, null);
-        view_settings = getLayoutInflater().inflate(R.layout.layout_topologysettings, null);
-        setContentView(view_topology);
+        setContentView(R.layout.layout_topology);
         Bundle bundle = this.getIntent().getExtras();
         connect_IP = bundle.getString("controller_IP");
         controllerURLConnection = new ControllerURLConnection(connect_IP);

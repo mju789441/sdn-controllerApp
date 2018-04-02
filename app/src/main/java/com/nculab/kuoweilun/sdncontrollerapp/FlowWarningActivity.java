@@ -1,6 +1,7 @@
 package com.nculab.kuoweilun.sdncontrollerapp;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -8,6 +9,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,6 +35,7 @@ public class FlowWarningActivity extends AppCompatActivity {
     private AppFile appFile = new AppFile(this);
     private ControllerURLConnection controllerURLConnection;
     private Subscribe subscribe;
+    private Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,13 +58,45 @@ public class FlowWarningActivity extends AppCompatActivity {
         editText_min = (EditText) findViewById(R.id.editText_min);
         textView_content = (TextView) findViewById(R.id.textView_content);
         button_submit = (Button) findViewById(R.id.button_submit);
+        //content資料
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONArray contentArray = controllerURLConnection.getTopologySwitch(switch_ID)
+                            .getJSONObject(0).getJSONArray("ports");
+                    for (int i = 0; i < contentArray.length(); i++) {
+                        if (Integer.valueOf(contentArray.getJSONObject(i).getString("port_no"))
+                                .equals(Integer.valueOf(port_no))) {
+                            JSONObject content = contentArray.getJSONObject(i);
+                            String content_msg = "hw_addr: " + content.getString("hw_addr") + "\n";
+                            content_msg += "name: " + content.getString("name") + "\n";
+                            content_msg += "port_no: " + content.getString("port_no") + "\n";
+                            content_msg += "dpid: " + content.getString("dpid") + "\n";
+                            final String msg = content_msg;
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    textView_content.setText(msg);
+                                }
+                            });
+                            break;
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     private void setListeners() {
         button_submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String speed = editText_speed.getText().toString();
+                int speed = Integer.valueOf(editText_speed.getText().toString());
                 int day = Integer.valueOf(editText_day.getText().toString());
                 int hour = Integer.valueOf(editText_hour.getText().toString());
                 int min = Integer.valueOf(editText_min.getText().toString());
@@ -72,6 +107,12 @@ public class FlowWarningActivity extends AppCompatActivity {
                 }
                 if (min >= 60) {
                     toast_msg += "min >= 60\n";
+                }
+                if (sec == 0) {
+                    toast_msg += "time must > 0\n";
+                }
+                if (speed == 0) {
+                    toast_msg += "flow must > 0\n";
                 }
                 if (!toast_msg.equals("")) {
                     Toast.makeText(getApplicationContext(), toast_msg, Toast.LENGTH_SHORT).show();
@@ -90,6 +131,7 @@ public class FlowWarningActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     subscribe.subscrbe();
+                    finish();
                 }
             }
         });
