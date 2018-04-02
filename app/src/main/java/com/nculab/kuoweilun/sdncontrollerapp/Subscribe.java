@@ -1,10 +1,14 @@
 package com.nculab.kuoweilun.sdncontrollerapp;
 
+import android.util.Log;
+
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by kuo on 2018/3/25.
@@ -25,17 +29,10 @@ public class Subscribe {
             public void run() {
                 JSONObject subscribe = new JSONObject();
                 JSONObject unsubscribe = new JSONObject();
-                //傳送token
-                String token;
+                //取得token
+                String token = FirebaseInstanceId.getInstance().getToken();
+                Log.d(TAG, "token:" + token);
                 JSONObject setting;
-                try {
-                    token = appFile.getToken();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    token = FirebaseInstanceId.getInstance().getToken();
-                }
-                //看看token長相
-                System.out.println("token:" + token);
                 //傳送setting
                 try {
                     setting = appFile.getSetting();
@@ -44,7 +41,7 @@ public class Subscribe {
                     setting = new JSONObject();
                     try {
                         setting.put("swich_online", true);
-                        setting.put("flow_error", true);
+                        setting.put("flow_warning", true);
                         appFile.saveSetting(setting);
                     } catch (Exception e1) {
                         e1.printStackTrace();
@@ -53,28 +50,47 @@ public class Subscribe {
                 //包裝
                 try {
                     subscribe.put("token", token);
+                    //swich_online
                     if (setting.getBoolean("swich_online")) {
                         subscribe.put("EventSwitchEnter", appFile.getUuid("EventSwitchEnter"));
                         subscribe.put("EventSwitchLeave", appFile.getUuid("EventSwitchLeave"));
+                        appFile.saveUuidTable(appFile.getUuid("EventSwitchEnter"), "EventSwitchEnter");
+                        appFile.saveUuidTable(appFile.getUuid("EventSwitchLeave"), "EventSwitchLeave");
                     } else {
                         unsubscribe.put("EventSwitchEnter", appFile.getUuid("EventSwitchEnter"));
                         unsubscribe.put("EventSwitchLeave", appFile.getUuid("EventSwitchLeave"));
                     }
-                    if (setting.getBoolean("flow_error")) {
-
-                    } else {
-
+                    //flow_warning
+                    JSONObject getFlowWarning = appFile.getFlowWarning();
+                    if (getFlowWarning.names() != null) {
+                        if (setting.getBoolean("flow_warning")) {
+                            for (int i = 0; i < getFlowWarning.names().length(); i++) {
+                                String switch_ID = getFlowWarning.names().getString(i);
+                                for (int j = 0; j < getFlowWarning.getJSONObject(switch_ID).names().length(); j++) {
+                                    String port_no = getFlowWarning.getJSONObject(switch_ID).names().getString(j);
+                                    JSONObject flowWarning = getFlowWarning.getJSONObject(switch_ID).getJSONObject(port_no);
+                                    appFile.saveUuidTable(flowWarning.getString("uuid")
+                                            , new JSONObject().put(switch_ID, new JSONObject()
+                                                    .put(port_no, flowWarning)).toString());
+                                }
+                                subscribe.put(switch_ID, getFlowWarning.getJSONObject(switch_ID));
+                            }
+                        } else {
+                            for (int i = 0; i < getFlowWarning.names().length(); i++) {
+                                String switch_ID = getFlowWarning.names().getString(i);
+                                JSONObject flowWarning = getFlowWarning.getJSONObject(switch_ID);
+                                unsubscribe.put(switch_ID, flowWarning);
+                            }
+                        }
                     }
-                    System.out.println(subscribe.toString());
-                    System.out.println(unsubscribe.toString());
+                    Log.d(TAG, "subscribe: " + subscribe.toString());
+                    Log.d(TAG, "unsubscribe: " + unsubscribe.toString());
                     controllerURLConnection.subscribe(subscribe.toString());
-                    if(!unsubscribe.equals(new JSONObject())){
-                        controllerURLConnection.unsubscribe(unsubscribe.toString());
-                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }).start();
     }
+
 }

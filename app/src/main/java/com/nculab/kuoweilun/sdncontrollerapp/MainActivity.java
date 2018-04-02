@@ -56,13 +56,13 @@ public class MainActivity extends AppCompatActivity {
                         switch (item.getItemId()) {
                             case R.id.watch_switch:
                                 intent.setClass(MainActivity.this, SwitchActivity.class);
-                                bundle.putString("controller.IP", controller);
+                                bundle.putString("controller_IP", controller);
                                 intent.putExtras(bundle);
                                 startActivity(intent);
                                 break;
                             case R.id.watch_topology:
                                 intent.setClass(MainActivity.this, TopologyActivity.class);
-                                bundle.putString("controller.IP", controller);
+                                bundle.putString("controller_IP", controller);
                                 intent.putExtras(bundle);
                                 startActivity(intent);
                                 break;

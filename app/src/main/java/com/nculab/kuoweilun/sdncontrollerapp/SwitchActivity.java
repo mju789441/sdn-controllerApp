@@ -43,7 +43,7 @@ public class SwitchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_switchlist);
         Bundle bundle = this.getIntent().getExtras();
-        connect_IP = bundle.getString("controller.IP");
+        connect_IP = bundle.getString("controller_IP");
         controllerURLConnection = new ControllerURLConnection(connect_IP);
         //Subscribe
         new Subscribe(new AppFile(this), controllerURLConnection).subscrbe();
@@ -89,8 +89,8 @@ public class SwitchActivity extends AppCompatActivity {
                         switch (item.getItemId()) {
                             case R.id.watch_host:
                                 intent.setClass(SwitchActivity.this, HostActivity.class);
-                                bundle.putString("controller.IP", connect_IP);
-                                bundle.putString("switch.ID", getSwitch.ID);
+                                bundle.putString("controller_IP", connect_IP);
+                                bundle.putString("switch_ID", getSwitch.ID);
                                 intent.putExtras(bundle);
                                 startActivity(intent);
                                 break;

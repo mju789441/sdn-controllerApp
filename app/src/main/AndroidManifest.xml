@@ -29,7 +29,7 @@
         <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.HostStatsActivity"></activity>
         <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.TopologyActivity"></activity>
         <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.TopologySettingActivity"></activity>
-        <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.FlowErrorActivity"></activity>
+        <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.FlowWarningActivity"></activity>
 
         <service android:name=".MyFirebaseInstanceIDService">
             <intent-filter>

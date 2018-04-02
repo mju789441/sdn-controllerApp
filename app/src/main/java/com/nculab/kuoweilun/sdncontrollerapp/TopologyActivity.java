@@ -35,7 +35,7 @@ import java.util.ArrayList;
 public class TopologyActivity extends AppCompatActivity {
 
     //Component
-    private String connect_IP;
+    public String connect_IP;
     public ControllerURLConnection controllerURLConnection;
     private View view_topology;
     private View view_settings;
@@ -58,7 +58,7 @@ public class TopologyActivity extends AppCompatActivity {
         view_settings = getLayoutInflater().inflate(R.layout.layout_topologysettings, null);
         setContentView(view_topology);
         Bundle bundle = this.getIntent().getExtras();
-        connect_IP = bundle.getString("controller.IP");
+        connect_IP = bundle.getString("controller_IP");
         controllerURLConnection = new ControllerURLConnection(connect_IP);
         //Subscribe
         new Subscribe(new AppFile(this), controllerURLConnection).subscrbe();
@@ -240,7 +240,7 @@ public class TopologyActivity extends AppCompatActivity {
             Intent intent = new Intent();
             Bundle bundle = new Bundle();
             intent.setClass(TopologyActivity.this, TopologySettingActivity.class);
-            bundle.putString("controller.IP", connect_IP);
+            bundle.putString("controller_IP", connect_IP);
             intent.putExtras(bundle);
             startActivity(intent);
             return true;

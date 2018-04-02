@@ -18,14 +18,6 @@ public class MyFirebaseInstanceIdService extends FirebaseInstanceIdService {
     public void onTokenRefresh() {
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
         Log.d(TAG, "Refreshed token: " + refreshedToken);
-        try {
-            saveToken(refreshedToken);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
-    public void saveToken(String token) throws IOException {
-        new AppFile(this).saveToken(token);
-    }
 }

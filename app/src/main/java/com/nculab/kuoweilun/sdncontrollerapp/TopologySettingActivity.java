@@ -19,7 +19,7 @@ public class TopologySettingActivity extends AppCompatActivity {
 
     private String connect_IP;
     private android.widget.Switch switch_online;
-    private android.widget.Switch switch_flow_error;
+    private android.widget.Switch switch_flow_warning;
     private Button button_backToTopology;
     private JSONObject setting;
     private AppFile appFile = new AppFile(this);
@@ -30,7 +30,7 @@ public class TopologySettingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_topologysettings);
         Bundle bundle = this.getIntent().getExtras();
-        connect_IP = bundle.getString("controller.IP");
+        connect_IP = bundle.getString("controller_IP");
         subscribe = new Subscribe(appFile, new ControllerURLConnection(connect_IP));
         initView();
         settListeners();
@@ -44,7 +44,7 @@ public class TopologySettingActivity extends AppCompatActivity {
             setting = new JSONObject();
             try {
                 setting.put("swich_online", true);
-                setting.put("flow_error", true);
+                setting.put("flow_warning", true);
                 appFile.saveSetting(setting);
                 subscribe.subscrbe();
             } catch (JSONException e1) {
@@ -54,10 +54,10 @@ public class TopologySettingActivity extends AppCompatActivity {
             }
         }
         switch_online = (android.widget.Switch) findViewById(R.id.switch_online);
-        switch_flow_error = (android.widget.Switch) findViewById(R.id.switch_flow_error);
+        switch_flow_warning = (android.widget.Switch) findViewById(R.id.switch_flow_warning);
         try {
             switch_online.setChecked(setting.getBoolean("swich_online"));
-            switch_flow_error.setChecked(setting.getBoolean("flow_error"));
+            switch_flow_warning.setChecked(setting.getBoolean("flow_warning"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -78,11 +78,11 @@ public class TopologySettingActivity extends AppCompatActivity {
                 }
             }
         });
-        switch_flow_error.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        switch_flow_warning.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 try {
-                    setting.put("flow_error", isChecked);
+                    setting.put("flow_warning", isChecked);
                     appFile.saveSetting(setting);
                     subscribe.subscrbe();
                 } catch (Exception e) {

@@ -38,11 +38,12 @@
             android:layout_weight="1"
             android:text="時間" />
 
-        <Spinner
-            android:id="@+id/spinner_day"
+        <EditText
+            android:id="@+id/editText_day"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:inputType="numberDecimal" />
 
         <TextView
             android:id="@+id/textView_day"
@@ -51,11 +52,12 @@
             android:layout_weight="1"
             android:text="天" />
 
-        <Spinner
-            android:id="@+id/spinner_hour"
+        <EditText
+            android:id="@+id/editText_hour"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:inputType="numberDecimal" />
 
         <TextView
             android:id="@+id/textView_hour"
@@ -64,11 +66,12 @@
             android:layout_weight="1"
             android:text="時" />
 
-        <Spinner
-            android:id="@+id/spinner_min"
+        <EditText
+            android:id="@+id/editText_min"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:inputType="numberDecimal" />
 
         <TextView
             android:id="@+id/textView_min"
@@ -80,7 +83,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/content"
+        android:id="@+id/textView_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"

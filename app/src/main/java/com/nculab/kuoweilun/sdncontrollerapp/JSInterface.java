@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by Kuo Wei Lun on 2018/1/21.
@@ -41,7 +44,7 @@ public class JSInterface extends Object implements View.OnClickListener {
     @JavascriptInterface
     public void click_node(final String node, String type) {
         this.node = node;
-        System.out.println("click_node: " + node + " " + type);
+        Log.d(TAG, "click_node: node:" + node + " type: " + type);
         View view;
         popupWindow = new PopupWindow(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         popupWindow.setOutsideTouchable(true);
@@ -76,9 +79,10 @@ public class JSInterface extends Object implements View.OnClickListener {
     public void click_edge(final String edge, String source, String target, String port_no) {
         Intent intent = new Intent();
         Bundle bundle = new Bundle();
-        System.out.println("click_edge: " + source + " " + target + " " + edge + " " + port_no);
-        intent.setClass(topologyActivity, FlowErrorActivity.class);
-        bundle.putString("dpid", source.substring(1));
+        Log.d(TAG, "click_edge: edge: " + edge + " source: " + source + " targe: " + target + " port_no: " + port_no);
+        intent.setClass(topologyActivity, FlowWarningActivity.class);
+        bundle.putString("connect_IP", topologyActivity.connect_IP);
+        bundle.putString("switch_ID", source.substring(1));
         bundle.putString("port_no", port_no);
         intent.putExtras(bundle);
         topologyActivity.startActivity(intent);
@@ -93,8 +97,8 @@ public class JSInterface extends Object implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.button_watch_host:
                 intent.setClass(topologyActivity, HostActivity.class);
-                bundle.putString("controller.IP", topologyActivity.controllerURLConnection.urlstr);
-                bundle.putString("switch.ID", host.ID);
+                bundle.putString("controller_IP", topologyActivity.controllerURLConnection.urlstr);
+                bundle.putString("switch_ID", host.ID);
                 intent.putExtras(bundle);
                 topologyActivity.startActivity(intent);
                 break;
@@ -102,8 +106,8 @@ public class JSInterface extends Object implements View.OnClickListener {
                 break;
             case R.id.button_property:
                 intent.setClass(topologyActivity, HostStatsActivity.class);
-                bundle.putString("controller.IP", topologyActivity.controllerURLConnection.urlstr);
-                bundle.putString("switch.ID", host.ID);
+                bundle.putString("controller_IP", topologyActivity.controllerURLConnection.urlstr);
+                bundle.putString("switch_ID", host.ID);
                 bundle.putSerializable("host", host);
                 intent.putExtras(bundle);
                 topologyActivity.startActivity(intent);

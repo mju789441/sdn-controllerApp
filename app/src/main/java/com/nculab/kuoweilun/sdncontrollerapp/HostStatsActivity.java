@@ -24,7 +24,7 @@ public class HostStatsActivity extends AppCompatActivity {
     private View activityView;
     private String connect_IP;
     private String switch_ID;
-    private TextView content;
+    private TextView textView_content;
     private Button button_backToHost;
     private Host host;
     private String hostCotent;
@@ -41,8 +41,8 @@ public class HostStatsActivity extends AppCompatActivity {
         activityView = HostStatsActivity.this.getLayoutInflater().inflate(R.layout.layout_hoststats, null);
         setContentView(activityView);
         Bundle bundle = this.getIntent().getExtras();
-        connect_IP = bundle.getString("controller.IP");
-        switch_ID = bundle.getString("switch.ID");
+        connect_IP = bundle.getString("controller_IP");
+        switch_ID = bundle.getString("switch_ID");
         host = (Host) bundle.getSerializable("host");
         controllerURLConnection = new ControllerURLConnection(connect_IP);
         initView();
@@ -64,7 +64,7 @@ public class HostStatsActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        content = (TextView) findViewById(R.id.content);
+        textView_content = (TextView) findViewById(R.id.textView_content);
         button_backToHost = (Button) findViewById(R.id.button_backToHost);
         hostCotent = "ID: " + host.ID + "\nport: " + host.port + "\nmac: " + host.mac +
                 "\nspeed: " + host.speed + "\n";
@@ -113,7 +113,7 @@ public class HostStatsActivity extends AppCompatActivity {
         handler.post(new Runnable() {
                          @Override
                          public void run() {
-                             content.setText(hostCotent + stats);
+                             textView_content.setText(hostCotent + stats);
                          }
                      }
         );
