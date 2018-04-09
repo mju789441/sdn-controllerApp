@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -99,6 +100,19 @@ public class AppFile {
             flowWarning = new JSONObject();
         }
         return flowWarning;
+    }
+
+    public void saveCurrentIP(String input) throws IOException {
+        saveFile("IP.txt", input);
+    }
+
+    public String getCurrentIP() throws IOException {
+        return readFile("IP.txt");
+    }
+
+    public void deleteCurrentIP() {
+        File file = new File(context.getFilesDir(), "IP.txt");
+        file.delete();
     }
 
 }

@@ -96,43 +96,48 @@ public class FlowWarningActivity extends AppCompatActivity {
         button_submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int speed = Integer.valueOf(editText_speed.getText().toString());
-                int day = Integer.valueOf(editText_day.getText().toString());
-                int hour = Integer.valueOf(editText_hour.getText().toString());
-                int min = Integer.valueOf(editText_min.getText().toString());
-                int sec = ((day * 24 + hour) * 60 + min) * 60;
-                String toast_msg = "";
-                if (hour >= 24) {
-                    toast_msg += "hour >= 24\n";
-                }
-                if (min >= 60) {
-                    toast_msg += "min >= 60\n";
-                }
-                if (sec == 0) {
-                    toast_msg += "time must > 0\n";
-                }
-                if (speed == 0) {
-                    toast_msg += "flow must > 0\n";
-                }
-                if (!toast_msg.equals("")) {
-                    Toast.makeText(getApplicationContext(), toast_msg, Toast.LENGTH_SHORT).show();
-                } else {
-                    JSONObject flow_warning = null;
-                    try {
-                        flow_warning = appFile.getFlowWarning();
-                        flow_warning.put(switch_ID, new JSONObject().put(port_no,
-                                new JSONObject().put("uuid", UUID.randomUUID().toString())
-                                        .put("speed", speed)
-                                        .put("duration", sec)));
-                        appFile.saveFlowWarning(flow_warning);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                try {
+                    int speed = Integer.valueOf(editText_speed.getText().toString());
+                    int day = Integer.valueOf(editText_day.getText().toString());
+                    int hour = Integer.valueOf(editText_hour.getText().toString());
+                    int min = Integer.valueOf(editText_min.getText().toString());
+                    int sec = ((day * 24 + hour) * 60 + min) * 60;
+                    String toast_msg = "";
+                    if (hour >= 24) {
+                        toast_msg += "hour >= 24\n";
                     }
-                    subscribe.subscrbe();
-                    finish();
+                    if (min >= 60) {
+                        toast_msg += "min >= 60\n";
+                    }
+                    if (sec == 0) {
+                        toast_msg += "time must > 0\n";
+                    }
+                    if (speed == 0) {
+                        toast_msg += "flow must > 0\n";
+                    }
+                    if (!toast_msg.equals("")) {
+                        Toast.makeText(getApplicationContext(), toast_msg, Toast.LENGTH_SHORT).show();
+                    } else {
+                        JSONObject flow_warning = null;
+                        try {
+                            flow_warning = appFile.getFlowWarning();
+                            flow_warning.put(switch_ID, new JSONObject().put(port_no,
+                                    new JSONObject().put("uuid", UUID.randomUUID().toString())
+                                            .put("speed", speed)
+                                            .put("duration", sec)));
+                            appFile.saveFlowWarning(flow_warning);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        subscribe.subscrbe();
+                        finish();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+
             }
         });
     }

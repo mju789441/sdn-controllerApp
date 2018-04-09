@@ -57,6 +57,11 @@ public class TopologyActivity extends AppCompatActivity {
         connect_IP = bundle.getString("controller_IP");
         controllerURLConnection = new ControllerURLConnection(connect_IP);
         //Subscribe
+        try {
+            new AppFile(this).saveCurrentIP(connect_IP);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         new Subscribe(new AppFile(this), controllerURLConnection).subscrbe();
         initView();
         setListeners();
@@ -192,7 +197,12 @@ public class TopologyActivity extends AppCompatActivity {
                                         + "', target: 'h" + host_num + "', port_no: '" + port_no
                                         + "', flow: '" + speed + "' } }");
                                 getTopology.put(hostEdge);
-                                hostArrayList.add(new Host(switch_ID, portArray.getJSONObject(j), speed));
+                                for (int k = 0; k < portArray.length(); k++) {
+                                    if (portArray.getJSONObject(k).getString("port_no").equals(String.valueOf(port_no))) {
+                                        hostArrayList.add(new Host(switch_ID, portArray.getJSONObject(k), speed));
+                                        break;
+                                    }
+                                }
                                 host_num++;
                             }
                         }

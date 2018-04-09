@@ -93,7 +93,7 @@ public class JSInterface extends Object implements View.OnClickListener {
         popupWindow.dismiss();
         Intent intent = new Intent();
         Bundle bundle = new Bundle();
-        final Host host = topologyActivity.hostArrayList.get(Integer.parseInt(node.substring(1)));
+        final Host host = topologyActivity.hostArrayList.get(Integer.parseInt(node.substring(1)) - 1);
         switch (view.getId()) {
             case R.id.button_watch_host:
                 intent.setClass(topologyActivity, HostActivity.class);

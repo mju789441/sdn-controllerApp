@@ -84,7 +84,7 @@ public class HostStatsActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    if (host.port != "LOCAL") {
+                    if (!host.port.equals( "LOCAL")) {
                         JSONObject hostStats = controllerURLConnection
                                 .getPortStats(switch_ID + "/" + host.port)
                                 .getJSONArray(switch_ID).getJSONObject(0);

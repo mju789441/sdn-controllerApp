@@ -18,6 +18,17 @@ public class MyFirebaseInstanceIdService extends FirebaseInstanceIdService {
     public void onTokenRefresh() {
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
         Log.d(TAG, "Refreshed token: " + refreshedToken);
+        sendToken(refreshedToken);
+    }
+
+    private void sendToken(String token) {
+        try {
+            String IP = new AppFile(this).getCurrentIP();
+            ControllerURLConnection controllerURLConnection = new ControllerURLConnection(IP);
+            new Subscribe(new AppFile(this), controllerURLConnection).subscrbe();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

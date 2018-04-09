@@ -32,6 +32,13 @@ public class MainActivity extends AppCompatActivity {
         setListeners();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // The activity is about to be destroyed.
+        new AppFile(this).deleteCurrentIP();
+    }
+
     private void initView() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

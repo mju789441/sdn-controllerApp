@@ -46,6 +46,11 @@ public class SwitchActivity extends AppCompatActivity {
         connect_IP = bundle.getString("controller_IP");
         controllerURLConnection = new ControllerURLConnection(connect_IP);
         //Subscribe
+        try {
+            new AppFile(this).saveCurrentIP(connect_IP);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         new Subscribe(new AppFile(this), controllerURLConnection).subscrbe();
         initView();
         setListeners();
