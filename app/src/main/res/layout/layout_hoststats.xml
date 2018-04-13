@@ -15,12 +15,15 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/textView_content"
+            <TableLayout
+                android:id="@+id/tableLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="TextView"
-                android:textSize="20dp" />
+                android:layout_weight="1"
+                android:stretchColumns="1">
+
+            </TableLayout>
+
         </LinearLayout>
     </ScrollView>
 
