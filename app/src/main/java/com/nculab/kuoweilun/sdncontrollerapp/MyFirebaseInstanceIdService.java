@@ -25,7 +25,7 @@ public class MyFirebaseInstanceIdService extends FirebaseInstanceIdService {
         try {
             String IP = new AppFile(this).getCurrentIP();
             ControllerURLConnection controllerURLConnection = new ControllerURLConnection(IP);
-            new Subscribe(new AppFile(this), controllerURLConnection).subscrbe();
+            new Subscribe(this, controllerURLConnection).subscrbe();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -46,7 +46,7 @@ public class FlowWarningActivity extends AppCompatActivity {
         switch_ID = bundle.getString("switch_ID");
         port_no = bundle.getString("port_no");
         controllerURLConnection = new ControllerURLConnection(connect_IP);
-        subscribe = new Subscribe(appFile, controllerURLConnection);
+        subscribe = new Subscribe(this, controllerURLConnection);
         initView();
         setListeners();
     }

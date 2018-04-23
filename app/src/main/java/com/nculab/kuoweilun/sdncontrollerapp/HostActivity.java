@@ -189,7 +189,7 @@ public class HostActivity extends AppCompatActivity {
                                 adapter.notifyDataSetChanged();
                             }
                         });
-                        Thread.sleep(100);
+                        Thread.sleep(1000);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

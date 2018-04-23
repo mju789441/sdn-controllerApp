@@ -31,7 +31,7 @@ public class TopologySettingActivity extends AppCompatActivity {
         setContentView(R.layout.layout_topologysettings);
         Bundle bundle = this.getIntent().getExtras();
         connect_IP = bundle.getString("controller_IP");
-        subscribe = new Subscribe(appFile, new ControllerURLConnection(connect_IP));
+        subscribe = new Subscribe(this, new ControllerURLConnection(connect_IP));
         initView();
         settListeners();
     }

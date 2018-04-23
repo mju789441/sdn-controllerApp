@@ -36,7 +36,7 @@ public class HostStatsActivity extends AppCompatActivity {
     private TableLayout tableLayout;
     private Button button_backToHost;
     private Host host;
-    private String hostCotent;
+    private String stat = "unban";
     private ControllerURLConnection controllerURLConnection;
     //Handler
     private Handler handler = new Handler();
@@ -95,6 +95,23 @@ public class HostStatsActivity extends AppCompatActivity {
                         JSONObject hostStats = controllerURLConnection
                                 .getPortStats(switch_ID + "/" + host.port)
                                 .getJSONArray(switch_ID).getJSONObject(0);
+                        JSONObject input = new JSONObject();
+                        stat = "unban";
+                        try {
+                            input.put("priority", 867);
+                            input.put("math", new JSONObject().put("in_port", host.port));
+                            System.out.println("switch_id " + switch_ID);
+                            System.out.println("host " + host.port);
+                            JSONArray output = controllerURLConnection.getFlowStats(switch_ID, input.toString())
+                                    .getJSONArray(switch_ID);
+                            for (int i = 0; i < output.length(); i++) {
+                                if (output.getJSONObject(i).getJSONArray("actions")
+                                        .equals(new JSONArray()))
+                                    stat = "ban";
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         setStats(hostStats);
                     }
                 } catch (IOException e) {
@@ -130,7 +147,7 @@ public class HostStatsActivity extends AppCompatActivity {
                     break;
             }
         }
-        JSONArray names = hostStats.names();
+        final JSONArray names = hostStats.names();
         for (int i = 0; i < names.length(); i++) {
             try {
                 name.add(names.getString(i));
@@ -143,7 +160,7 @@ public class HostStatsActivity extends AppCompatActivity {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i < name.size(); i++) {
+                for (int i = 0; i <= name.size(); i++) {
                     //component
                     TableRow tableRow = new TableRow(context);
                     TextView textView = new TextView(context);
@@ -158,10 +175,15 @@ public class HostStatsActivity extends AppCompatActivity {
                     textView.setLayoutParams(layoutParams);
                     textView1.setLayoutParams(layoutParams);
                     textView.setTextSize(20);
-                    textView.setText(name.get(i) + ": ");
                     textView1.setTextSize(20);
                     textView1.setGravity(Gravity.RIGHT);
-                    textView1.setText(text.get(i));
+                    if (i == name.size()) {
+                        textView.setText("Ban Stat: ");
+                        textView1.setText(stat);
+                    } else {
+                        textView.setText(name.get(i) + ": ");
+                        textView1.setText(text.get(i));
+                    }
                     //addView
                     if (i != 0)
                         tableLayout.addView(view);

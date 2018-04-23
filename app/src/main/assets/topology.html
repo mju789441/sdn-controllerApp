@@ -53,13 +53,13 @@
     }
 
     function set_edge_flow(edgename, flowbytes) {
-        var eles = cy.edges("#" + edgename);
+        var eles = cy.$id(edgename);
         eles.data('flow', flowbytes);
-        eles.layout({
-            'content': 'data(flow)',
-            'line-color': 'green'
-        }).run();
-
+        if (flowbytes == '0') {
+            eles.style('line-color', 'red');
+        } else {
+            eles.style('line-color', 'green');
+        }
     }
 
     function rearrange() {

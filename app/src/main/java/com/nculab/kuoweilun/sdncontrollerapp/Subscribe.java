@@ -1,5 +1,6 @@
 package com.nculab.kuoweilun.sdncontrollerapp;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -18,8 +19,8 @@ public class Subscribe {
     AppFile appFile;
     ControllerURLConnection controllerURLConnection;
 
-    public Subscribe(AppFile appFile, ControllerURLConnection controllerURLConnection) {
-        this.appFile = appFile;
+    public Subscribe(Context context, ControllerURLConnection controllerURLConnection) {
+        this.appFile = new AppFile(context);
         this.controllerURLConnection = controllerURLConnection;
     }
 

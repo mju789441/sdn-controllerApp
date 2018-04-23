@@ -88,6 +88,11 @@ public class JSInterface extends Object implements View.OnClickListener {
         topologyActivity.startActivity(intent);
     }
 
+    @JavascriptInterface
+    public void print(final String edgeo) {
+        System.out.println(edgeo);
+    }
+
     @Override
     public void onClick(View view) {
         popupWindow.dismiss();

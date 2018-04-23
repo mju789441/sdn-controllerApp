@@ -51,7 +51,7 @@ public class SwitchActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        new Subscribe(new AppFile(this), controllerURLConnection).subscrbe();
+        new Subscribe(this, controllerURLConnection).subscrbe();
         initView();
         setListeners();
         setRunnable();
@@ -151,7 +151,7 @@ public class SwitchActivity extends AppCompatActivity {
                                 adapter.notifyDataSetChanged();
                             }
                         });
-                        Thread.sleep(100);
+                        Thread.sleep(1000);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

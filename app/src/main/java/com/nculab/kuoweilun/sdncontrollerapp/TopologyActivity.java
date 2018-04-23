@@ -42,6 +42,7 @@ public class TopologyActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private Button button_backToController;
     public ArrayList<Host> hostArrayList;
+    public JSONArray edgeArray = new JSONArray();
     private boolean urlLoad = false;
     //Handler
     private Handler handler = new Handler();
@@ -62,7 +63,7 @@ public class TopologyActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        new Subscribe(new AppFile(this), controllerURLConnection).subscrbe();
+        new Subscribe(this, controllerURLConnection).subscrbe();
         initView();
         setListeners();
         setRunnable();
@@ -97,6 +98,7 @@ public class TopologyActivity extends AppCompatActivity {
                 super.onPageFinished(view, url);
                 urlLoad = true;
             }
+
         });
         webView.setWebChromeClient(new WebChromeClient());
         webSettings = webView.getSettings();
@@ -121,9 +123,6 @@ public class TopologyActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    //等待網頁載入
-                    while (!urlLoad) {
-                    }
                     //取得controller
                     final JSONArray getTopology = new JSONArray();
                     JSONArray switchArray = controllerURLConnection.getAllSwitch();
@@ -165,7 +164,7 @@ public class TopologyActivity extends AppCompatActivity {
                                     //避免重複的edge
                                     if (!switch_link.isNull(src_hw_addr)) {
                                         if (!switch_link.getJSONObject(src_hw_addr).isNull(src_port_no)) {
-                                            if (switch_link.getJSONObject(src_hw_addr).get(src_port_no) == dest_hw_addr) {
+                                            if (switch_link.getJSONObject(src_hw_addr).get(src_port_no).equals(dest_hw_addr)) {
                                                 break;
                                             }
                                         }
@@ -181,6 +180,10 @@ public class TopologyActivity extends AppCompatActivity {
                                     //紀錄連線
                                     switch_link.put(src_hw_addr, new JSONObject().put(src_port_no, dest_hw_addr));
                                     switch_link.put(dest_hw_addr, new JSONObject().put(dst_port_no, src_hw_addr));
+                                    edgeArray.put(new JSONObject().put("name", "es"
+                                            + switch_ID + "s" + dst_dpid)
+                                            .put("switch_ID", switch_ID)
+                                            .put("port_no", "" + src_port_no));
                                     break;
                                 }
                             }
@@ -192,11 +195,15 @@ public class TopologyActivity extends AppCompatActivity {
                                 JSONObject hostObject = new JSONObject("{ group: 'nodes', data: { id: 'h"
                                         + host_num + "', type: 'host' } }");
                                 getTopology.put(hostObject);
-                                JSONObject hostEdge = new JSONObject("{ group: 'edges', data: { id: 'ec"
+                                JSONObject hostEdge = new JSONObject("{ group: 'edges', data: { id: 'es"
                                         + switch_ID + "h" + host_num + "', source: 's" + switch_ID
                                         + "', target: 'h" + host_num + "', port_no: '" + port_no
                                         + "', flow: '" + speed + "' } }");
                                 getTopology.put(hostEdge);
+                                edgeArray.put(new JSONObject().put("name", "es"
+                                        + switch_ID + "h" + host_num)
+                                        .put("switch_ID", switch_ID)
+                                        .put("port_no", "" + port_no));
                                 for (int k = 0; k < portArray.length(); k++) {
                                     if (portArray.getJSONObject(k).getString("port_no").equals(String.valueOf(port_no))) {
                                         hostArrayList.add(new Host(switch_ID, portArray.getJSONObject(k), speed));
@@ -207,7 +214,6 @@ public class TopologyActivity extends AppCompatActivity {
                             }
                         }
                     }
-                    //等待網頁載入
                     while (!urlLoad) {
                     }
                     handler.post(new Runnable() {
@@ -217,6 +223,25 @@ public class TopologyActivity extends AppCompatActivity {
                             webView.loadUrl("javascript:rearrange()");
                         }
                     });
+                    while (true) {
+                        allSpeed = controllerURLConnection.getAllSpeed();
+                        for (int i = 0; i < edgeArray.length(); i++) {
+                            JSONObject edge = edgeArray.getJSONObject(i);
+                            final String edgename = edge.getString("name");
+                            final String flowbytes = String.valueOf(allSpeed
+                                    .getJSONObject(edge.getString("switch_ID"))
+                                    .getInt(edge.getString("port_no")));
+                            while (!urlLoad) {
+                            }
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    webView.loadUrl("javascript:set_edge_flow('" + edgename + "', '" + flowbytes + "')");
+                                }
+                            });
+                        }
+                        Thread.sleep(1000);
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } catch (Exception e) {

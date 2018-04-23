@@ -10,31 +10,23 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class UUID_table {
+public class Token_table {
     // 資料功能類別
     // 表格名稱
-    public static final String TABLE_NAME = "UUID_table";
+    public static final String TABLE_NAME = "Token_table";
     // 其它表格欄位名稱
-    public static final String UUID_COLUMN = "UUID";
-    public static final String EVENT_COLUMN = "EVENT";
-    public static final String SWITCH_ID_COLUMN = "SWITCH_ID";
-    public static final String PORT_NO_COLUMN = "PORT_NO";
-    public static final String SPEED_COLUMN = "SPEED";
-    public static final String DURATION_COLUMN = "DURATION";
+    public static final String TOKEN_COLUMN = "token";
+    public static final String URL_COLUMN = "URL";
     // 使用上面宣告的變數建立表格的SQL指令
     public static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + " (" +
-                    UUID_COLUMN + " TEXT, " +
-                    EVENT_COLUMN + " TEXT, " +
-                    SWITCH_ID_COLUMN + " TEXT, " +
-                    PORT_NO_COLUMN + " TEXT, " +
-                    SPEED_COLUMN + " TEXT, " +
-                    DURATION_COLUMN + " TEXT)";
+                    TOKEN_COLUMN + " TEXT, " +
+                    URL_COLUMN + " TEXT)";
     // 資料庫物件
     private SQLiteDatabase db;
 
     // 建構子，一般的應用都不需要修改
-    public UUID_table(Context context) {
+    public Token_table(Context context) {
         db = MyDbHelper.getDatabase(context);
     }
 
@@ -49,20 +41,8 @@ public class UUID_table {
         ContentValues cv = new ContentValues();
         // 加入ContentValues物件包裝的新增資料
         // 第一個參數是欄位名稱， 第二個參數是欄位的資料
-        cv.put(UUID_COLUMN, item.getString("UUID"));
-        try {
-            cv.put(EVENT_COLUMN, item.getString("EVENT"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        try {
-            cv.put(SWITCH_ID_COLUMN, item.getString("switch_id"));
-            cv.put(PORT_NO_COLUMN, item.getString("port_no"));
-            cv.put(SPEED_COLUMN, item.getString("speed"));
-            cv.put(DURATION_COLUMN, item.getString("duration"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        cv.put(TOKEN_COLUMN, item.getString("token"));
+        cv.put(URL_COLUMN, item.getString("URL"));
         // 新增一筆資料並取得編號
         // 第一個參數是表格名稱
         // 第二個參數是沒有指定欄位值的預設值
@@ -80,30 +60,18 @@ public class UUID_table {
         ContentValues cv = new ContentValues();
         // 加入ContentValues物件包裝的修改資料
         // 第一個參數是欄位名稱， 第二個參數是欄位的資料
-        cv.put(UUID_COLUMN, item.getString("UUID"));
-        try {
-            cv.put(EVENT_COLUMN, item.getString("EVENT"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        try {
-            cv.put(SWITCH_ID_COLUMN, item.getString("switch_id"));
-            cv.put(PORT_NO_COLUMN, item.getString("port_no"));
-            cv.put(SPEED_COLUMN, item.getString("speed"));
-            cv.put(DURATION_COLUMN, item.getString("duration"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        String where = UUID_COLUMN + "=" + item.getString("UUID");
+        cv.put(TOKEN_COLUMN, item.getString("token"));
+        cv.put(URL_COLUMN, item.getString("URL"));
+        String where = URL_COLUMN + "=" + item.getString("URL");
         // 設定修改資料的條件為編號
         // 執行修改資料並回傳修改的資料數量是否成功
         return db.update(TABLE_NAME, cv, where, null) > 0;
     }
 
     // 刪除參數指定編號的資料
-    public boolean delete(String uuid) throws JSONException {
+    public boolean delete(String URL) throws JSONException {
         // 設定條件為編號，格式為「欄位名稱=資料」
-        String where = UUID_COLUMN + "=" + uuid;
+        String where = URL_COLUMN + "=" + URL;
         // 刪除指定編號資料並回傳刪除是否成功
         return db.delete(TABLE_NAME, where, null) > 0;
     }
@@ -123,30 +91,11 @@ public class UUID_table {
     }
 
     // 取得指定編號的資料物件
-    public JSONObject get(String uuid) throws JSONException {
+    public JSONObject get(String URL) throws JSONException {
         // 準備回傳結果用的物件
         JSONObject item = null;
         // 使用編號為查詢條件
-        String where = UUID_COLUMN + "=" + uuid;
-        // 執行查詢
-        Cursor result = db.query(TABLE_NAME, null, where, null, null, null, null, null);
-        // 如果有查詢結果
-        if (result.moveToFirst()) {
-            // 讀取包裝一筆資料的物件
-            item = getRecord(result);
-        }
-        // 關閉Cursor物件
-        result.close();
-        // 回傳結果
-        return item;
-    }
-
-    // 取得指定編號的資料物件
-    public JSONObject get(String switch_id, String port_no) throws JSONException {
-        // 準備回傳結果用的物件
-        JSONObject item = null;
-        // 使用編號為查詢條件
-        String where = SWITCH_ID_COLUMN + "=" + switch_id + " AND " + PORT_NO_COLUMN + "=" + port_no;
+        String where = URL_COLUMN + "=" + URL;
         // 執行查詢
         Cursor result = db.query(TABLE_NAME, null, where, null, null, null, null, null);
         // 如果有查詢結果
@@ -164,20 +113,8 @@ public class UUID_table {
     public JSONObject getRecord(Cursor cursor) throws JSONException {
         // 準備回傳結果用的物件
         JSONObject result = new JSONObject();
-        result.put("UUID", cursor.getString(cursor.getColumnIndex(UUID_COLUMN)));
-        try {
-            result.put(EVENT_COLUMN, cursor.getString(cursor.getColumnIndex(EVENT_COLUMN)));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        try {
-            result.put(EVENT_COLUMN, cursor.getString(cursor.getColumnIndex(SWITCH_ID_COLUMN)));
-            result.put(EVENT_COLUMN, cursor.getString(cursor.getColumnIndex(PORT_NO_COLUMN)));
-            result.put(EVENT_COLUMN, cursor.getString(cursor.getColumnIndex(SPEED_COLUMN)));
-            result.put(EVENT_COLUMN, cursor.getString(cursor.getColumnIndex(DURATION_COLUMN)));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        result.put("token", cursor.getString(cursor.getColumnIndex(TOKEN_COLUMN)));
+        result.put("URL", cursor.getString(cursor.getColumnIndex(URL_COLUMN)));
         return result;
     }
 
