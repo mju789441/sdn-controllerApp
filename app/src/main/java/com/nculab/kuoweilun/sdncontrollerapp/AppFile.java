@@ -84,7 +84,21 @@ public class AppFile {
     }
 
     public JSONObject getSetting() throws IOException, JSONException {
-        return new JSONObject(readFile("setting.txt"));
+        JSONObject setting = null;
+        try {
+            setting = new JSONObject(readFile("setting.txt"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            setting = new JSONObject();
+            try {
+                setting.put("swich_online", true);
+                setting.put("flow_warning", true);
+                saveSetting(setting);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        }
+        return setting;
     }
 
     public void saveFlowWarning(JSONObject input) throws IOException {
@@ -102,17 +116,34 @@ public class AppFile {
         return flowWarning;
     }
 
-    public void saveCurrentIP(String input) throws IOException {
-        saveFile("IP.txt", input);
+    public void saveCurrentURL(String input) throws IOException {
+        saveFile("URL.txt", input);
     }
 
-    public String getCurrentIP() throws IOException {
-        return readFile("IP.txt");
+    public String getCurrentURL() throws IOException {
+        return readFile("URL.txt");
     }
 
-    public void deleteCurrentIP() {
-        File file = new File(context.getFilesDir(), "IP.txt");
+    public void deleteCurrentURL() {
+        File file = new File(context.getFilesDir(), "URL.txt");
         file.delete();
+    }
+
+    public void saveURL_table(String URL, String token) throws IOException, JSONException {
+        JSONObject jsonObject = getURL_table();
+        jsonObject.put(URL, token);
+        saveFile("URL_table.txt", jsonObject.toString());
+    }
+
+    public JSONObject getURL_table() throws IOException, JSONException {
+        JSONObject jsonObject;
+        try {
+            jsonObject = new JSONObject(readFile("URL_table.txt"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            jsonObject = new JSONObject();
+        }
+        return jsonObject;
     }
 
 }

@@ -1,4 +1,4 @@
-package com.nculab.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp.service;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -9,6 +9,9 @@ import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.nculab.kuoweilun.sdncontrollerapp.R;
+import com.nculab.kuoweilun.sdncontrollerapp.database.FlowWarn_table;
+import com.nculab.kuoweilun.sdncontrollerapp.database.UUID_table;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,19 +36,26 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             try {
                 JSONObject uuid = new JSONObject(msg_payload);
                 String text = "";
+                UUID_table uuid_table = new UUID_table(this);
+                FlowWarn_table flowWarn_table = new FlowWarn_table(this);
                 for (int i = 0; i < uuid.names().length(); i++) {
-                    String content = new AppFile(this).getUuidTable(uuid.names().getString(i));
-                    String title;
-                    try {
-                        JSONObject jsonObject = new JSONObject(content);
-                        String switch_ID = jsonObject.names().getString(0);
-                        String port_no = jsonObject.getJSONObject(switch_ID).names().getString(0);
-                        text += "FlowWarning: { switch: " + switch_ID
-                                + " port_no: " + port_no + " }\n";
-                    } catch (JSONException e) {
-                        text += content + "\n";
+                    JSONObject item = uuid_table.get(uuid.names().getString(i));
+                    if (item.getString(UUID_table.EVENT_COLUMN).equals(UUID_table.EVENT_FLOWWARN)) {
+                        JSONObject flowWarn = flowWarn_table.getFlowWarn(uuid.names().getString(i));
+                        text += "s" + flowWarn.getString(FlowWarn_table.SWITCH_ID_COLUMN)
+                                + " 的 port_no: " + flowWarn.getString(FlowWarn_table.PORT_NO_COLUMN)
+                                + " 以 " + flowWarn.getString(FlowWarn_table.SPEED_COLUMN)
+                                + " Kb/s 持續 " + flowWarn.getString(FlowWarn_table.DURATION_COLUMN)
+                                + " 秒\n";
+                    } else {
+                        if (item.getString(UUID_table.EVENT_COLUMN).equals(UUID_table.EVENT_SWITCHENTER))
+                            text += "有新的 switch 加入\n";
+                        else if (item.getString(UUID_table.EVENT_COLUMN).equals(UUID_table.EVENT_SWITCHLEAVE))
+                            text += "有 switch 離開\n";
                     }
                 }
+                uuid_table.close();
+                flowWarn_table.close();
                 //前端時 notification
                 NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_group_collapse_00)

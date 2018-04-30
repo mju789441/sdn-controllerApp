@@ -1,4 +1,4 @@
-package com.nculab.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp.switcher;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +10,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+
+import com.nculab.kuoweilun.sdncontrollerapp.AppFile;
+import com.nculab.kuoweilun.sdncontrollerapp.R;
+import com.nculab.kuoweilun.sdncontrollerapp.Subscribe;
+import com.nculab.kuoweilun.sdncontrollerapp.controller.ControllerSocket;
+import com.nculab.kuoweilun.sdncontrollerapp.controller.ControllerURLConnection;
+import com.nculab.kuoweilun.sdncontrollerapp.host.HostActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,7 +34,7 @@ public class SwitchActivity extends AppCompatActivity {
     //Component
     private ControllerSocket controllerSocket;
     private ListView listView;
-    private String connect_IP;
+    private String connect_URL;
     private ArrayList<Switch> list;
     private SwitchAdapter adapter;
     private Button button_backToController;
@@ -43,11 +50,11 @@ public class SwitchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_switchlist);
         Bundle bundle = this.getIntent().getExtras();
-        connect_IP = bundle.getString("controller_IP");
-        controllerURLConnection = new ControllerURLConnection(connect_IP);
+        connect_URL = bundle.getString("controller_URL");
+        controllerURLConnection = new ControllerURLConnection(connect_URL);
         //Subscribe
         try {
-            new AppFile(this).saveCurrentIP(connect_IP);
+            new AppFile(this).saveCurrentURL(connect_URL);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -94,7 +101,7 @@ public class SwitchActivity extends AppCompatActivity {
                         switch (item.getItemId()) {
                             case R.id.watch_host:
                                 intent.setClass(SwitchActivity.this, HostActivity.class);
-                                bundle.putString("controller_IP", connect_IP);
+                                bundle.putString("controller_URL", connect_URL);
                                 bundle.putString("switch_ID", getSwitch.ID);
                                 intent.putExtras(bundle);
                                 startActivity(intent);
@@ -126,13 +133,12 @@ public class SwitchActivity extends AppCompatActivity {
             public void run() {
                 try {
                     while (true) {
-                        JSONArray switchID = controllerURLConnection.getAllSwitch();
                         JSONObject allSpeed = controllerURLConnection.getAllSpeed();
-                        for (int i = switchID.length(); i < list.size(); i++) {
+                        for (int i = allSpeed.names().length(); i < list.size(); i++) {
                             list.remove(i);
                         }
-                        for (int i = 0; i < switchID.length(); i++) {
-                            String dpid = String.valueOf(switchID.getInt(i));
+                        for (int i = 0; i < allSpeed.names().length(); i++) {
+                            String dpid = allSpeed.names().getString(i);
                             JSONObject switchSpeed = allSpeed.getJSONObject(dpid);
                             int speed = 0;
                             for (int j = 1; j <= switchSpeed.length(); j++) {

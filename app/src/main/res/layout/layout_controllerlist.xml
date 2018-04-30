@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.nculab.kuoweilun.sdncontrollerapp.MainActivity"
+    tools:context="com.nculab.kuoweilun.sdncontrollerapp.controller.MainActivity"
     tools:showIn="@layout/activity_main">
 
     <RelativeLayout
@@ -13,17 +13,17 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/textView_IP"
+            android:id="@+id/textView_URL"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:text="Controller IP" />
+            android:text="Controller URL" />
 
         <ListView
             android:id="@+id/listView_controller"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/textView_IP" />
+            android:layout_below="@id/textView_URL" />
 
     </RelativeLayout>
 

@@ -1,4 +1,4 @@
-package com.nculab.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp.topology;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,6 +8,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.nculab.kuoweilun.sdncontrollerapp.AppFile;
+import com.nculab.kuoweilun.sdncontrollerapp.R;
+import com.nculab.kuoweilun.sdncontrollerapp.Subscribe;
+import com.nculab.kuoweilun.sdncontrollerapp.controller.ControllerURLConnection;
+import com.nculab.kuoweilun.sdncontrollerapp.database.FlowWarn_table;
+import com.nculab.kuoweilun.sdncontrollerapp.database.UUID_table;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,7 +36,7 @@ public class FlowWarningActivity extends AppCompatActivity {
     private EditText editText_min;
     private TextView textView_content;
     private Button button_submit;
-    private String connect_IP;
+    private String connect_URL;
     private String switch_ID;
     private String port_no;
     private AppFile appFile = new AppFile(this);
@@ -42,10 +49,10 @@ public class FlowWarningActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_flowwarning);
         Bundle bundle = this.getIntent().getExtras();
-        connect_IP = bundle.getString("connect_IP");
+        connect_URL = bundle.getString("connect_URL");
         switch_ID = bundle.getString("switch_ID");
         port_no = bundle.getString("port_no");
-        controllerURLConnection = new ControllerURLConnection(connect_IP);
+        controllerURLConnection = new ControllerURLConnection(connect_URL);
         subscribe = new Subscribe(this, controllerURLConnection);
         initView();
         setListeners();
@@ -118,21 +125,54 @@ public class FlowWarningActivity extends AppCompatActivity {
                     if (!toast_msg.equals("")) {
                         Toast.makeText(getApplicationContext(), toast_msg, Toast.LENGTH_SHORT).show();
                     } else {
-                        JSONObject flow_warning = null;
-                        try {
-                            flow_warning = appFile.getFlowWarning();
-                            flow_warning.put(switch_ID, new JSONObject().put(port_no,
-                                    new JSONObject().put("uuid", UUID.randomUUID().toString())
-                                            .put("speed", speed)
-                                            .put("duration", sec)));
-                            appFile.saveFlowWarning(flow_warning);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                        UUID_table uuid_table = new UUID_table(getApplicationContext());
+                        FlowWarn_table flowWarn_table = new FlowWarn_table(getApplicationContext());
+                        //不看URL 檢查相符的UUID
+                        JSONArray uuidArray = flowWarn_table.getUUID(switch_ID, port_no, "" + speed, "" + sec);
+                        if (uuidArray.length() == 0) {
+                            //新增資料
+                            JSONObject item = new JSONObject();
+                            String uuid = UUID.randomUUID().toString();
+                            item.put(UUID_table.URL_COLUMN, connect_URL)
+                                    .put(UUID_table.UUID_COLUMN, uuid)
+                                    .put(UUID_table.EVENT_COLUMN, UUID_table.EVENT_FLOWWARN);
+                            uuid_table.insert(item);
+                            JSONObject flowWarn = new JSONObject();
+                            flowWarn.put(FlowWarn_table.UUID_COLUMN, uuid)
+                                    .put(FlowWarn_table.SWITCH_ID_COLUMN, switch_ID)
+                                    .put(FlowWarn_table.PORT_NO_COLUMN, port_no)
+                                    .put(FlowWarn_table.SPEED_COLUMN, "" + speed)
+                                    .put(FlowWarn_table.DURATION_COLUMN, "" + sec);
+                            flowWarn_table.insert(flowWarn);
+                        } else {
+                            //查詢符合URL的資料 理論上只有一個
+                            JSONArray valid_uuidArray = new JSONArray();
+                            for (int i = 0; i < uuidArray.length(); i++) {
+                                if (uuid_table.checkUrl(connect_URL, uuidArray.getString(i)))
+                                    valid_uuidArray.put(uuidArray.getString(i));
+                            }
+                            //無相符URL
+                            if (valid_uuidArray.length() == 0) {
+                                //新增資料
+                                JSONObject item = new JSONObject();
+                                String uuid = UUID.randomUUID().toString();
+                                item.put(UUID_table.URL_COLUMN, connect_URL)
+                                        .put(UUID_table.UUID_COLUMN, uuid)
+                                        .put(UUID_table.EVENT_COLUMN, UUID_table.EVENT_FLOWWARN);
+                                uuid_table.insert(item);
+                                JSONObject flowWarn = new JSONObject();
+                                flowWarn.put(FlowWarn_table.UUID_COLUMN, uuid)
+                                        .put(FlowWarn_table.SWITCH_ID_COLUMN, switch_ID)
+                                        .put(FlowWarn_table.PORT_NO_COLUMN, port_no)
+                                        .put(FlowWarn_table.SPEED_COLUMN, "" + speed)
+                                        .put(FlowWarn_table.DURATION_COLUMN, "" + sec);
+                                flowWarn_table.insert(flowWarn);
+                            }
+                            uuid_table.close();
+                            flowWarn_table.close();
+                            subscribe.subscrbe();
+                            finish();
                         }
-                        subscribe.subscrbe();
-                        finish();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

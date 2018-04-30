@@ -1,4 +1,4 @@
-package com.nculab.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -25,6 +25,7 @@ public class MyDbHelper extends SQLiteOpenHelper {
         // 2. 這裡大寫代表的是SQL標準語法, 小寫字是資料表/欄位的命名
         // 建立應用程式需要的表格
         db.execSQL(UUID_table.CREATE_TABLE);
+        db.execSQL(FlowWarn_table.CREATE_TABLE);
     }
 
     //使用建構子時如果版本增加,便會呼叫onUpgrade()刪除舊的資料表與其內容,再重新呼叫onCreate()建立新的資料表
@@ -33,7 +34,9 @@ public class MyDbHelper extends SQLiteOpenHelper {
         // TODO Auto-generated method stub
         // 刪除原有的表格
         db.execSQL("DROP TABLE IF EXISTS " + UUID_table.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + FlowWarn_table.TABLE_NAME);
         // 呼叫onCreate建立新版的表格
+        VERSION++;
         onCreate(db);
     }
 
@@ -44,4 +47,9 @@ public class MyDbHelper extends SQLiteOpenHelper {
         }
         return database;
     }
+
+    public static void deleteDatabase(Context context) {
+        context.deleteDatabase(DATABASE_NAME);
+    }
+
 }

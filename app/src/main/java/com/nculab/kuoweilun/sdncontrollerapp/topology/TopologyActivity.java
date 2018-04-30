@@ -1,8 +1,7 @@
-package com.nculab.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp.topology;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,16 +15,18 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.support.v7.widget.Toolbar;
-import android.widget.CompoundButton;
 
-import com.google.firebase.iid.FirebaseInstanceId;
+import com.nculab.kuoweilun.sdncontrollerapp.AppFile;
+import com.nculab.kuoweilun.sdncontrollerapp.R;
+import com.nculab.kuoweilun.sdncontrollerapp.Subscribe;
+import com.nculab.kuoweilun.sdncontrollerapp.controller.ControllerURLConnection;
+import com.nculab.kuoweilun.sdncontrollerapp.host.Host;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -35,7 +36,7 @@ import java.util.ArrayList;
 public class TopologyActivity extends AppCompatActivity {
 
     //Component
-    public String connect_IP;
+    public String connect_URL;
     public ControllerURLConnection controllerURLConnection;
     private WebView webView;
     private WebSettings webSettings;
@@ -55,11 +56,11 @@ public class TopologyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_topology);
         Bundle bundle = this.getIntent().getExtras();
-        connect_IP = bundle.getString("controller_IP");
-        controllerURLConnection = new ControllerURLConnection(connect_IP);
+        connect_URL = bundle.getString("controller_URL");
+        controllerURLConnection = new ControllerURLConnection(connect_URL);
         //Subscribe
         try {
-            new AppFile(this).saveCurrentIP(connect_IP);
+            new AppFile(this).saveCurrentURL(connect_URL);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -125,16 +126,14 @@ public class TopologyActivity extends AppCompatActivity {
                 try {
                     //取得controller
                     final JSONArray getTopology = new JSONArray();
-                    JSONArray switchArray = controllerURLConnection.getAllSwitch();
                     JSONObject allSpeed = controllerURLConnection.getAllSpeed();
-                    int switch_length = switchArray.length();
                     //紀錄避免重複的edge
                     JSONObject switch_link = new JSONObject();
                     //host編號
                     int host_num = 1;
                     //所有switch
-                    for (int i = 0; i < switch_length; i++) {
-                        String switch_ID = String.valueOf(switchArray.getInt(i));
+                    for (int i = 0; i < allSpeed.names().length(); i++) {
+                        String switch_ID = allSpeed.names().getString(i);
                         JSONObject switchObject = new JSONObject("{ group: 'nodes', data: { id: 's"
                                 + switch_ID + "', type: 'switch' } }");
                         getTopology.put(switchObject);
@@ -271,7 +270,7 @@ public class TopologyActivity extends AppCompatActivity {
             Intent intent = new Intent();
             Bundle bundle = new Bundle();
             intent.setClass(TopologyActivity.this, TopologySettingActivity.class);
-            bundle.putString("controller_IP", connect_IP);
+            bundle.putString("controller_URL", connect_URL);
             intent.putExtras(bundle);
             startActivity(intent);
             return true;

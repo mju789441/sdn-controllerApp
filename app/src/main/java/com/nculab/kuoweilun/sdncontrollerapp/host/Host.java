@@ -1,4 +1,4 @@
-package com.nculab.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp.host;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,11 +11,11 @@ import java.io.Serializable;
  */
 
 public class Host implements Serializable {
-    String ID = null;
-    String port = null;
-    String mac = null;
-    String speed = null;
-    String jsonString = null;
+    public String ID = null;
+    public String port = null;
+    public String mac = null;
+    public String speed = null;
+    public String jsonString = null;
 
     public Host(String ID, JSONObject hostObject, int speed) {
         this.ID = ID;

@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.nculab.kuoweilun.sdncontrollerapp.MainActivity"
+            android:name="com.nculab.kuoweilun.sdncontrollerapp.controller.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -24,19 +24,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.SwitchActivity"></activity>
-        <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.HostActivity"></activity>
-        <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.HostStatsActivity"></activity>
-        <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.TopologyActivity"></activity>
-        <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.TopologySettingActivity"></activity>
-        <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.FlowWarningActivity"></activity>
+        <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.switcher.SwitchActivity"></activity>
+        <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.host.HostActivity"></activity>
+        <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.host.HostStatsActivity"></activity>
+        <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.topology.TopologyActivity"></activity>
+        <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.topology.TopologySettingActivity"></activity>
+        <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.topology.FlowWarningActivity"></activity>
 
         <service android:name=".MyFirebaseInstanceIDService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-        <service android:name=".MyFirebaseMessagingService">
+        <service android:name=".service.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>

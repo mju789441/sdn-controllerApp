@@ -1,4 +1,4 @@
-package com.nculab.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp.controller;
 
 /**
  * Created by Kuo Wei Lun on 2017/11/6.
@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.nculab.kuoweilun.sdncontrollerapp.ControllerSocket;
 import com.nculab.kuoweilun.sdncontrollerapp.R;
 
 import java.util.ArrayList;
@@ -47,7 +46,7 @@ public class ControllerAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = layoutInflater.inflate(R.layout.layout_controlleritem, parent, false);
             holder = new ControlerViewHolder();
-            holder.textView_IP = (TextView) convertView.findViewById(R.id.textView_IP);
+            holder.textView_URL = (TextView) convertView.findViewById(R.id.textView_URL);
             convertView.setTag(holder);
         } else {
             holder = (ControlerViewHolder) convertView.getTag();
@@ -55,11 +54,11 @@ public class ControllerAdapter extends BaseAdapter {
         //Controller設定
         String controller = (String) getItem(position);
         //View 內容設定
-        holder.textView_IP.setText(controller);
+        holder.textView_URL.setText(controller);
         return convertView;
     }
 
     static class ControlerViewHolder {
-        public TextView textView_IP = null;
+        public TextView textView_URL = null;
     }
 }

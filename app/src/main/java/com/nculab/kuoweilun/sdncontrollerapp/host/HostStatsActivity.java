@@ -1,4 +1,4 @@
-package com.nculab.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp.host;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -7,20 +7,19 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.nculab.kuoweilun.sdncontrollerapp.R;
+import com.nculab.kuoweilun.sdncontrollerapp.controller.ControllerURLConnection;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.sql.Array;
 import java.util.ArrayList;
 
 /**
@@ -31,7 +30,7 @@ public class HostStatsActivity extends AppCompatActivity {
 
     //Component
     private View activityView;
-    private String connect_IP;
+    private String connect_URL;
     private String switch_ID;
     private TableLayout tableLayout;
     private Button button_backToHost;
@@ -50,10 +49,10 @@ public class HostStatsActivity extends AppCompatActivity {
         activityView = HostStatsActivity.this.getLayoutInflater().inflate(R.layout.layout_hoststats, null);
         setContentView(activityView);
         Bundle bundle = this.getIntent().getExtras();
-        connect_IP = bundle.getString("controller_IP");
+        connect_URL = bundle.getString("controller_URL");
         switch_ID = bundle.getString("switch_ID");
         host = (Host) bundle.getSerializable("host");
-        controllerURLConnection = new ControllerURLConnection(connect_IP);
+        controllerURLConnection = new ControllerURLConnection(connect_URL);
         initView();
         setListeners();
         setRunnable();
@@ -100,8 +99,6 @@ public class HostStatsActivity extends AppCompatActivity {
                         try {
                             input.put("priority", 867);
                             input.put("math", new JSONObject().put("in_port", host.port));
-                            System.out.println("switch_id " + switch_ID);
-                            System.out.println("host " + host.port);
                             JSONArray output = controllerURLConnection.getFlowStats(switch_ID, input.toString())
                                     .getJSONArray(switch_ID);
                             for (int i = 0; i < output.length(); i++) {

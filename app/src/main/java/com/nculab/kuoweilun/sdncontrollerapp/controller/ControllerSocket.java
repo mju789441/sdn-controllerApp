@@ -1,8 +1,13 @@
-package com.nculab.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp.controller;
 
 import android.content.Context;
 import android.os.Handler;
 import android.widget.Toast;
+
+import com.nculab.kuoweilun.sdncontrollerapp.host.Host;
+import com.nculab.kuoweilun.sdncontrollerapp.host.HostAdapter;
+import com.nculab.kuoweilun.sdncontrollerapp.switcher.Switch;
+import com.nculab.kuoweilun.sdncontrollerapp.switcher.SwitchAdapter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,7 +27,7 @@ public class ControllerSocket {
 
     //Componenet
     private boolean rsa_switch = false;
-    public String IP = "140.115.204.156";
+    public String URL = "140.115.204.156";
     private int port = 9487;
     public String status = "未連線";
     private Context context = null;
@@ -52,21 +57,21 @@ public class ControllerSocket {
     public Thread thread_getSwitch = null;
     public Thread thread_getHost = null;
 
-    public ControllerSocket(String IP, Context context) {
-        this.IP = IP;
+    public ControllerSocket(String URL, Context context) {
+        this.URL = URL;
         this.context = context;
         setThread();
     }
 
-    public ControllerSocket(String IP, Context context, ControllerAdapter adapter) {
-        this.IP = IP;
+    public ControllerSocket(String URL, Context context, ControllerAdapter adapter) {
+        this.URL = URL;
         this.context = context;
         controllerAdapter = adapter;
         setThread();
     }
 
-    public ControllerSocket(String IP, Context context, ArrayList<Switch> list, SwitchAdapter adapter) {
-        this.IP = IP;
+    public ControllerSocket(String URL, Context context, ArrayList<Switch> list, SwitchAdapter adapter) {
+        this.URL = URL;
         this.context = context;
         switchArrayList = list;
         switchAdapter = adapter;
@@ -74,8 +79,8 @@ public class ControllerSocket {
         setSwitchThread();
     }
 
-    public ControllerSocket(String IP, Context context, ArrayList<Host> list, HostAdapter adapter) {
-        this.IP = IP;
+    public ControllerSocket(String URL, Context context, ArrayList<Host> list, HostAdapter adapter) {
+        this.URL = URL;
         this.context = context;
         hostArrayList = list;
         hostAdapter = adapter;
@@ -83,8 +88,8 @@ public class ControllerSocket {
         setHostThread();
     }
 
-    public ControllerSocket(String IP, Context context, ArrayList<Switch> switchArrayList, ArrayList<Host> hostArrayList) {
-        this.IP = IP;
+    public ControllerSocket(String URL, Context context, ArrayList<Switch> switchArrayList, ArrayList<Host> hostArrayList) {
+        this.URL = URL;
         this.context = context;
         this.switchArrayList = switchArrayList;
         this.hostArrayList = hostArrayList;
@@ -106,7 +111,7 @@ public class ControllerSocket {
                     //連線
                     setStatus("連線中");
                     Socket socket = new Socket();
-                    socket.connect(new InetSocketAddress(IP, port));
+                    socket.connect(new InetSocketAddress(URL, port));
                     writer = new PrintStream(socket.getOutputStream());
                     reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     if (rsa_switch) {

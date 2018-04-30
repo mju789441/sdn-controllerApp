@@ -1,4 +1,4 @@
-package com.nculab.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp.switcher;
 
 import org.json.JSONException;
 import org.json.JSONObject;

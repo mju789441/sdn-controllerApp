@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.nculab.kuoweilun.sdncontrollerapp.MainActivity">
+    tools:context="com.nculab.kuoweilun.sdncontrollerapp.controller.MainActivity">
     <item
         android:id="@+id/settings"
         android:icon="@drawable/if_ic_settings_48px_352095"

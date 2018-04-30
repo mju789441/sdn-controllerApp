@@ -1,4 +1,4 @@
-package com.nculab.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp.controller;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,6 +13,12 @@ import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+
+import com.nculab.kuoweilun.sdncontrollerapp.AppFile;
+import com.nculab.kuoweilun.sdncontrollerapp.R;
+import com.nculab.kuoweilun.sdncontrollerapp.database.MyDbHelper;
+import com.nculab.kuoweilun.sdncontrollerapp.switcher.SwitchActivity;
+import com.nculab.kuoweilun.sdncontrollerapp.topology.TopologyActivity;
 
 import java.util.ArrayList;
 
@@ -36,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         // The activity is about to be destroyed.
-        new AppFile(this).deleteCurrentIP();
+        new AppFile(this).deleteCurrentURL();
     }
 
     private void initView() {
@@ -63,13 +69,13 @@ public class MainActivity extends AppCompatActivity {
                         switch (item.getItemId()) {
                             case R.id.watch_switch:
                                 intent.setClass(MainActivity.this, SwitchActivity.class);
-                                bundle.putString("controller_IP", controller);
+                                bundle.putString("controller_URL", controller);
                                 intent.putExtras(bundle);
                                 startActivity(intent);
                                 break;
                             case R.id.watch_topology:
                                 intent.setClass(MainActivity.this, TopologyActivity.class);
-                                bundle.putString("controller_IP", controller);
+                                bundle.putString("controller_URL", controller);
                                 intent.putExtras(bundle);
                                 startActivity(intent);
                                 break;

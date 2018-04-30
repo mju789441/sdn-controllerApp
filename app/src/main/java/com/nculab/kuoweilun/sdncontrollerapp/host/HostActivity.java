@@ -1,4 +1,4 @@
-package com.nculab.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp.host;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +10,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+
+import com.nculab.kuoweilun.sdncontrollerapp.R;
+import com.nculab.kuoweilun.sdncontrollerapp.controller.ControllerURLConnection;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,7 +34,7 @@ public class HostActivity extends AppCompatActivity {
     private HostAdapter adapter;
     private Button button_backToSwitch;
     private ControllerURLConnection controllerURLConnection;
-    private String connect_IP;
+    private String connect_URL;
     private String switch_ID;
     //Handler
     private Handler handler = new Handler();
@@ -45,9 +48,9 @@ public class HostActivity extends AppCompatActivity {
         activityView = HostActivity.this.getLayoutInflater().inflate(R.layout.layout_hostlist, null);
         setContentView(activityView);
         Bundle bundle = this.getIntent().getExtras();
-        connect_IP = bundle.getString("controller_IP");
+        connect_URL = bundle.getString("controller_URL");
         switch_ID = bundle.getString("switch_ID");
-        controllerURLConnection = new ControllerURLConnection(connect_IP);
+        controllerURLConnection = new ControllerURLConnection(connect_URL);
         initView();
         setListeners();
         setRunnable();
@@ -89,7 +92,7 @@ public class HostActivity extends AppCompatActivity {
                         switch (item.getItemId()) {
                             case R.id.watch_property:
                                 intent.setClass(HostActivity.this, HostStatsActivity.class);
-                                bundle.putString("controller_IP", connect_IP);
+                                bundle.putString("controller_URL", connect_URL);
                                 bundle.putString("switch_ID", switch_ID);
                                 bundle.putSerializable("host", host);
                                 intent.putExtras(bundle);

@@ -1,4 +1,8 @@
-package com.nculab.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp.controller;
+
+import android.content.Context;
+
+import com.nculab.kuoweilun.sdncontrollerapp.AppFile;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,8 +22,8 @@ import java.net.URL;
 
 public class ControllerURLConnection {
 
-    String urlstr = null;
-    String hostname = null;
+    public String urlstr = null;
+    public String hostname = null;
 
     public ControllerURLConnection(String url) {
         urlstr = url;
@@ -117,6 +121,16 @@ public class ControllerURLConnection {
         }
 
         httpURLConnection.disconnect();
+    }
+
+    public void changeToken(Context context, String token) throws IOException, JSONException {
+        AppFile appFile = new AppFile(context);
+        JSONObject URL_table = appFile.getURL_table();
+        if (!URL_table.isNull(urlstr)) {
+            JSONObject input = new JSONObject().put(URL_table.getString(urlstr), token);
+            modify_suscribe(input.toString());
+        }
+        appFile.saveUuidTable(urlstr, token);
     }
 
     public void subscribe(String input) throws IOException {

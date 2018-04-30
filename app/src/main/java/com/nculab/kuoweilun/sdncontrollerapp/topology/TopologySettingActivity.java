@@ -1,10 +1,15 @@
-package com.nculab.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp.topology;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+
+import com.nculab.kuoweilun.sdncontrollerapp.AppFile;
+import com.nculab.kuoweilun.sdncontrollerapp.R;
+import com.nculab.kuoweilun.sdncontrollerapp.Subscribe;
+import com.nculab.kuoweilun.sdncontrollerapp.controller.ControllerURLConnection;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,7 +22,7 @@ import java.io.IOException;
 
 public class TopologySettingActivity extends AppCompatActivity {
 
-    private String connect_IP;
+    private String connect_URL;
     private android.widget.Switch switch_online;
     private android.widget.Switch switch_flow_warning;
     private Button button_backToTopology;
@@ -30,8 +35,8 @@ public class TopologySettingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_topologysettings);
         Bundle bundle = this.getIntent().getExtras();
-        connect_IP = bundle.getString("controller_IP");
-        subscribe = new Subscribe(this, new ControllerURLConnection(connect_IP));
+        connect_URL = bundle.getString("controller_URL");
+        subscribe = new Subscribe(this, new ControllerURLConnection(connect_URL));
         initView();
         settListeners();
     }
@@ -65,14 +70,17 @@ public class TopologySettingActivity extends AppCompatActivity {
     }
 
     private void settListeners() {
-//settings
         switch_online.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 try {
                     setting.put("swich_online", isChecked);
                     appFile.saveSetting(setting);
-                    subscribe.subscrbe();
+                    if (isChecked) {
+                        subscribe.subscrbe();
+                    } else {
+                        subscribe.unsubscribe();
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -84,7 +92,11 @@ public class TopologySettingActivity extends AppCompatActivity {
                 try {
                     setting.put("flow_warning", isChecked);
                     appFile.saveSetting(setting);
-                    subscribe.subscrbe();
+                    if (isChecked) {
+                        subscribe.subscrbe();
+                    } else {
+                        subscribe.unsubscribe();
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

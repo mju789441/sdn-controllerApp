@@ -1,4 +1,4 @@
-package com.nculab.kuoweilun.sdncontrollerapp;
+package com.nculab.kuoweilun.sdncontrollerapp.topology;
 
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
@@ -13,6 +13,11 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.PopupWindow;
+
+import com.nculab.kuoweilun.sdncontrollerapp.R;
+import com.nculab.kuoweilun.sdncontrollerapp.host.Host;
+import com.nculab.kuoweilun.sdncontrollerapp.host.HostActivity;
+import com.nculab.kuoweilun.sdncontrollerapp.host.HostStatsActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -81,7 +86,7 @@ public class JSInterface extends Object implements View.OnClickListener {
         Bundle bundle = new Bundle();
         Log.d(TAG, "click_edge: edge: " + edge + " source: " + source + " targe: " + target + " port_no: " + port_no);
         intent.setClass(topologyActivity, FlowWarningActivity.class);
-        bundle.putString("connect_IP", topologyActivity.connect_IP);
+        bundle.putString("connect_URL", topologyActivity.connect_URL);
         bundle.putString("switch_ID", source.substring(1));
         bundle.putString("port_no", port_no);
         intent.putExtras(bundle);
@@ -102,7 +107,7 @@ public class JSInterface extends Object implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.button_watch_host:
                 intent.setClass(topologyActivity, HostActivity.class);
-                bundle.putString("controller_IP", topologyActivity.controllerURLConnection.urlstr);
+                bundle.putString("controller_URL", topologyActivity.controllerURLConnection.urlstr);
                 bundle.putString("switch_ID", host.ID);
                 intent.putExtras(bundle);
                 topologyActivity.startActivity(intent);
@@ -111,7 +116,7 @@ public class JSInterface extends Object implements View.OnClickListener {
                 break;
             case R.id.button_property:
                 intent.setClass(topologyActivity, HostStatsActivity.class);
-                bundle.putString("controller_IP", topologyActivity.controllerURLConnection.urlstr);
+                bundle.putString("controller_URL", topologyActivity.controllerURLConnection.urlstr);
                 bundle.putString("switch_ID", host.ID);
                 bundle.putSerializable("host", host);
                 intent.putExtras(bundle);
