@@ -17,8 +17,12 @@ import android.widget.ListView;
 import com.nculab.kuoweilun.sdncontrollerapp.AppFile;
 import com.nculab.kuoweilun.sdncontrollerapp.R;
 import com.nculab.kuoweilun.sdncontrollerapp.database.MyDbHelper;
+import com.nculab.kuoweilun.sdncontrollerapp.database.URL_table;
 import com.nculab.kuoweilun.sdncontrollerapp.switcher.SwitchActivity;
 import com.nculab.kuoweilun.sdncontrollerapp.topology.TopologyActivity;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 
@@ -52,6 +56,16 @@ public class MainActivity extends AppCompatActivity {
         list = new ArrayList<String>();
         adapter = new ControllerAdapter(MainActivity.this, list);
         listView.setAdapter(adapter);
+        //載入url_table的url
+        try {
+            URL_table url_table = new URL_table(this);
+            JSONArray urlArray = url_table.getAll();
+            for (int i = 0; i < urlArray.length(); i++)
+                list.add(urlArray.getJSONObject(i).getString(URL_table.URL_COLUMN));
+            url_table.close();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void setListeners() {
@@ -82,6 +96,14 @@ public class MainActivity extends AppCompatActivity {
                             case R.id.delete:
                                 list.remove(controller);
                                 adapter.notifyDataSetChanged();
+                                //delete item
+                                try {
+                                    URL_table url_table = new URL_table(getApplicationContext());
+                                    url_table.delete(controller);
+                                    url_table.close();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                                 break;
                             default:
                                 break;

@@ -26,6 +26,7 @@ public class MyDbHelper extends SQLiteOpenHelper {
         // 建立應用程式需要的表格
         db.execSQL(UUID_table.CREATE_TABLE);
         db.execSQL(FlowWarn_table.CREATE_TABLE);
+        db.execSQL(URL_table.CREATE_TABLE);
     }
 
     //使用建構子時如果版本增加,便會呼叫onUpgrade()刪除舊的資料表與其內容,再重新呼叫onCreate()建立新的資料表
@@ -35,6 +36,7 @@ public class MyDbHelper extends SQLiteOpenHelper {
         // 刪除原有的表格
         db.execSQL("DROP TABLE IF EXISTS " + UUID_table.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + FlowWarn_table.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + URL_table.TABLE_NAME);
         // 呼叫onCreate建立新版的表格
         VERSION++;
         onCreate(db);

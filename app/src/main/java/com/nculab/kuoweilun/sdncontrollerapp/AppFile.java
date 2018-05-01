@@ -44,41 +44,6 @@ public class AppFile {
         return null;
     }
 
-    public void saveUuidTable(String uuid, String name) throws JSONException, IOException {
-        JSONObject uuidTable = null;
-        try {
-            uuidTable = new JSONObject(readFile("UuidTable.txt").toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-            uuidTable = new JSONObject();
-        }
-        uuidTable.put(uuid, name);
-        saveFile("UuidTable.txt", uuidTable.toString());
-    }
-
-    public String getUuidTable(String uuid) throws IOException, JSONException {
-        JSONObject uuidTable = new JSONObject(readFile("UuidTable.txt").toString());
-        return uuidTable.getString(uuid);
-    }
-
-    public String getUuid(String name) throws IOException, JSONException {
-        JSONObject uuid = null;
-        try {
-            uuid = new JSONObject(readFile("uuid.txt").toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-            uuid = new JSONObject();
-        }
-        try {
-            return uuid.getString(name);
-        } catch (Exception e) {
-            e.printStackTrace();
-            uuid.put(name, UUID.randomUUID().toString());
-            saveFile("uuid.txt", uuid.toString());
-            return uuid.getString(name);
-        }
-    }
-
     public void saveSetting(JSONObject input) throws IOException {
         saveFile("setting.txt", input.toString());
     }
@@ -101,21 +66,6 @@ public class AppFile {
         return setting;
     }
 
-    public void saveFlowWarning(JSONObject input) throws IOException {
-        saveFile("FlowWarning.txt", input.toString());
-    }
-
-    public JSONObject getFlowWarning() {
-        JSONObject flowWarning = null;
-        try {
-            flowWarning = new JSONObject(readFile("FlowWarning.txt").toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-            flowWarning = new JSONObject();
-        }
-        return flowWarning;
-    }
-
     public void saveCurrentURL(String input) throws IOException {
         saveFile("URL.txt", input);
     }
@@ -127,23 +77,6 @@ public class AppFile {
     public void deleteCurrentURL() {
         File file = new File(context.getFilesDir(), "URL.txt");
         file.delete();
-    }
-
-    public void saveURL_table(String URL, String token) throws IOException, JSONException {
-        JSONObject jsonObject = getURL_table();
-        jsonObject.put(URL, token);
-        saveFile("URL_table.txt", jsonObject.toString());
-    }
-
-    public JSONObject getURL_table() throws IOException, JSONException {
-        JSONObject jsonObject;
-        try {
-            jsonObject = new JSONObject(readFile("URL_table.txt"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            jsonObject = new JSONObject();
-        }
-        return jsonObject;
     }
 
 }

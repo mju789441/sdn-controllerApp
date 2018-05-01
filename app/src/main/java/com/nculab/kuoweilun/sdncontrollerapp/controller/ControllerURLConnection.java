@@ -3,6 +3,7 @@ package com.nculab.kuoweilun.sdncontrollerapp.controller;
 import android.content.Context;
 
 import com.nculab.kuoweilun.sdncontrollerapp.AppFile;
+import com.nculab.kuoweilun.sdncontrollerapp.database.URL_table;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -123,14 +124,21 @@ public class ControllerURLConnection {
         httpURLConnection.disconnect();
     }
 
-    public void changeToken(Context context, String token) throws IOException, JSONException {
-        AppFile appFile = new AppFile(context);
-        JSONObject URL_table = appFile.getURL_table();
-        if (!URL_table.isNull(urlstr)) {
-            JSONObject input = new JSONObject().put(URL_table.getString(urlstr), token);
-            modify_suscribe(input.toString());
+    public void changeToken(Context context, String token) throws JSONException {
+        URL_table url_table = new URL_table(context);
+        JSONObject item = url_table.get(urlstr);
+        if (item != null) {
+            JSONObject input = new JSONObject().put(item.getString(URL_table.TOKEN_COLUMN), token);
+            try {
+                modify_suscribe(input.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        appFile.saveUuidTable(urlstr, token);
+        if (!url_table.update(item)) {
+            url_table.insert(item);
+        }
+        url_table.close();
     }
 
     public void subscribe(String input) throws IOException {

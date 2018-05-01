@@ -5,17 +5,20 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.nculab.kuoweilun.sdncontrollerapp.AppFile;
 import com.nculab.kuoweilun.sdncontrollerapp.R;
 import com.nculab.kuoweilun.sdncontrollerapp.Subscribe;
 import com.nculab.kuoweilun.sdncontrollerapp.controller.ControllerSocket;
 import com.nculab.kuoweilun.sdncontrollerapp.controller.ControllerURLConnection;
+import com.nculab.kuoweilun.sdncontrollerapp.database.URL_table;
 import com.nculab.kuoweilun.sdncontrollerapp.host.HostActivity;
 
 import org.json.JSONArray;
@@ -132,8 +135,21 @@ public class SwitchActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
+                    boolean first = true;
                     while (true) {
                         JSONObject allSpeed = controllerURLConnection.getAllSpeed();
+                        if (first) {
+                            first = false;
+                            //儲存url
+                            URL_table url_table = new URL_table(getApplicationContext());
+                            JSONObject item = new JSONObject()
+                                    .put(URL_table.URL_COLUMN, connect_URL)
+                                    .put(URL_table.TOKEN_COLUMN, FirebaseInstanceId.getInstance().getToken());
+                            if (!url_table.update(item))
+                                url_table.insert(item);
+                            Log.d("url_table: ", url_table.getAll().toString());
+                            url_table.close();
+                        }
                         for (int i = allSpeed.names().length(); i < list.size(); i++) {
                             list.remove(i);
                         }
