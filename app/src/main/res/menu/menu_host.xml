@@ -10,4 +10,7 @@
     <item
         android:id="@+id/unban"
         android:title="unBan" />
+    <item
+        android:id="@+id/flow"
+        android:title="查看flow" />
 </menu>

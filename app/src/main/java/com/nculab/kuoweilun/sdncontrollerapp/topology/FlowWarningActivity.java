@@ -168,8 +168,6 @@ public class FlowWarningActivity extends AppCompatActivity {
                                         .put(FlowWarn_table.DURATION_COLUMN, "" + sec);
                                 flowWarn_table.insert(flowWarn);
                             }
-                            uuid_table.close();
-                            flowWarn_table.close();
                             subscribe.subscrbe();
                             finish();
                         }

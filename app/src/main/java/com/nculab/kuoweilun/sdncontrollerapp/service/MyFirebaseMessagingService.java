@@ -54,8 +54,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             text += "有 switch 離開\n";
                     }
                 }
-                uuid_table.close();
-                flowWarn_table.close();
                 //前端時 notification
                 NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_group_collapse_00)

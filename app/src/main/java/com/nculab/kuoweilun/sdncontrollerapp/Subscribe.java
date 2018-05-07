@@ -100,8 +100,6 @@ public class Subscribe {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                uuid_table.close();
-                flowWarn_table.close();
             }
         }).start();
     }
@@ -168,8 +166,6 @@ public class Subscribe {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                uuid_table.close();
-                flowWarn_table.close();
             }
         }).start();
     }

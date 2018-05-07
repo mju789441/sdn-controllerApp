@@ -29,7 +29,6 @@ import java.util.ArrayList;
 public class HostStatsActivity extends AppCompatActivity {
 
     //Component
-    private View activityView;
     private String connect_URL;
     private String switch_ID;
     private TableLayout tableLayout;
@@ -46,8 +45,7 @@ public class HostStatsActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        activityView = HostStatsActivity.this.getLayoutInflater().inflate(R.layout.layout_hoststats, null);
-        setContentView(activityView);
+        setContentView(R.layout.layout_hoststats);
         Bundle bundle = this.getIntent().getExtras();
         connect_URL = bundle.getString("controller_URL");
         switch_ID = bundle.getString("switch_ID");

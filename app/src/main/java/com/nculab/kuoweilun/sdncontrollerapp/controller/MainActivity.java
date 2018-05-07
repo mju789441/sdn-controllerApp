@@ -33,11 +33,13 @@ public class MainActivity extends AppCompatActivity {
     private ListView listView;
     private ArrayList<String> list;
     private ControllerAdapter adapter;
+    URL_table url_table;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        url_table = new URL_table(this);
         initView();
         setListeners();
     }
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         // The activity is about to be destroyed.
         new AppFile(this).deleteCurrentURL();
+        url_table.close();
     }
 
     private void initView() {
@@ -58,11 +61,9 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
         //載入url_table的url
         try {
-            URL_table url_table = new URL_table(this);
             JSONArray urlArray = url_table.getAll();
             for (int i = 0; i < urlArray.length(); i++)
                 list.add(urlArray.getJSONObject(i).getString(URL_table.URL_COLUMN));
-            url_table.close();
         } catch (JSONException e) {
             e.printStackTrace();
         }

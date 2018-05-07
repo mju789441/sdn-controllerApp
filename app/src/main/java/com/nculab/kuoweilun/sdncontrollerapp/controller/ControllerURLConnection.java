@@ -138,7 +138,11 @@ public class ControllerURLConnection {
         if (!url_table.update(item)) {
             url_table.insert(item);
         }
-        url_table.close();
+    }
+
+    public JSONObject getDBflow(String input) throws IOException, JSONException {
+        URL url = new URL(hostname + "/db/flow");
+        return new JSONObject(post(url, input));
     }
 
     public void subscribe(String input) throws IOException {

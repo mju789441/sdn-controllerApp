@@ -15,7 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:text="speed(kbps)" />
+        android:text="speed(kb/s)" />
 
     <ListView
         android:id="@+id/listView_host"

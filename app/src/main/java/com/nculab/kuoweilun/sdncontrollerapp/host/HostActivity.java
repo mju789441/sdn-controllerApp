@@ -13,6 +13,7 @@ import android.widget.ListView;
 
 import com.nculab.kuoweilun.sdncontrollerapp.R;
 import com.nculab.kuoweilun.sdncontrollerapp.controller.ControllerURLConnection;
+import com.nculab.kuoweilun.sdncontrollerapp.flow.FlowActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,7 +29,6 @@ import java.util.ArrayList;
 public class HostActivity extends AppCompatActivity {
 
     //Component
-    private View activityView;
     private ListView listView;
     private ArrayList<Host> list;
     private HostAdapter adapter;
@@ -45,8 +45,7 @@ public class HostActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        activityView = HostActivity.this.getLayoutInflater().inflate(R.layout.layout_hostlist, null);
-        setContentView(activityView);
+        setContentView(R.layout.layout_hostlist);
         Bundle bundle = this.getIntent().getExtras();
         connect_URL = bundle.getString("controller_URL");
         switch_ID = bundle.getString("switch_ID");
@@ -138,6 +137,14 @@ public class HostActivity extends AppCompatActivity {
                                     }
                                 }).start();
                                 break;
+                            case R.id.flow:
+                                intent.setClass(HostActivity.this, FlowActivity.class);
+                                bundle.putString("controller_URL", connect_URL);
+                                bundle.putString("switch_ID", switch_ID);
+                                bundle.putSerializable("host", host);
+                                intent.putExtras(bundle);
+                                startActivity(intent);
+                                break;
                             default:
                                 break;
                         }
@@ -166,7 +173,7 @@ public class HostActivity extends AppCompatActivity {
                         JSONObject dpidSpeed = controllerURLConnection.getAllSpeed().getJSONObject(switch_ID);
                         int host_length = host.length();
                         //不算LOCAL port
-                        for (int i = host_length - 1; i < list.size(); i++) {
+                        for (int i = host_length - 1; i >= 0 && i < list.size(); i++) {
                             list.remove(i);
                         }
                         boolean findLocal = false;

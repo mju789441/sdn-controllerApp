@@ -148,7 +148,6 @@ public class SwitchActivity extends AppCompatActivity {
                             if (!url_table.update(item))
                                 url_table.insert(item);
                             Log.d("url_table: ", url_table.getAll().toString());
-                            url_table.close();
                         }
                         for (int i = allSpeed.names().length(); i < list.size(); i++) {
                             list.remove(i);

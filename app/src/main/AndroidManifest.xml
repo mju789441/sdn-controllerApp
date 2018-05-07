@@ -30,8 +30,9 @@
         <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.topology.TopologyActivity"></activity>
         <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.topology.TopologySettingActivity"></activity>
         <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.topology.FlowWarningActivity"></activity>
+        <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.flow.FlowActivity"></activity>
 
-        <service android:name=".MyFirebaseInstanceIDService">
+        <service android:name=".service.MyFirebaseInstanceIdService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>

@@ -140,7 +140,6 @@ public class TopologyActivity extends AppCompatActivity {
                     if (!url_table.update(item))
                         url_table.insert(item);
                     Log.d("url_table: ", url_table.getAll().toString());
-                    url_table.close();
                     //紀錄避免重複的edge
                     JSONObject switch_link = new JSONObject();
                     //host編號
