@@ -19,6 +19,8 @@ import com.nculab.kuoweilun.sdncontrollerapp.Subscribe;
 import com.nculab.kuoweilun.sdncontrollerapp.controller.ControllerSocket;
 import com.nculab.kuoweilun.sdncontrollerapp.controller.ControllerURLConnection;
 import com.nculab.kuoweilun.sdncontrollerapp.database.URL_table;
+import com.nculab.kuoweilun.sdncontrollerapp.flow.FlowActivity;
+import com.nculab.kuoweilun.sdncontrollerapp.host.Host;
 import com.nculab.kuoweilun.sdncontrollerapp.host.HostActivity;
 
 import org.json.JSONArray;
@@ -110,6 +112,12 @@ public class SwitchActivity extends AppCompatActivity {
                                 startActivity(intent);
                                 break;
                             case R.id.watch_flow:
+                                intent.setClass(SwitchActivity.this, FlowActivity.class);
+                                bundle.putString("controller_URL", connect_URL);
+                                bundle.putString("switch_ID", getSwitch.ID);
+                                bundle.putSerializable("host", new Host());
+                                intent.putExtras(bundle);
+                                startActivity(intent);
                                 break;
                             default:
                                 break;

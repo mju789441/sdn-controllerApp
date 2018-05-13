@@ -78,8 +78,8 @@ public class FlowWarningActivity extends AppCompatActivity {
                             JSONObject content = contentArray.getJSONObject(i);
                             String content_msg = "hw_addr: " + content.getString("hw_addr") + "\n";
                             content_msg += "name: " + content.getString("name") + "\n";
-                            content_msg += "port_no: " + content.getString("port_no") + "\n";
-                            content_msg += "dpid: " + content.getString("dpid") + "\n";
+                            content_msg += "port_no: " + Integer.valueOf(content.getString("port_no")) + "\n";
+                            content_msg += "dpid: " + Integer.valueOf(content.getString("dpid")) + "\n";
                             final String msg = content_msg;
                             handler.post(new Runnable() {
                                 @Override
@@ -90,6 +90,11 @@ public class FlowWarningActivity extends AppCompatActivity {
                             break;
                         }
                     }
+                    //取得flowWarn資訊
+                    UUID_table uuid_table = new UUID_table(getApplicationContext());
+                    JSONArray uuid = uuid_table.getUUID(connect_URL, UUID_table.EVENT_FLOWWARN);
+                    FlowWarn_table flowWarn_table = new FlowWarn_table(getApplicationContext());
+                    JSONArray flowWarn = flowWarn_table.get(uuid, switch_ID, port_no);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {

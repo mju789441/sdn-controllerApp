@@ -17,6 +17,10 @@ public class Host implements Serializable {
     public String speed = null;
     public String jsonString = null;
 
+    public Host(){
+        port = "-1";
+    }
+
     public Host(String ID, JSONObject hostObject, int speed) {
         this.ID = ID;
         try {

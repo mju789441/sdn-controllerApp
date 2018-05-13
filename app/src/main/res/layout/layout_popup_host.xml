@@ -24,4 +24,11 @@
         android:layout_height="match_parent"
         android:text="unban"
         android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/button_watch_flow_host"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="查看flow"
+        android:textAllCaps="false"/>
 </LinearLayout>

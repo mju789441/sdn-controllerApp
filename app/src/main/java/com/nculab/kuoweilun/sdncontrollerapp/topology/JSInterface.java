@@ -13,8 +13,10 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.PopupWindow;
+import android.widget.Switch;
 
 import com.nculab.kuoweilun.sdncontrollerapp.R;
+import com.nculab.kuoweilun.sdncontrollerapp.flow.FlowActivity;
 import com.nculab.kuoweilun.sdncontrollerapp.host.Host;
 import com.nculab.kuoweilun.sdncontrollerapp.host.HostActivity;
 import com.nculab.kuoweilun.sdncontrollerapp.host.HostStatsActivity;
@@ -74,6 +76,8 @@ public class JSInterface extends Object implements View.OnClickListener {
                 button_ban.setOnClickListener(this);
                 Button button_unban = (Button) view.findViewById(R.id.button_unban);
                 button_unban.setOnClickListener(this);
+                Button button_watch_flow_host = (Button) view.findViewById(R.id.button_watch_flow_host);
+                button_watch_flow_host.setOnClickListener(this);
                 break;
             default:
                 break;
@@ -103,16 +107,23 @@ public class JSInterface extends Object implements View.OnClickListener {
         popupWindow.dismiss();
         Intent intent = new Intent();
         Bundle bundle = new Bundle();
+        final String switch_id = node.substring(1);
         final Host host = topologyActivity.hostArrayList.get(Integer.parseInt(node.substring(1)) - 1);
         switch (view.getId()) {
             case R.id.button_watch_host:
                 intent.setClass(topologyActivity, HostActivity.class);
                 bundle.putString("controller_URL", topologyActivity.controllerURLConnection.urlstr);
-                bundle.putString("switch_ID", host.ID);
+                bundle.putString("switch_ID", switch_id);
                 intent.putExtras(bundle);
                 topologyActivity.startActivity(intent);
                 break;
             case R.id.button_watch_flow:
+                intent.setClass(topologyActivity, FlowActivity.class);
+                bundle.putString("controller_URL", topologyActivity.controllerURLConnection.urlstr);
+                bundle.putString("switch_ID", switch_id);
+                bundle.putSerializable("host", new Host());
+                intent.putExtras(bundle);
+                topologyActivity.startActivity(intent);
                 break;
             case R.id.button_property:
                 intent.setClass(topologyActivity, HostStatsActivity.class);
@@ -161,6 +172,15 @@ public class JSInterface extends Object implements View.OnClickListener {
                         }
                     }
                 }).start();
+                break;
+            case R.id.button_watch_flow_host:
+                intent.setClass(topologyActivity, FlowActivity.class);
+                bundle.putString("controller_URL", topologyActivity.controllerURLConnection.urlstr);
+                bundle.putString("switch_ID", host.ID);
+                bundle.putSerializable("host", host);
+                intent.putExtras(bundle);
+                Log.d("para: ", bundle.toString());
+                topologyActivity.startActivity(intent);
                 break;
             default:
                 break;

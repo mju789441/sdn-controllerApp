@@ -132,6 +132,36 @@ public class FlowWarn_table {
     }
 
     // 取得指定編號的資料物件
+    public JSONArray get(JSONArray uuid, String switch_id, String port_no) throws JSONException {
+        // 準備回傳結果用的物件
+        JSONArray item = new JSONArray();
+        // 使用編號為查詢條件
+        String where = SWITCH_ID_COLUMN + "='" + switch_id + "' AND "
+                + PORT_NO_COLUMN + "='" + port_no + "'";
+        // 執行查詢
+        Cursor cursor = null;
+        try {
+            cursor = db.query(TABLE_NAME, null, where, null, null, null, null, null);
+        } catch (SQLiteException e) {
+            e.printStackTrace();
+            return item;
+        }
+        // 如果有查詢結果
+        while (cursor.moveToNext()) {
+            for (int i = 0; i < uuid.length(); i++) {
+                if (cursor.getString(cursor.getColumnIndex(UUID_COLUMN)) == uuid.getString(i)) {
+                    item.put(getRecord(cursor));
+                    break;
+                }
+            }
+        }
+        // 關閉Cursor物件
+        cursor.close();
+        // 回傳結果
+        return item;
+    }
+
+    // 取得指定編號的資料物件
     public JSONObject getFlowWarn(String uuid) throws JSONException {
         // 準備回傳結果用的物件
         JSONObject item = null;

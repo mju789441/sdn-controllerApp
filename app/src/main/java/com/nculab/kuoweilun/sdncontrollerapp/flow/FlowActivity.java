@@ -3,6 +3,7 @@ package com.nculab.kuoweilun.sdncontrollerapp.flow;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.LinearLayout;
 
 import com.nculab.kuoweilun.sdncontrollerapp.R;
@@ -46,17 +47,17 @@ public class FlowActivity extends AppCompatActivity {
                 try {
                     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
                     Date date = new Date();
-                    date.setTime(date.getTime() + 12 * 60 * 60 * 1000);
+                    date.setTime(date.getTime() + 24 * 60 * 60 * 1000);
                     String date2 = simpleDateFormat.format(date).replace(' ', 'T');
-                    date.setTime(date.getTime() - 24 * 60 * 60 * 1000);
+                    date.setTime(date.getTime() - 48 * 60 * 60 * 1000);
                     String date1 = simpleDateFormat.format(date).replace(' ', 'T');
                     JSONObject input = new JSONObject()
                             .put("date", date1 + " " + date2)
-                            .put("precision", "1")
+                            .put("precision", "60")
                             .put("switch_id", switch_ID)
                             .put("port_no", host.port);
                     final JSONObject output = controllerURLConnection.getDBflow(input.toString());
-                    System.out.println(output.toString());
+                    Log.d("DBflow: ", output.toString());
                     handler.post(new Runnable() {
                         @Override
                         public void run() {

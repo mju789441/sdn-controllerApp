@@ -3,7 +3,6 @@ package com.nculab.kuoweilun.sdncontrollerapp.topology;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -25,13 +24,13 @@ import com.nculab.kuoweilun.sdncontrollerapp.Subscribe;
 import com.nculab.kuoweilun.sdncontrollerapp.controller.ControllerURLConnection;
 import com.nculab.kuoweilun.sdncontrollerapp.database.URL_table;
 import com.nculab.kuoweilun.sdncontrollerapp.host.Host;
+import com.nculab.kuoweilun.sdncontrollerapp.switcher.Switch;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -47,6 +46,7 @@ public class TopologyActivity extends AppCompatActivity {
     private WebSettings webSettings;
     private Toolbar toolbar;
     private Button button_backToController;
+    public ArrayList<Switch> switchArrayList = new ArrayList<Switch>();
     public ArrayList<Host> hostArrayList;
     public JSONArray edgeArray = new JSONArray();
     private boolean urlLoad = false;
@@ -149,6 +149,11 @@ public class TopologyActivity extends AppCompatActivity {
                         String switch_ID = allSpeed.names().getString(i);
                         JSONObject switchObject = new JSONObject("{ group: 'nodes', data: { id: 's"
                                 + switch_ID + "', type: 'switch' } }");
+                        int speed = 0;
+                        for (int j = 1; j < allSpeed.getJSONObject(switch_ID).names().length(); j++) {
+                            speed += allSpeed.getJSONObject(switch_ID).getInt("" + j);
+                        }
+                        switchArrayList.add(new Switch(switch_ID, speed));
                         getTopology.put(switchObject);
 
                         JSONArray portArray = controllerURLConnection.getPortDesc(switch_ID)
@@ -203,7 +208,7 @@ public class TopologyActivity extends AppCompatActivity {
                             if (!findLink) {
                                 int port_no = Integer.parseInt(getSwitch.getJSONObject(j)
                                         .getString("port_no"), 16);
-                                int speed = allSpeed.getJSONObject(switch_ID).getInt("" + port_no);
+                                speed = allSpeed.getJSONObject(switch_ID).getInt("" + port_no);
                                 JSONObject hostObject = new JSONObject("{ group: 'nodes', data: { id: 'h"
                                         + host_num + "', type: 'host' } }");
                                 getTopology.put(hostObject);

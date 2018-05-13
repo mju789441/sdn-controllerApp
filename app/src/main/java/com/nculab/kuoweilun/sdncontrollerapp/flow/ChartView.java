@@ -66,36 +66,24 @@ public class ChartView {
     }
 
     private void addSeries() {
-        XYSeries min_xySeries = new XYSeries("min_flow");
         XYSeries max_xySeries = new XYSeries("max_flow");
         XYSeries avg_xySeries = new XYSeries("avg_flow");
-        Log.d("timeArray: ", dBflow.timeArray.toString());
+//        Log.d("timeArray: ", dBflow.timeArray.toString());
 //        Log.d("min_flowArray", dBflow.min_flowArray.toString());
 //        Log.d("max_flowArray", dBflow.max_flowArray.toString());
 //        Log.d("avg_flowArray", dBflow.avg_flowArray.toString());
         for (int i = 0; i < dBflow.timeArray.size(); i++) {
-            renderer.addXTextLabel(i, (dBflow.timeArray.get(i).substring(dBflow.timeArray.get(i).indexOf(" ") + 1)));
-            min_xySeries.add(i, dBflow.min_flowArray.get(i));
-            max_xySeries.add(i, dBflow.max_flowArray.get(i));
-            avg_xySeries.add(i, dBflow.avg_flowArray.get(i));
+            //只顯示五個Label
+            if (dBflow.timeArray.size() < 5 || i % (dBflow.timeArray.size() / 5) == 0)
+                renderer.addXTextLabel(i, (dBflow.timeArray.get(i).substring(dBflow.timeArray.get(i).indexOf(" ") + 1)));
+            max_xySeries.add(i, dBflow.max_flowArray.get(i).intValue());
+            avg_xySeries.add(i, dBflow.avg_flowArray.get(i).intValue());
         }
-        dataset.addSeries(min_xySeries);
         dataset.addSeries(max_xySeries);
         dataset.addSeries(avg_xySeries);
     }
 
     private GraphicalView showChart() {
-        XYSeriesRenderer min_xySeries = new XYSeriesRenderer();
-        min_xySeries.setColor(Color.BLUE);// 設定線條顏色
-        min_xySeries.setPointStyle(PointStyle.DIAMOND);// 設置為菱形
-        min_xySeries.setFillPoints(true);// 設定空心或實心
-        min_xySeries.setDisplayChartValues(true);// 顯示數值
-        min_xySeries.setAnnotationsTextAlign(Paint.Align.RIGHT);
-        min_xySeries.setChartValuesTextAlign(Paint.Align.RIGHT);
-        min_xySeries.setChartValuesSpacing(20);// 顯示
-        min_xySeries.setChartValuesTextSize(40);// 數值的文字大小
-        min_xySeries.setLineWidth(1);// 線寬
-        renderer.addSeriesRenderer(min_xySeries);
 
         XYSeriesRenderer max_xySeries = new XYSeriesRenderer();
         max_xySeries.setColor(Color.RED);// 設定線條顏色
@@ -106,11 +94,11 @@ public class ChartView {
         max_xySeries.setChartValuesTextAlign(Paint.Align.RIGHT);
         max_xySeries.setChartValuesSpacing(20);// 顯示
         max_xySeries.setChartValuesTextSize(40);// 數值的文字大小
-        max_xySeries.setLineWidth(1);// 線寬
+        max_xySeries.setLineWidth(2);// 線寬
         renderer.addSeriesRenderer(max_xySeries);
 
         XYSeriesRenderer avg_xySeries = new XYSeriesRenderer();
-        avg_xySeries.setColor(Color.GREEN);// 設定線條顏色
+        avg_xySeries.setColor(Color.argb(255, 0, 91, 0));// 設定線條顏色
         avg_xySeries.setPointStyle(PointStyle.DIAMOND);// 設置為菱形
         avg_xySeries.setFillPoints(true);// 設定空心或實心
         avg_xySeries.setDisplayChartValues(true);// 顯示數值
@@ -118,7 +106,9 @@ public class ChartView {
         avg_xySeries.setChartValuesTextAlign(Paint.Align.RIGHT);
         avg_xySeries.setChartValuesSpacing(20);// 顯示
         avg_xySeries.setChartValuesTextSize(40);// 數值的文字大小
-        avg_xySeries.setLineWidth(1);// 線寬
+        avg_xySeries.setLineWidth(2);// 線寬
+        avg_xySeries.setFillBelowLine(true);
+        avg_xySeries.setFillBelowLineColor(Color.argb(155, 0, 255, 0));
         renderer.addSeriesRenderer(avg_xySeries);
 
         GraphicalView view = ChartFactory.getLineChartView(context, dataset,
@@ -135,6 +125,7 @@ public class ChartView {
         public ArrayList<Double> min_flowArray = new ArrayList<Double>();
         public ArrayList<Double> max_flowArray = new ArrayList<Double>();
         public ArrayList<Double> avg_flowArray = new ArrayList<Double>();
+        public ArrayList<Long> total_flowArray = new ArrayList<Long>();
         public String precision = "0";
 
         public DBflow() {
@@ -155,15 +146,17 @@ public class ChartView {
                 for (int i = 0; i < flow.length(); i++) {
                     JSONObject item = flow.getJSONObject(i);
                     Date date = new Date();
-                    date.setTime(item.getLong("timestamp"));
+                    date.setTime(item.getLong("timestamp") * 1000);
                     timeArray.add(simpleDateFormat.format(date).replace(" ", "\n"));
-                    min_flowArray.add(item.getDouble("min_flow"));
-                    max_flowArray.add(item.getDouble("max_flow"));
-                    avg_flowArray.add(item.getDouble("avg_flow"));
-                    if (item.getDouble("max_flow") > max_flow)
-                        max_flow = item.getDouble("max_flow");
+                    int B = 1024;
+                    total_flowArray.add(item.getLong("total_flow"));
+                    min_flowArray.add(item.getDouble("min_flow") / B);
+                    max_flowArray.add(item.getDouble("max_flow") / B);
+                    avg_flowArray.add(item.getDouble("avg_flow") / B);
+                    if (item.getDouble("max_flow") / B > max_flow)
+                        max_flow = item.getDouble("max_flow") / B;
                 }
-                Log.d("max: ", max_flow.toString());
+//                Log.d("max: ", max_flow.toString());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
