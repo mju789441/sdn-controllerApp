@@ -1,11 +1,18 @@
 package com.nculab.kuoweilun.sdncontrollerapp.topology;
 
+import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +46,7 @@ public class FlowWarningActivity extends AppCompatActivity {
     private String connect_URL;
     private String switch_ID;
     private String port_no;
-    private AppFile appFile = new AppFile(this);
+    private LinearLayout layout_scroll;
     private ControllerURLConnection controllerURLConnection;
     private Subscribe subscribe;
     private Handler handler = new Handler();
@@ -65,6 +72,7 @@ public class FlowWarningActivity extends AppCompatActivity {
         editText_min = (EditText) findViewById(R.id.editText_min);
         textView_content = (TextView) findViewById(R.id.textView_content);
         button_submit = (Button) findViewById(R.id.button_submit);
+        layout_scroll = (LinearLayout) findViewById(R.id.layout_croll);
         //content資料
         new Thread(new Runnable() {
             @Override
@@ -90,11 +98,16 @@ public class FlowWarningActivity extends AppCompatActivity {
                             break;
                         }
                     }
-                    //取得flowWarn資訊
-                    UUID_table uuid_table = new UUID_table(getApplicationContext());
-                    JSONArray uuid = uuid_table.getUUID(connect_URL, UUID_table.EVENT_FLOWWARN);
-                    FlowWarn_table flowWarn_table = new FlowWarn_table(getApplicationContext());
-                    JSONArray flowWarn = flowWarn_table.get(uuid, switch_ID, port_no);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                layout_scroll.addView(new FlowWarnTableView(getApplicationContext(), connect_URL, switch_ID, port_no));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
@@ -102,6 +115,7 @@ public class FlowWarningActivity extends AppCompatActivity {
                 }
             }
         }).start();
+
     }
 
     private void setListeners() {

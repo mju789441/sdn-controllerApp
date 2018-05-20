@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -149,7 +150,7 @@ public class FlowWarn_table {
         // 如果有查詢結果
         while (cursor.moveToNext()) {
             for (int i = 0; i < uuid.length(); i++) {
-                if (cursor.getString(cursor.getColumnIndex(UUID_COLUMN)) == uuid.getString(i)) {
+                if (cursor.getString(cursor.getColumnIndex(UUID_COLUMN)).equals(uuid.getString(i))) {
                     item.put(getRecord(cursor));
                     break;
                 }
