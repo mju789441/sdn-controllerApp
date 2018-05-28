@@ -124,6 +124,11 @@ public class ControllerURLConnection {
         httpURLConnection.disconnect();
     }
 
+    public JSONObject login(String input) throws IOException, JSONException {
+        URL url = new URL(hostname + "/login");
+        return new JSONObject(post(url, input));
+    }
+
     public void changeToken(Context context, String token) throws JSONException {
         URL_table url_table = new URL_table(context);
         JSONObject item = url_table.get(urlstr);
