@@ -94,7 +94,7 @@ public class Subscribe {
                         String token = FirebaseInstanceId.getInstance().getToken();
                         Log.d(TAG, "token:" + token);
                         subscribe.put("token", token);
-                        controllerURLConnection.subscribe(subscribe.toString());
+                        controllerURLConnection.subscribe(subscribe);
                     }
                     Log.d(TAG, "subscribe: " + subscribe.toString());
                 } catch (Exception e) {

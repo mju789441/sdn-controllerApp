@@ -144,7 +144,7 @@ public class JSInterface extends Object implements View.OnClickListener {
                             flow.put("match", new JSONObject()
                                     .put("in_port", host.port));
                             flow.put("actions", new JSONArray("[]"));
-                            topologyActivity.controllerURLConnection.addFlowEntry(flow.toString());
+                            topologyActivity.controllerURLConnection.addFlowEntry(flow);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         } catch (IOException e) {
@@ -164,7 +164,7 @@ public class JSInterface extends Object implements View.OnClickListener {
                             flow.put("match", new JSONObject()
                                     .put("in_port", host.port));
                             flow.put("actions", new JSONArray("[]"));
-                            topologyActivity.controllerURLConnection.deleteFlowEntry(flow.toString());
+                            topologyActivity.controllerURLConnection.deleteFlowEntry(flow);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         } catch (IOException e) {

@@ -79,4 +79,17 @@ public class AppFile {
         file.delete();
     }
 
+    public void saveSSID(String input) throws IOException {
+        saveFile("SSID.txt", input);
+    }
+
+    public String getSSID() throws IOException {
+        return readFile("SSID.txt");
+    }
+
+    public void deleteSSID() {
+        File file = new File(context.getFilesDir(), "SSID.txt");
+        file.delete();
+    }
+
 }

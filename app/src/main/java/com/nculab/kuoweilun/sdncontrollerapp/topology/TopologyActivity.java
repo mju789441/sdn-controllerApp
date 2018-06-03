@@ -62,14 +62,12 @@ public class TopologyActivity extends AppCompatActivity {
         setContentView(R.layout.layout_topology);
         Bundle bundle = this.getIntent().getExtras();
         connect_URL = bundle.getString("controller_URL");
-        controllerURLConnection = new ControllerURLConnection(connect_URL);
-        //Subscribe
+        controllerURLConnection = new ControllerURLConnection(connect_URL, this);
         try {
             new AppFile(this).saveCurrentURL(connect_URL);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        new Subscribe(this, controllerURLConnection).subscrbe();
         initView();
         setListeners();
         setRunnable();
@@ -78,6 +76,13 @@ public class TopologyActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+        try {
+            controllerURLConnection.ssid = new AppFile(this).getSSID();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //Subscribe
+        new Subscribe(this, controllerURLConnection).subscrbe();
         thread_getTopology = new Thread(runnable_getTopology);
         thread_getTopology.start();
     }

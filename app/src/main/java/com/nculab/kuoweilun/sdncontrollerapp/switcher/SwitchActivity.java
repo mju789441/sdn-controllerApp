@@ -56,14 +56,12 @@ public class SwitchActivity extends AppCompatActivity {
         setContentView(R.layout.layout_switchlist);
         Bundle bundle = this.getIntent().getExtras();
         connect_URL = bundle.getString("controller_URL");
-        controllerURLConnection = new ControllerURLConnection(connect_URL);
-        //Subscribe
+        controllerURLConnection = new ControllerURLConnection(connect_URL, this);
         try {
             new AppFile(this).saveCurrentURL(connect_URL);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        new Subscribe(this, controllerURLConnection).subscrbe();
         initView();
         setListeners();
         setRunnable();
@@ -72,6 +70,13 @@ public class SwitchActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+        try {
+            controllerURLConnection.ssid = new AppFile(this).getSSID();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //Subscribe
+        new Subscribe(this, controllerURLConnection).subscrbe();
         thread_getSwitch = new Thread(runnable_getSwitch);
         thread_getSwitch.start();
     }

@@ -1,8 +1,13 @@
 package com.nculab.kuoweilun.sdncontrollerapp.controller;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import com.nculab.kuoweilun.sdncontrollerapp.AppFile;
+import com.nculab.kuoweilun.sdncontrollerapp.LoginActivity;
 import com.nculab.kuoweilun.sdncontrollerapp.database.URL_table;
 
 import org.json.JSONArray;
@@ -14,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
@@ -25,10 +29,19 @@ public class ControllerURLConnection {
 
     public String urlstr = null;
     public String hostname = null;
+    public String ssid = "";
+    private AppCompatActivity appCompatActivity = null;
 
-    public ControllerURLConnection(String url) {
+    public ControllerURLConnection(String url, AppCompatActivity appCompatActivity) {
         urlstr = url;
         hostname = "http://" + url + ":8080";
+        this.appCompatActivity = appCompatActivity;
+        try {
+            if (appCompatActivity != null)
+                ssid = new AppFile(appCompatActivity.getApplicationContext()).getSSID();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public String get(URL url) throws IOException {
@@ -57,18 +70,23 @@ public class ControllerURLConnection {
         return output;
     }
 
-    public String post(URL url, String input) throws IOException {
+    public String post(URL url, JSONObject input) throws IOException, JSONException {
+        if (appCompatActivity != null)
+            input.put("ssid", ssid);
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
         httpURLConnection.setDoOutput(true);
         httpURLConnection.setRequestMethod("POST");
         httpURLConnection.setRequestProperty("Content-Type", "application/json");
 
         OutputStream os = httpURLConnection.getOutputStream();
-        os.write(input.getBytes());
+        os.write(input.toString().getBytes());
         os.flush();
         int responseCode = httpURLConnection.getResponseCode();
         if (responseCode != HttpURLConnection.HTTP_CREATED
                 && responseCode != HttpURLConnection.HTTP_OK) {
+            if (httpURLConnection.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                loginActivity();
+            }
             throw new RuntimeException("Failed : HTTP error code : "
                     + httpURLConnection.getResponseCode());
         }
@@ -124,9 +142,22 @@ public class ControllerURLConnection {
         httpURLConnection.disconnect();
     }
 
-    public JSONObject login(String input) throws IOException, JSONException {
+    private void loginActivity() {
+        if (appCompatActivity == null)
+            Toast.makeText(appCompatActivity.getApplicationContext(), "can't login, something wrong", Toast.LENGTH_SHORT).show();
+        else {
+            Intent intent = new Intent();
+            intent.setClass(appCompatActivity.getApplicationContext(), LoginActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("urlstr",urlstr);
+            intent.putExtras(bundle);
+            appCompatActivity.startActivity(intent);
+        }
+    }
+
+    public JSONArray login(JSONObject input) throws IOException, JSONException {
         URL url = new URL(hostname + "/login");
-        return new JSONObject(post(url, input));
+        return new JSONArray(post(url, input));
     }
 
     public void changeToken(Context context, String token) throws JSONException {
@@ -145,12 +176,12 @@ public class ControllerURLConnection {
         }
     }
 
-    public JSONObject getDBflow(String input) throws IOException, JSONException {
+    public JSONObject getDBflow(JSONObject input) throws IOException, JSONException {
         URL url = new URL(hostname + "/db/flow");
         return new JSONObject(post(url, input));
     }
 
-    public void subscribe(String input) throws IOException {
+    public void subscribe(JSONObject input) throws IOException, JSONException {
         URL url = new URL(hostname + "/subscribe");
         post(url, input);
     }
@@ -242,7 +273,7 @@ public class ControllerURLConnection {
         return new JSONObject(get(url));
     }
 
-    public JSONObject getFlowStats(String dpid, String input) throws IOException, JSONException {
+    public JSONObject getFlowStats(String dpid, JSONObject input) throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/flow/" + dpid);
         return new JSONObject(post(url, input));
@@ -254,7 +285,7 @@ public class ControllerURLConnection {
         return new JSONObject(get(url));
     }
 
-    public JSONObject getAggregateFlowStats(String dpid, String input) throws IOException, JSONException {
+    public JSONObject getAggregateFlowStats(String dpid, JSONObject input) throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/aggregateflow/" + dpid);
         return new JSONObject(post(url, input));
@@ -350,31 +381,31 @@ public class ControllerURLConnection {
         return new JSONObject(get(url));
     }
 
-    public void addFlowEntry(String input) throws IOException {
+    public void addFlowEntry(JSONObject input) throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/flowentry/add");
         post(url, input);
     }
 
-    public void modifyFlowEntry(String input) throws IOException {
+    public void modifyFlowEntry(JSONObject input) throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/flowentry/modify");
         post(url, input);
     }
 
-    public void modifyFlowEntry_strict(String input) throws IOException {
+    public void modifyFlowEntry_strict(JSONObject input) throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/flowentry/modify_strict");
         post(url, input);
     }
 
-    public void deleteFlowEntry(String input) throws IOException {
+    public void deleteFlowEntry(JSONObject input) throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/flowentry/delete");
         post(url, input);
     }
 
-    public void deleteFlowEntry_strict(String input) throws IOException {
+    public void deleteFlowEntry_strict(JSONObject input) throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/flowentry/delete_strict");
         post(url, input);
@@ -386,55 +417,55 @@ public class ControllerURLConnection {
         get(url);
     }
 
-    public void addGroupEntry(String input) throws IOException {
+    public void addGroupEntry(JSONObject input) throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/groupentry/add");
         post(url, input);
     }
 
-    public void modifyGroupEntry(String input) throws IOException {
+    public void modifyGroupEntry(JSONObject input) throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/groupentry/modify");
         post(url, input);
     }
 
-    public void deleteGroupEntry(String input) throws IOException {
+    public void deleteGroupEntry(JSONObject input) throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/groupentry/delete");
         post(url, input);
     }
 
-    public void modifyPortDesc(String input) throws IOException {
+    public void modifyPortDesc(JSONObject input) throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/portdesc/modify");
         post(url, input);
     }
 
-    public void addMeterEntry(String input) throws IOException {
+    public void addMeterEntry(JSONObject input) throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/meterentry/add");
         post(url, input);
     }
 
-    public void modifyMeterEntry(String input) throws IOException {
+    public void modifyMeterEntry(JSONObject input) throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/meterentry/modify");
         post(url, input);
     }
 
-    public void deleteMeterEntry(String input) throws IOException {
+    public void deleteMeterEntry(JSONObject input) throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/meterentry/delete");
         post(url, input);
     }
 
-    public void modifyRole(String input) throws IOException {
+    public void modifyRole(JSONObject input) throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/role");
         post(url, input);
     }
 
-    public void experimenter(String dpid, String input) throws IOException {
+    public void experimenter(String dpid, JSONObject input) throws IOException, JSONException {
         // 初始化 URL
         URL url = new URL(hostname + "/stats/experimenter/" + dpid);
         post(url, input);

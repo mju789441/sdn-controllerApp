@@ -31,7 +31,7 @@ public class MyFirebaseInstanceIdService extends FirebaseInstanceIdService {
     private void sendToken(String token) {
         try {
             String URL = appFile.getCurrentURL();
-            ControllerURLConnection controllerURLConnection = new ControllerURLConnection(URL);
+            ControllerURLConnection controllerURLConnection = new ControllerURLConnection(URL, null);
             controllerURLConnection.changeToken(this, token);
         } catch (IOException e) {
             e.printStackTrace();

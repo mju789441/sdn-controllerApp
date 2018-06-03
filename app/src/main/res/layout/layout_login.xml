@@ -13,6 +13,7 @@
         android:orientation="vertical">
 
         <android.support.design.widget.TextInputLayout
+            android:id="@+id/account"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1">
@@ -21,12 +22,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="帳號"
-                android:textSize="20dp"
-                android:visibility="visible" />
+                android:textSize="20dp" />
 
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
+            android:id="@+id/password"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1">
@@ -36,8 +37,7 @@
                 android:layout_height="wrap_content"
                 android:hint="密碼"
                 android:inputType="textPassword"
-                android:textSize="20dp"
-                android:visibility="invisible" />
+                android:textSize="20dp" />
         </android.support.design.widget.TextInputLayout>
 
         <Button

@@ -12,6 +12,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.nculab.kuoweilun.sdncontrollerapp.AppFile;
 import com.nculab.kuoweilun.sdncontrollerapp.R;
 import com.nculab.kuoweilun.sdncontrollerapp.controller.ControllerURLConnection;
 
@@ -50,7 +51,7 @@ public class HostStatsActivity extends AppCompatActivity {
         connect_URL = bundle.getString("controller_URL");
         switch_ID = bundle.getString("switch_ID");
         host = (Host) bundle.getSerializable("host");
-        controllerURLConnection = new ControllerURLConnection(connect_URL);
+        controllerURLConnection = new ControllerURLConnection(connect_URL,this);
         initView();
         setListeners();
         setRunnable();
@@ -59,6 +60,11 @@ public class HostStatsActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+        try {
+            controllerURLConnection.ssid = new AppFile(this).getSSID();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         thread_getHostProperty = new Thread(runnable_getHostProperty);
         thread_getHostProperty.start();
     }
@@ -97,7 +103,7 @@ public class HostStatsActivity extends AppCompatActivity {
                         try {
                             input.put("priority", 867);
                             input.put("math", new JSONObject().put("in_port", host.port));
-                            JSONArray output = controllerURLConnection.getFlowStats(switch_ID, input.toString())
+                            JSONArray output = controllerURLConnection.getFlowStats(switch_ID, input)
                                     .getJSONArray(switch_ID);
                             for (int i = 0; i < output.length(); i++) {
                                 if (output.getJSONObject(i).getJSONArray("actions")

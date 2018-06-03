@@ -31,6 +31,7 @@
         <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.topology.TopologySettingActivity"></activity>
         <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.topology.FlowWarningActivity"></activity>
         <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.flow.FlowActivity"></activity>
+        <activity android:name="com.nculab.kuoweilun.sdncontrollerapp.LoginActivity"></activity>
 
         <service android:name=".service.MyFirebaseInstanceIdService">
             <intent-filter>

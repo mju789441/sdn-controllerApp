@@ -48,7 +48,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         // The activity is about to be destroyed.
-        new AppFile(this).deleteCurrentURL();
+        AppFile appFile = new AppFile(this);
+        appFile.deleteCurrentURL();
+        appFile.deleteSSID();
         url_table.close();
     }
 

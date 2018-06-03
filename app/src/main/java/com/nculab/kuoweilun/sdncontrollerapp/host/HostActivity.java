@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.nculab.kuoweilun.sdncontrollerapp.AppFile;
 import com.nculab.kuoweilun.sdncontrollerapp.R;
 import com.nculab.kuoweilun.sdncontrollerapp.controller.ControllerURLConnection;
 import com.nculab.kuoweilun.sdncontrollerapp.flow.FlowActivity;
@@ -49,7 +50,7 @@ public class HostActivity extends AppCompatActivity {
         Bundle bundle = this.getIntent().getExtras();
         connect_URL = bundle.getString("controller_URL");
         switch_ID = bundle.getString("switch_ID");
-        controllerURLConnection = new ControllerURLConnection(connect_URL);
+        controllerURLConnection = new ControllerURLConnection(connect_URL, this);
         initView();
         setListeners();
         setRunnable();
@@ -58,6 +59,11 @@ public class HostActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+        try {
+            controllerURLConnection.ssid = new AppFile(this).getSSID();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         thread_getHost = new Thread(runnable_getHost);
         thread_getHost.start();
     }
@@ -108,7 +114,7 @@ public class HostActivity extends AppCompatActivity {
                                             flow.put("match", new JSONObject()
                                                     .put("in_port", host.port));
                                             flow.put("actions", new JSONArray("[]"));
-                                            controllerURLConnection.addFlowEntry(flow.toString());
+                                            controllerURLConnection.addFlowEntry(flow);
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         } catch (IOException e) {
@@ -128,7 +134,7 @@ public class HostActivity extends AppCompatActivity {
                                             flow.put("match", new JSONObject()
                                                     .put("in_port", host.port));
                                             flow.put("actions", new JSONArray("[]"));
-                                            controllerURLConnection.deleteFlowEntry(flow.toString());
+                                            controllerURLConnection.deleteFlowEntry(flow);
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         } catch (IOException e) {

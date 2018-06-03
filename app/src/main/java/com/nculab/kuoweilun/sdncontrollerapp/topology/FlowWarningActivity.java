@@ -50,6 +50,8 @@ public class FlowWarningActivity extends AppCompatActivity {
     private ControllerURLConnection controllerURLConnection;
     private Subscribe subscribe;
     private Handler handler = new Handler();
+    private Thread thread_getContent;
+    private Runnable runnable_getContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,10 +61,29 @@ public class FlowWarningActivity extends AppCompatActivity {
         connect_URL = bundle.getString("connect_URL");
         switch_ID = bundle.getString("switch_ID");
         port_no = bundle.getString("port_no");
-        controllerURLConnection = new ControllerURLConnection(connect_URL);
+        controllerURLConnection = new ControllerURLConnection(connect_URL, this);
         subscribe = new Subscribe(this, controllerURLConnection);
         initView();
         setListeners();
+        setRunnable();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        try {
+            controllerURLConnection.ssid = new AppFile(this).getSSID();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        thread_getContent = new Thread(runnable_getContent);
+        thread_getContent.start();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        thread_getContent.interrupt();
     }
 
     private void initView() {
@@ -73,49 +94,6 @@ public class FlowWarningActivity extends AppCompatActivity {
         textView_content = (TextView) findViewById(R.id.textView_content);
         button_submit = (Button) findViewById(R.id.button_submit);
         layout_scroll = (LinearLayout) findViewById(R.id.layout_croll);
-        //content資料
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    JSONArray contentArray = controllerURLConnection.getTopologySwitch(switch_ID)
-                            .getJSONObject(0).getJSONArray("ports");
-                    for (int i = 0; i < contentArray.length(); i++) {
-                        if (Integer.valueOf(contentArray.getJSONObject(i).getString("port_no"))
-                                .equals(Integer.valueOf(port_no))) {
-                            JSONObject content = contentArray.getJSONObject(i);
-                            String content_msg = "hw_addr: " + content.getString("hw_addr") + "\n";
-                            content_msg += "name: " + content.getString("name") + "\n";
-                            content_msg += "port_no: " + Integer.valueOf(content.getString("port_no")) + "\n";
-                            content_msg += "dpid: " + Integer.valueOf(content.getString("dpid")) + "\n";
-                            final String msg = content_msg;
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    textView_content.setText(msg);
-                                }
-                            });
-                            break;
-                        }
-                    }
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                layout_scroll.addView(new FlowWarnTableView(getApplicationContext(), connect_URL, switch_ID, port_no));
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
     }
 
     private void setListeners() {
@@ -199,4 +177,47 @@ public class FlowWarningActivity extends AppCompatActivity {
         });
     }
 
+    private void setRunnable() {
+        runnable_getContent = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    JSONArray contentArray = controllerURLConnection.getTopologySwitch(switch_ID)
+                            .getJSONObject(0).getJSONArray("ports");
+                    for (int i = 0; i < contentArray.length(); i++) {
+                        if (Integer.valueOf(contentArray.getJSONObject(i).getString("port_no"))
+                                .equals(Integer.valueOf(port_no))) {
+                            JSONObject content = contentArray.getJSONObject(i);
+                            String content_msg = "hw_addr: " + content.getString("hw_addr") + "\n";
+                            content_msg += "name: " + content.getString("name") + "\n";
+                            content_msg += "port_no: " + Integer.valueOf(content.getString("port_no")) + "\n";
+                            content_msg += "dpid: " + Integer.valueOf(content.getString("dpid")) + "\n";
+                            final String msg = content_msg;
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    textView_content.setText(msg);
+                                }
+                            });
+                            break;
+                        }
+                    }
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                layout_scroll.addView(new FlowWarnTableView(getApplicationContext(), connect_URL, switch_ID, port_no));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+    }
 }
